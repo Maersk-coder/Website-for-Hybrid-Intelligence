@@ -1,0 +1,90 @@
+/* TEXT: the left side of the animation section
+   (tagline, title, changing word, paragraph and buttons) */
+
+.animation-inner {
+  position: relative; /* above the drawings */
+  padding-block: 96px;
+}
+
+.animation-text { max-width: 580px; }
+
+.animation-tagline {
+  margin: 0 0 12px;
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--indigo);
+}
+
+.animation-section h1 {
+  margin: 0 0 6px;
+  font-size: clamp(44px, 6vw, 72px); /* grows with the screen width (vw), but stays between 44px and 72px */
+  font-weight: 300;
+  line-height: 1.1;
+}
+
+.animation-lead {
+  margin: 0 0 40px;
+  font-size: 16px;
+  color: rgba(10, 0, 51, 0.75);
+}
+
+.animation-buttons {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* ----- The changing word under the title (changing_word.js swaps the letters) ----- */
+.animation-cycle {
+  margin: 0 0 28px;
+  min-height: 1.4em;  /* em = relative to the font size; keeps the space while the word changes */
+  font-size: clamp(28px, 3.4vw, 42px);
+  font-weight: 300;
+  color: var(--indigo);
+}
+
+/* A soft highlight that wipes in behind the word once it has appeared */
+.cycle-word {
+  padding: 0 0.12em;
+  margin-left: -0.12em;
+  background: linear-gradient(rgba(63, 81, 181, 0.12), rgba(63, 81, 181, 0.12)) no-repeat left center / 0% 100%;
+  transition: background-size 0.7s cubic-bezier(0.6, 0, 0.2, 1);
+}
+.cycle-word.lit { background-size: 100% 100%; }
+
+/* Each letter blurs in, one after the other */
+.cycle-letter {
+  display: inline-block;
+  animation: letter-in 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  animation-delay: calc(var(--i) * 30ms); /* --i is the letter's place in the word, set by changing_word.js */
+}
+.cycle-letter.out {
+  animation: letter-out 0.4s ease both;
+  animation-delay: calc(var(--i) * 15ms);
+}
+
+@keyframes letter-in {
+  from { opacity: 0; filter: blur(10px); transform: translateY(0.25em); }
+}
+@keyframes letter-out {
+  to { opacity: 0; filter: blur(10px); transform: translateY(-0.2em); }
+}
+
+/* ----- The text rises into place one piece at a time when the page loads -----
+   "> *" means every direct child of .animation-text; nth-child(1) is the first one, and so on */
+.animation-text > * {
+  opacity: 0;
+  transform: translateY(18px);
+  animation: rise 0.9s ease forwards;
+}
+.animation-text > :nth-child(1) { animation-delay: 0.2s; }
+.animation-text > :nth-child(2) { animation-delay: 0.35s; }
+.animation-text > :nth-child(3) { animation-delay: 0.5s; }
+.animation-text > :nth-child(4) { animation-delay: 0.65s; }
+.animation-text > :nth-child(5) { animation-delay: 0.8s; }
+
+/* People who turn off motion: the text is simply there */
+@media (prefers-reduced-motion: reduce) {
+  .animation-text > *, .cycle-letter { opacity: 1; transform: none; animation: none; }
+}

@@ -1,0 +1,58 @@
+/* BASE: the foundation for the whole page (variables, page basics, the content column) */
+
+/* Variables 
+   A variable is a name for a value, so we write it once here and reuse it everywhere.
+   The name starts with --  and is used later as var(--name).
+   Example: var(--navy) means "use the navy color from below".
+   To change the navy across the whole site, change it here, once. */
+:root {
+  /* Colors */
+  --navy: #0a0033;
+  --navy-mid: #232d80;
+  --indigo: #3f51b5;
+  --lavender: #dde4f3;
+  --sky: #cbe0ee;
+  --grey-bg: #f2f0f1;
+  --white: #ffffff;
+
+  /* Font: Poppins first. If it can't load, the browser tries the next ones in the list. */
+  --font: "Poppins", system-ui, sans-serif;
+
+  /* Sizes */
+  --container: 1360px;   /* how wide the content column is */
+  --header-h: 72px;     /* how tall the top menu bar is */
+}
+
+/* Base: rules for the whole page */
+
+/* Makes width and height include padding and borders, so sizes are easier to predict */
+*, *::before, *::after { box-sizing: border-box; }
+
+/* Clicking a link that jumps down the page scrolls smoothly instead of snapping */
+html { 
+  scroll-behavior: smooth; 
+  scroll-snap-type: y mandatory;  /* scroll-snap is a CSS feature that makes the page "snap" to certain points when scrolling */
+  scroll-padding-top: var(--header-h);  /* when snapping, leave space for the header so it doesn't cover the top of the section */
+}
+
+section { scroll-snap-align: start; }  /* each section is a snap point */
+
+/* Everything on the page starts with this look */
+body {
+  margin: 0;
+  font-family: var(--font);
+  font-weight: 300;
+  color: var(--navy);
+  background: var(--grey-bg);
+  line-height: 1.5;
+}
+
+/* Links look like normal text: same color, no underline */
+a { color: inherit; text-decoration: none; }
+
+/* A centered column for content. Put it inside a section, and the text stays
+   in the middle of the screen while the section's background still fills the full width. */
+.container {
+  width: min(var(--container), 100% - 32px);  /* 1360px wide, or on small screens the full width with a small gap each side */
+  margin-inline: auto;
+}

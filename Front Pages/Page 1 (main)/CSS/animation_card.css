@@ -1,0 +1,51 @@
+/* CARD: the frosted glass card in the bottom right corner
+   (placeholder for the use case carousel) */
+
+.animation-card {
+  position: absolute;
+  right: max(16px, calc(50% - var(--container) / 2));
+  bottom: 88px;
+  width: 290px;
+  display: grid;
+  grid-template-columns: 1fr auto; /* two columns: the text takes the free space (1fr), the arrow only what it needs */
+  gap: 4px 12px;
+  padding: 16px 18px;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 10px 30px rgba(10, 0, 51, 0.06); /* soft shadow: 10px down, 30px blur */
+  transition: translate 0.3s ease, box-shadow 0.3s ease;
+
+  /* rises into place when the page loads, after the text */
+  opacity: 0;
+  transform: translateY(18px);
+  animation: rise 0.9s ease 1.2s forwards;
+}
+.animation-card:hover {
+  translate: 0 -3px; /* "translate" instead of "transform", so it doesn't clash with the load animation */
+  box-shadow: 0 14px 36px rgba(10, 0, 51, 0.1);
+}
+
+.card-label {
+  grid-column: 1 / -1;   /* spans all the columns */
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--indigo);
+}
+.card-title { font-size: 16px; font-weight: 400; }
+.card-text { grid-column: 1; font-size: 12px; color: rgba(10, 0, 51, 0.7); }
+.card-arrow { grid-column: 2; grid-row: 2 / 4; align-self: center; font-size: 16px; }
+
+/* On small screens the card sits under the content, at the bottom of the section */
+@media (max-width: 900px) {
+  .animation-card { position: relative; right: auto; bottom: auto; margin: auto 16px 88px; } /* "auto" on top pushes it to the bottom */
+}
+
+/* People who turn off motion: the card is simply there */
+@media (prefers-reduced-motion: reduce) {
+  .animation-card { opacity: 1; transform: none; animation: none; }
+}

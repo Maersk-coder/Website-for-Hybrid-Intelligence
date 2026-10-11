@@ -1,0 +1,34 @@
+/* BUTTONS: used all over the page */
+
+/* The basic pill-shaped button */
+.btn {
+  display: inline-block;
+  padding: 12px 28px;              /* space inside, between the text and the edge */
+  border-radius: 999px;            /* rounded corners; a very big number gives round pill ends */
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background-color 0.25s ease, transform 0.25s ease; /* changes happen smoothly over 0.25s instead of instantly */
+}
+
+/* Colour versions: add one of these next to "btn". ":hover" means "while the mouse is over it" */
+.btn-light { background: var(--white); color: var(--navy); }
+.btn-dark { background: var(--navy); color: var(--white); }
+.btn-dark:hover { background: var(--indigo); }
+
+/* Round arrow button that sits next to a normal button */
+.btn-arrow {
+  display: inline-grid;
+  place-items: center;             /* puts the arrow in the middle */
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--indigo);
+  color: var(--white);
+  font-size: 17px;
+  transition: transform 0.25s ease;
+}
+.btn-arrow:hover { transform: translateX(3px); } /* transform moves, scales or turns something; here 3px to the right */

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hybrid Intelligence</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <!-- Styles, split into parts. General first (used by the whole page), then the animation section (Page 1), then Page 2. -->
+  <link rel="stylesheet" href="General/CSS/base.css">
+  <link rel="stylesheet" href="General/CSS/buttons.css">
+  <link rel="stylesheet" href="General/CSS/header.css">
+  <link rel="stylesheet" href="Page 1 (main)/CSS/animation_section.css">
+  <link rel="stylesheet" href="Page 1 (main)/CSS/animation_grid.css">
+  <link rel="stylesheet" href="Page 1 (main)/CSS/animation_labels.css">
+  <link rel="stylesheet" href="Page 1 (main)/CSS/animation_text.css">
+  <link rel="stylesheet" href="Page 1 (main)/CSS/animation_card.css">
+  <!-- Page 2 (the section below the animation) -->
+  <link rel="stylesheet" href="Page 2/CSS/Page_2.css">
+</head>
+<body>
+
+  <!-- BOX 1: Header -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="#" class="logo">Hybrid Intelligence</a>
+      <nav class="main-nav" aria-label="Main">
+        <a href="#">Manifesto <span class="chevron">⌄</span></a>
+        <a href="#">Tools &amp; Frameworks <span class="chevron">⌄</span></a>
+        <a href="#">Research</a>
+        <a href="#">Use Cases</a>
+        <a href="#">Press</a>
+        <a href="#">FAQ</a>
+        <a href="#" class="btn btn-dark">Sign the Manifesto</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- BOX 2: Animation section -->
+  <section class="animation-section">
+    <!-- Background layers (decoration only) -->
+    <div class="animation-glow" aria-hidden="true"></div>
+    <canvas class="animation-canvas" aria-hidden="true"></canvas>  <!-- flowing contour lines + pointer lines -->
+    <canvas class="animation-cloud" aria-hidden="true"></canvas>   <!-- the 3D cloud of dots -->
+
+    <!-- Thin blueprint lines that draw themselves in -->
+    <div class="animation-grid" aria-hidden="true">
+      <span class="grid-line grid-top"></span>
+      <span class="grid-line grid-bottom"></span>
+      <span class="grid-line grid-left"></span>
+      <span class="grid-line grid-right"></span>
+      <span class="grid-node node-tl"></span>
+      <span class="grid-node node-tr"></span>
+      <span class="grid-node node-bl"></span>
+      <span class="grid-node node-br"></span>
+    </div>
+
+    <!-- Small labels pointing at the cloud: the four levels from the manifesto -->
+    <div class="animation-labels" aria-hidden="true">
+      <div class="animation-label"><span>01</span>Individual</div>
+      <div class="animation-label"><span>02</span>Workflow</div>
+      <div class="animation-label"><span>03</span>Organization</div>
+      <div class="animation-label"><span>04</span>Society &amp; Economy</div>
+    </div>
+
+    <div class="container animation-inner">
+      <div class="animation-text">
+        <p class="animation-tagline">Preserving Human Agency in a Sustainable World</p>
+        <h1>Hybrid Intelligence</h1>
+        <!-- This word changes in time with the shape of the cloud -->
+        <p class="animation-cycle" aria-hidden="true"><span class="cycle-word">Human creativity.</span></p>
+        <p class="animation-lead">Hybrid Intelligence combines human creativity, ethics, and contextual understanding with AI's scalability and efficiency. This collaboration enables solutions that neither could achieve alone.</p>
+        <div class="animation-buttons">
+          <a href="#" class="btn btn-dark">Sign the Manifesto</a>
+          <a href="#" class="btn-arrow" aria-label="Sign the Manifesto">→</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Frosted card in the corner (placeholder for the use case carousel) -->
+    <a href="#" class="animation-card">
+      <span class="card-label">Featured use case</span>
+      <span class="card-title">Stitch Fix</span>
+      <span class="card-text">The art and science of styling: a real test of Hybrid Intelligence.</span>
+      <span class="card-arrow">→</span>
+    </a>
+  </section>
+
+  <!-- PAGE 2: the section below the animation. Empty for now: its boxes go here. -->
+  <section class="page-2">
+  </section>
+
+  <!-- Three.js draws the 3D cloud of dots -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="General/JS/header_transparent.js"></script>
+  <script src="General/JS/section_jump.js"></script>
+
+  <!-- The animation section, split into parts. The order matters:
+       settings first, then the parts, and animation.js (which connects them) last. -->
+  <script src="Page 1 (main)/JS - Animations/settings.js"></script>
+  <script src="Page 1 (main)/JS - Animations/layout.js"></script>
+  <script src="Page 1 (main)/JS - Animations/shapes.js"></script>
+  <script src="Page 1 (main)/JS - Animations/dot_cloud.js"></script>
+  <script src="Page 1 (main)/JS - Animations/shape_timeline.js"></script>
+  <script src="Page 1 (main)/JS - Animations/changing_word.js"></script>
+  <script src="Page 1 (main)/JS - Animations/labels.js"></script>
+  <script src="Page 1 (main)/JS - Animations/background_lines.js"></script>
+  <script src="Page 1 (main)/JS - Animations/animation.js"></script>
+</body>
+</html>

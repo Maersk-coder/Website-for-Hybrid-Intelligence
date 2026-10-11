@@ -1,0 +1,61 @@
+/* BLUEPRINT LINES: thin lines with small squares where they cross.
+   They draw themselves in when the page loads. */
+
+.animation-grid {
+  position: absolute;
+  inset: 0;
+  pointer-events: none; /* clicks go straight through to what is underneath */
+  --grid-x: max(8px, calc(50% - var(--container) / 2 - 32px)); /* just outside the content column; calc() does maths, max() picks the bigger value */
+  --grid-bottom: 64px;
+}
+
+.grid-line {
+  position: absolute;
+  background: rgba(10, 0, 51, 0.08);
+}
+
+/* Lines across */
+.grid-top, .grid-bottom {
+  left: 0;
+  right: 0;
+  height: 1px;
+  transform-origin: left; /* the line grows out from its left end */
+  animation: draw-across 1.6s cubic-bezier(0.6, 0, 0.2, 1) 0.1s both; /* 1.6s long, starts after 0.1s; cubic-bezier is the speed curve */
+}
+.grid-top { top: var(--header-h); }
+.grid-bottom { bottom: var(--grid-bottom); }
+
+/* Lines down */
+.grid-left, .grid-right {
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  transform-origin: top;
+  animation: draw-down 1.6s cubic-bezier(0.6, 0, 0.2, 1) 0.3s both;
+}
+.grid-left { left: var(--grid-x); }
+.grid-right { right: var(--grid-x); }
+
+/* Small squares where the lines cross */
+.grid-node {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  border: 1px solid rgba(10, 0, 51, 0.3);
+  background: #f8f9fd;
+  transform: translate(-50%, -50%);
+  animation: fade-in 0.6s ease 1.5s both;
+}
+.node-tl { left: var(--grid-x); top: var(--header-h); }
+.node-tr { left: calc(100% - var(--grid-x)); top: var(--header-h); }
+.node-bl { left: var(--grid-x); top: calc(100% - var(--grid-bottom)); }
+.node-br { left: calc(100% - var(--grid-x)); top: calc(100% - var(--grid-bottom)); }
+
+@keyframes draw-across { from { transform: scaleX(0); } }
+@keyframes draw-down { from { transform: scaleY(0); } }
+
+/* People who turn off motion: the lines are simply there */
+@media (prefers-reduced-motion: reduce) {
+  .grid-line { opacity: 1; transform: none; animation: none; }
+  .grid-node { animation: none; }
+}

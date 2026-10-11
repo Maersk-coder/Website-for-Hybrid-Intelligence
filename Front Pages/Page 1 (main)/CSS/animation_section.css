@@ -1,0 +1,60 @@
+/* BOX 2: ANIMATION SECTION, the big first section of the page.
+   This file: the section itself, its background, and the two drawing surfaces.
+   The parts inside have their own files (grid, labels, text, card). */
+
+.animation-section {
+  position: relative;  /* the parts inside with "position: absolute" are placed within this section */
+  overflow: hidden;    /* anything sticking out past the edges is cut off */
+  min-height: 100vh;   /* vh = percent of the screen height, so at least one full screen */
+  display: flex;
+  align-items: center;
+  color: var(--navy);
+  background: linear-gradient(180deg, #f8f9fd 0%, #eef1fa 55%, #e3e9f7 100%); /* light, soft blue-white */
+}
+
+/* On small screens the content stacks from the top */
+@media (max-width: 900px) {
+  .animation-section { align-items: flex-start; flex-direction: column; }
+}
+
+/* Two soft coloured glows that drift slowly in the background */
+.animation-glow {
+  position: absolute;  /* placed freely on top of the section, outside the normal flow */
+  inset: -20%;         /* stretches 20% past every edge, so the drifting never shows an edge */
+  background:
+    radial-gradient(circle at 70% 40%, rgba(120, 140, 255, 0.22) 0%, transparent 35%),
+    radial-gradient(circle at 85% 80%, rgba(203, 224, 238, 0.9) 0%, transparent 30%),
+    radial-gradient(circle at 20% 90%, rgba(221, 228, 243, 0.9) 0%, transparent 35%);
+  animation: glow-drift 24s ease-in-out infinite alternate; /* plays "glow-drift" over 24s, forever, back and forth */
+}
+
+/* @keyframes describes a movement: here, where the glow ends up */
+@keyframes glow-drift {
+  to { transform: translate(-4%, 3%) scale(1.06); }
+}
+
+/* Both drawing surfaces fill the whole section
+   (.animation-canvas = lines, drawn by background_lines.js; .animation-cloud = dots, drawn by dot_cloud.js) */
+.animation-canvas,
+.animation-cloud {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* The contour lines fade slowly towards the left, so they stay soft behind the text.
+   A mask decides what shows: black = fully visible, see-through = hidden, in between = faded */
+.animation-canvas {
+  -webkit-mask-image: linear-gradient(to right, rgba(0, 0, 0, 0.42) 0%, black 70%);
+  mask-image: linear-gradient(to right, rgba(0, 0, 0, 0.42) 0%, black 70%);
+}
+
+/* ----- Shared movements, used by several parts of the section ----- */
+@keyframes fade-in { from { opacity: 0; } }             /* appear softly */
+@keyframes rise { to { opacity: 1; transform: none; } } /* slide up into place and appear */
+
+/* People who turn off motion in their system settings see everything standing still */
+@media (prefers-reduced-motion: reduce) {
+  .animation-glow { animation: none; }
+}

@@ -1,0 +1,6 @@
+/* PAGE 2: styles for the second part of the front page (the section below the animation). */
+
+.page-2 {
+  min-height: 100vh;          /* at least one full screen tall, so there is room to scroll down to it (even while it is empty) */
+  background: var(--white);   /* plain white for now, so you can see where Page 2 starts */
+}

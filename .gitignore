@@ -1,0 +1,11 @@
+# Files Git should ignore (not upload to GitHub)
+
+# Temporary lock files Word creates while a document is open
+~$*
+
+# Windows / OneDrive system files
+desktop.ini
+Thumbs.db
+
+# Editor settings
+.vscode/

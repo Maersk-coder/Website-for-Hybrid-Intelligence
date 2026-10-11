@@ -1,0 +1,46 @@
+/* LABELS: the four small boxes pointing at the cloud.
+   labels.js puts them in place and lights one up at a time. */
+
+.animation-labels {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  animation: fade-in 1s ease 2s both;
+}
+
+.animation-label {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 5px 10px;
+  border: 1px solid rgba(10, 0, 51, 0.12);
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;   /* keeps the text on one line */
+  transition: border-color 0.6s ease, background-color 0.6s ease;
+}
+.animation-label span { color: var(--indigo); } /* the number, e.g. "01" */
+
+/* the label that is lit up right now */
+.animation-label.active {
+  border-color: rgba(63, 81, 181, 0.5);
+  background: rgba(255, 255, 255, 0.9);
+}
+
+/* No labels on small screens */
+@media (max-width: 900px) {
+  .animation-labels { display: none; }
+}
+
+/* People who turn off motion: the labels are simply there */
+@media (prefers-reduced-motion: reduce) {
+  .animation-labels { opacity: 1; transform: none; animation: none; }
+}
