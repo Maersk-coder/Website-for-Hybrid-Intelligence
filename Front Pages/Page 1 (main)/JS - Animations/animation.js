@@ -82,8 +82,10 @@
     requestAnimationFrame(loop);
   }
 
-  // stop drawing while the section is scrolled out of view (saves battery)
-  new IntersectionObserver(([entry]) => (running = entry.isIntersecting)).observe(section);
+  // stop drawing while the section is scrolled out of view (saves battery, and keeps the rest of the page quick).
+  // It only counts as "in view" when at least 1% of it is on screen. (When Page 2 fills the screen, Page 1's
+  // bottom edge still touches the top of the screen, and the browser would otherwise count that as "in view".)
+  new IntersectionObserver(([entry]) => (running = entry.intersectionRatio >= 0.01), { threshold: 0.01 }).observe(section);
 
   window.addEventListener("resize", () => {
     fit();

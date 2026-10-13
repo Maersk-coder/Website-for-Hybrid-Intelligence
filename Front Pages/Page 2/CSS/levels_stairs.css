@@ -8,6 +8,7 @@
   align-items: end;  /* the steps align to the bottom of the staircase */
   height: clamp(180px, 34vh, 340px);  /* the staircase grows with the screen size, but not too small or too big */
   border-bottom: 1px solid var(--navy);  /* a line under the staircase */
+  cursor: pointer;  /* the whole staircase area reacts to the mouse (see levels_panel.js), so show the hand everywhere */
 }
 
 /* One step. Its height and colours come from the step-1 ... step-4 rules below. */
@@ -25,7 +26,7 @@
   font: inherit;                           /* buttons don't use the page font by themselves */
   cursor: pointer;                         /* the hand cursor, to show it can be pointed at */
   position: relative;                       /* for the hover effect below */
-  transition: opacity 0.3s; /* fade in/out when hovering */
+  /* no transition: dims and brightens instantly, so it keeps up with the mouse */
 }
 
 /* Each step: how tall (percent of the staircase), its colour, and its text colour */
@@ -50,7 +51,7 @@
   border-radius: 50%;  /* make it round */
   background: var(--navy);
   transform: scale(0);  /* start invisible */
-  transition: transform 0.3s;  /* fade in/out when hovering */
+  /* no transition: appears instantly */
 }
 
 .step.is-active::after{

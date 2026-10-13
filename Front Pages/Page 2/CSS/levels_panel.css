@@ -16,13 +16,14 @@
    gap: 32px;  /* space between the two columns */
    opacity: 0;  /* hide the part by default */
    visibility: hidden;  /* hide the part by default */
-   transition: opacity 0.3s, visibility 0.3s;  /* fade in/out when switching parts */
+   /* no transition here: the part you leave disappears instantly, so two texts never overlap */
 }
 
 /* The part that is shown right now (the one with "is-shown" in the HTML) */
 .panel-part.is-shown{
    opacity: 1;  /* show the part */
    visibility: visible;  /* show the part */
+   /* no transition: switches instantly */
 }
 
 .panel-part p{
