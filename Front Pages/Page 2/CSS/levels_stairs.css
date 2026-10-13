@@ -1,0 +1,84 @@
+/* PAGE 2 · STAIRCASE: the four coloured steps standing on the ground line */
+
+/* ----- The staircase ----- */
+.levels-stairs{
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);  /* four equal columns */
+  gap: 12px;  /* space between the steps */
+  align-items: end;  /* the steps align to the bottom of the staircase */
+  height: clamp(180px, 34vh, 340px);  /* the staircase grows with the screen size, but not too small or too big */
+  border-bottom: 1px solid var(--navy);  /* a line under the staircase */
+}
+
+/* One step. Its height and colours come from the step-1 ... step-4 rules below. */
+.step {
+  height: var(--step-height);
+  background: var(--step-color);
+  color: var(--step-text);
+  border: 0;
+  border-radius: 10px 10px 0 0;            /* round only the top two corners */
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;                  /* number on top, title under it */
+  gap: 4px;
+  text-align: left;
+  font: inherit;                           /* buttons don't use the page font by themselves */
+  cursor: pointer;                         /* the hand cursor, to show it can be pointed at */
+  position: relative;                       /* for the hover effect below */
+  transition: opacity 0.3s; /* fade in/out when hovering */
+}
+
+/* Each step: how tall (percent of the staircase), its colour, and its text colour */
+.step-1 { --step-height: 38%; --step-color: var(--level-1); --step-text: var(--navy); }
+.step-2 { --step-height: 54%; --step-color: var(--level-2); --step-text: var(--white); }
+.step-3 { --step-height: 70%; --step-color: var(--level-3); --step-text: var(--white); }
+.step-4 { --step-height: 86%; --step-color: var(--level-4); --step-text: var(--white); }
+
+/* While a step is chosen, the other steps fade back a little */
+.levels-zone.has-active .step:not(.is-active) {
+  opacity: 0.5;
+}
+
+/* A small dot under the ground line marks the chosen step */
+.step::after{
+  content: "";
+  position: absolute;
+  left: calc(50% - 5px);  /* center the dot under the step */
+  bottom: -17px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;  /* make it round */
+  background: var(--navy);
+  transform: scale(0);  /* start invisible */
+  transition: transform 0.3s;  /* fade in/out when hovering */
+}
+
+.step.is-active::after{
+  transform: scale(1);  /* make the dot visible */
+}
+
+/* Keyboard users see a clear outline on the step they tabbed to */
+.step:focus-visible {
+  outline: 2px solid var(--indigo);
+  outline-offset: 3px;
+}
+
+.step-number {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.14em; /* space between the letters */
+  opacity: 0.8; /* make the number a little lighter than the title */
+}
+
+.step-title {
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 1.2;
+}
+
+/* Phones and narrow screens: smaller steps and text */
+@media (max-width: 760px) {
+  .levels-stairs { gap: 6px; }
+  .step { padding: 10px 8px; }
+  .step-title { font-size: 13px; }
+}

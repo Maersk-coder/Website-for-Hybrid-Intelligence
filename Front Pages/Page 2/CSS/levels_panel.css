@@ -1,0 +1,116 @@
+/* PAGE 2 · PANEL: the area under the ground line.
+   Shows the intro text, or one level when a step is pointed at. */
+
+.levels-panel{
+   display: grid;
+   padding-top: 20px; /* space between the ground line and the panel */
+}
+
+/* One part of the panel (the intro, or one level).
+   All five parts are put in the SAME spot, on top of each other. That way the panel is always
+   as tall as its tallest part, and the page doesn't jump when the parts switch. */
+.panel-part{
+   grid-area: 1 / 1;  /* put all the parts in the same spot */
+   display: grid;
+   grid-template-columns: minmax(0,1fr) minmax(0,300px);   /* two equal columns, but they can shrink to zero if the screen is too narrow */
+   gap: 32px;  /* space between the two columns */
+   opacity: 0;  /* hide the part by default */
+   visibility: hidden;  /* hide the part by default */
+   transition: opacity 0.3s, visibility 0.3s;  /* fade in/out when switching parts */
+}
+
+/* The part that is shown right now (the one with "is-shown" in the HTML) */
+.panel-part.is-shown{
+   opacity: 1;  /* show the part */
+   visibility: visible;  /* show the part */
+}
+
+.panel-part p{
+   margin: 0; /* remove the default space above and below paragraphs */
+}
+
+/* ----- Left side: the main text ----- */
+.panel-main{
+   display: grid;
+   gap: 6px;  /* space between the paragraphs */
+   align-content: start;  /* align the paragraphs to the top of the panel */
+}
+
+.panel-intro{
+   gap: 12px;  /* space between the paragraphs */
+   max-width:62ch;  /* ch = the width of the "0" character in the current font. 62ch is a good line length for reading */ 
+}
+
+.panel-intro p{
+   font-size: 15px;
+   opacity: 0.75;  /* opacity = how much the text is visible */
+}
+
+.panel-eyebrow{
+   font-size: 13px;
+   font-weight: 500;
+   letter-spacing: 0.04em;  /* space between the letters */
+   color: var(--indigo);
+}
+
+.panel-main h3 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 300;
+}
+.panel-subtitle {
+  font-size: 14px;
+  font-style: italic;
+  opacity: 0.75;
+}
+
+/* The four topics, as small rounded "chips" instead of a bullet list */
+.panel-topics {
+  list-style: none;                 /* removes the bullet points */
+  margin: 8px 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;                  /* chips move to the next line if they don't fit */
+  gap: 8px;
+}
+.panel-topics li {
+  font-size: 13px;
+  padding: 5px 12px;
+  border: 1px solid rgba(10, 0, 51, 0.2);   /* navy, but only 20% visible: a soft line */
+  border-radius: 999px;             /* a very big rounding = fully round ends */
+  background: rgba(255, 255, 255, 0.6);
+}
+
+/* ----- Right side: the Grand Challenge (or the hint, for the intro) ----- */
+.panel-side {
+  display: grid;
+  gap: 4px;
+  align-content: start;
+  border-left: 1px solid rgba(10, 0, 51, 0.2);  /* thin line separating it from the main text */
+  padding-left: 24px;
+}
+.panel-label {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  opacity: 0.7;
+}
+.panel-side-title {
+  font-size: 14px;
+  font-weight: 500;
+}
+.panel-side-text {
+  font-size: 13.5px;
+  line-height: 1.45;
+  opacity: 0.75;
+}
+.hint-arrow {
+  color: var(--indigo);
+}
+
+/* Phones and narrow screens: the side box moves under the main text instead of next to it */
+@media (max-width: 760px) {
+  .panel-part { grid-template-columns: 1fr; gap: 16px; }
+  .panel-side { border-left: 0; padding-left: 0; border-top: 1px solid rgba(10, 0, 51, 0.2); padding-top: 14px; }
+}
+

@@ -32,7 +32,6 @@
 html { 
   scroll-behavior: smooth; 
   scroll-snap-type: y mandatory;  /* scroll-snap is a CSS feature that makes the page "snap" to certain points when scrolling */
-  scroll-padding-top: var(--header-h);  /* when snapping, leave space for the header so it doesn't cover the top of the section */
 }
 
 section { scroll-snap-align: start; }  /* each section is a snap point */

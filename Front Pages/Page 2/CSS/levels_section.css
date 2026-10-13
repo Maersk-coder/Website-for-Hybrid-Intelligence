@@ -1,0 +1,61 @@
+/* PAGE 2 · SECTION: the section itself, the heading and the footnote.
+   The staircase is in levels_stairs.css, the panel under it in levels_panel.css. */
+
+/* ----- The section itself ----- */
+.page-2 {
+  min-height: 100vh;  /* the section is at least as tall as the screen */
+  display: flex;  /* flexbox lets the column inside fill the whole height of the section */
+  padding-top: calc(var(--header-h) + 40px);  /* room for the menu bar, plus 40px of extra space above the heading */
+  padding-bottom: 32px;  /* a little space at the bottom of the section */
+  background: var(--grey-bg);  /* the section's background color */
+  color: var(--navy);  /* the section's text color */
+
+  /* The four level colours, light (1) to dark (4), from the reference.
+     They're set here, so they only exist inside Page 2. */
+
+  --level-1:#dbe5f4;
+  --level-2:#3b5bbf;
+  --level-3:#232d80;
+  --level-4:#0a0033;
+}
+
+/* The column holding everything: heading, staircase + panel, footnote */
+.levels{
+  display:grid;
+  grid-template-rows: auto 1fr auto;  /* 3 rows: heading (as tall as it needs), staircase + panel (all the space left), footnote (as tall as it needs) */
+  gap:28px; /* space between the 3 parts*/
+}
+
+/* The staircase + panel sits in the middle of its row, so it stays centred on the screen
+   while the heading stays up at the top */
+.levels-zone {
+  align-self: center;
+}
+
+/* ----- Heading ----- */
+.levels-head {
+  display:grid;
+  gap:6px; /* space between the heading and the subheading */
+}
+
+.levels-eyebrow {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--indigo);
+}
+
+.levels-head h2 {
+  margin: 0;
+  font-size: clamp(28px, 3.4vw, 44px);  /* the heading grows with the screen size, but not too small or too big */
+  font-weight: 300;
+  line-height: 1.15;
+}
+
+/* ----- Footnote ----- */
+.levels-note {
+  margin: 0;
+  font-size: 13px;
+  opacity: 0.7;  /* a little lighter than the rest of the text */
+  max-width: 820px;
+}

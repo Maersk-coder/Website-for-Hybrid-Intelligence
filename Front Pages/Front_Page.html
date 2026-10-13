@@ -16,8 +16,10 @@
   <link rel="stylesheet" href="Page 1 (main)/CSS/animation_labels.css">
   <link rel="stylesheet" href="Page 1 (main)/CSS/animation_text.css">
   <link rel="stylesheet" href="Page 1 (main)/CSS/animation_card.css">
-  <!-- Page 2 (the section below the animation) -->
-  <link rel="stylesheet" href="Page 2/CSS/Page_2.css">
+  <!-- Page 2: the four levels (section first, then the staircase, then the panel) -->
+  <link rel="stylesheet" href="Page 2/CSS/levels_section.css">
+  <link rel="stylesheet" href="Page 2/CSS/levels_stairs.css">
+  <link rel="stylesheet" href="Page 2/CSS/levels_panel.css">
 </head>
 <body>
 
@@ -87,17 +89,146 @@
     </a>
   </section>
 
-  <!-- PAGE 2: the section below the animation. Empty for now: its boxes go here. -->
+    <!-- PAGE 2: the four levels, shown as a staircase. Pointing at a step shows its details in the panel underneath. -->
   <section class="page-2">
+    <div class="container levels">
+
+      <!-- Heading -->
+      <div class="levels-head">
+        <p class="levels-eyebrow">Four levels, from the individual to society</p>
+        <h2>What is Hybrid Intelligence?</h2>
+      </div>
+
+      <!-- The staircase and the panel under it. Moving the mouse out of this area brings the intro text back. -->
+      <div class="levels-zone">
+
+
+        <!-- The four steps, standing on a ground line. "data-level" tells the JavaScript which level a step is. -->
+        <div class="levels-stairs">
+          <button class="step step-1" type="button" data-level="1"><span class="step-number">01</span><span class="step-title">Individual</span></button>
+          <button class="step step-2" type="button" data-level="2"><span class="step-number">02</span><span class="step-title">Workflow</span></button>
+          <button class="step step-3" type="button" data-level="3"><span class="step-number">03</span><span class="step-title">Organization</span></button>
+          <button class="step step-4" type="button" data-level="4"><span class="step-number">04</span><span class="step-title">Society &amp; Economy</span></button>
+        </div>
+
+        <!-- The panel under the ground line. It has five parts, and only one is shown at a time:
+             the intro text (level 0), or one of the four levels. -->
+        <div class="levels-panel">
+
+          <!-- Level 0: Intro text -->
+            <div class="panel-part is-shown" data-level="0">
+              <div class="panel-main panel-intro">
+                <p>The world stands at a crossroads. The AI-first narrative promises limitless speed and automation but risks eroding human meaning, agency, and creative sovereignty. Hybrid Intelligence offers another path.</p>
+                <p>It redefines progress as a partnership between human and artificial intelligence – uniting human imagination, judgment, and ethics with AI's analytical reach and scalability.</p>
+            </div>
+            <div class="panel-side">
+              <p class="panel-label">Explore the four levels</p>
+              <p class="panel-side-text"><span class="hint-arrow">↑</span> Point at a step to see what each level covers and which challenge it answers.</p>
+            </div>
+        </div>
+
+                   <!-- Level 1 -->
+          <div class="panel-part" data-level="1">
+            <div class="panel-main">
+              <p class="panel-eyebrow">Level 01</p>
+              <h3>Individual</h3>
+              <p class="panel-subtitle">How humans interact with and learn from AI</p>
+              <ul class="panel-topics">
+                <li>Metacognition</li>
+                <li>Question asking</li>
+                <li>AI literacy</li>
+                <li>Skill development</li>
+              </ul>
+            </div>
+            <div class="panel-side">
+              <p class="panel-label">Grand challenge</p>
+              <p class="panel-side-title">Educational challenge</p>
+              <p class="panel-side-text">Prepare individuals with the mindsets, skills and literacy for the age of hybrid intelligence.</p>
+            </div>
+          </div>
+
+          <!-- Level 2 -->
+          <div class="panel-part" data-level="2">
+            <div class="panel-main">
+              <p class="panel-eyebrow">Level 02</p>
+              <h3>Workflow</h3>
+              <p class="panel-subtitle">How human and AI contributions are coordinated</p>
+              <ul class="panel-topics">
+                <li>Judgment allocation</li>
+                <li>Human oversight</li>
+                <li>Authorship &amp; accountability</li>
+                <li>Process design</li>
+              </ul>
+            </div>
+            <div class="panel-side">
+              <p class="panel-label">Grand challenge</p>
+              <p class="panel-side-title">Interface challenge</p>
+              <p class="panel-side-text">Design interfaces and interactions that support trust, transparency and joint performance.</p>
+            </div>
+          </div>
+
+          <!-- Level 3 -->
+          <div class="panel-part" data-level="3">
+            <div class="panel-main">
+              <p class="panel-eyebrow">Level 03</p>
+              <h3>Organization</h3>
+              <p class="panel-subtitle">How organizations enable effective human–AI collaboration</p>
+              <ul class="panel-topics">
+                <li>Governance</li>
+                <li>Culture</li>
+                <li>Capability</li>
+                <li>Operational maturity</li>
+              </ul>
+            </div>
+            <div class="panel-side">
+              <p class="panel-label">Grand challenge</p>
+              <p class="panel-side-title">Organizational challenge</p>
+              <p class="panel-side-text">Build organizations that enable and scale effective human–AI collaboration.</p>
+            </div>
+          </div>
+
+          <!-- Level 4 -->
+          <div class="panel-part" data-level="4">
+            <div class="panel-main">
+              <p class="panel-eyebrow">Level 04</p>
+              <h3>Society &amp; Economy</h3>
+              <p class="panel-subtitle">How hybrid intelligence creates societal value</p>
+              <ul class="panel-topics">
+                <li>Institutions</li>
+                <li>Markets</li>
+                <li>Human capital</li>
+                <li>Participation</li>
+              </ul>
+            </div>
+            <div class="panel-side">
+              <p class="panel-label">Grand challenge</p>
+              <p class="panel-side-title">Societal challenge</p>
+              <p class="panel-side-text">Align hybrid intelligence with societal needs and sustainable value creation.</p>
+            </div>
+          </div>
+
+        </div> <!-- end of levels-panel -->
+      </div> <!-- end of levels-zone -->
+
+      <!-- Footnote -->
+      <p class="levels-note">These four levels are interdependent. Hybrid intelligence emerges when human and AI capabilities are deliberately coordinated across all levels to verifiably improve human judgment and create value.</p>
+
+
+    </div>
+
   </section>
 
-  <!-- Three.js draws the 3D cloud of dots -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- ===== SCRIPTS: what makes the page move and react =====
+       Grouped like the styles at the top: General first, then Page 1, then Page 2. -->
+
+  <!-- General: used by the whole page -->
   <script src="General/JS/header_transparent.js"></script>
   <script src="General/JS/section_jump.js"></script>
 
-  <!-- The animation section, split into parts. The order matters:
-       settings first, then the parts, and animation.js (which connects them) last. -->
+  <!-- Page 1: the animation section. The order matters:
+       Three.js first (it draws the 3D cloud of dots), then settings, then the parts,
+       and animation.js (which connects them) last. -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="Page 1 (main)/JS - Animations/settings.js"></script>
   <script src="Page 1 (main)/JS - Animations/layout.js"></script>
   <script src="Page 1 (main)/JS - Animations/shapes.js"></script>
@@ -107,5 +238,10 @@
   <script src="Page 1 (main)/JS - Animations/labels.js"></script>
   <script src="Page 1 (main)/JS - Animations/background_lines.js"></script>
   <script src="Page 1 (main)/JS - Animations/animation.js"></script>
+
+  <!-- Page 2: the four levels -->
+  <script src="Page 2/JS/levels_panel.js"></script>
+  <script src="Page 2/JS/levels_build.js"></script>
+
 </body>
 </html>
