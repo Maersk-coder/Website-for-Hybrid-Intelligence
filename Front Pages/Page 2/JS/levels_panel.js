@@ -3,7 +3,6 @@
 
 (() => { // everything inside this "wrapper" is private to this file, so names can't clash with other scripts
     const zone = document.querySelector(".levels-zone");  // the staircase + panel
-    const stairs = zone.querySelector(".levels-stairs");  // the staircase (all four columns, up to the ground line)
     const steps = zone.querySelectorAll(".step");  // the four steps of the staircase
     const parts = zone.querySelectorAll(".panel-part");  // the five panel parts (intro + 4 levels)
     const panel = zone.querySelector(".levels-panel");  // the panel under the ground line
@@ -21,23 +20,18 @@
         zone.classList.toggle("has-active", level !== "0");
     }
 
-    // Which step is under the mouse? Each step owns its WHOLE column, from the top of the staircase
-    // down to the ground line (also the empty space above the shorter steps, and the gaps between them).
-    function stepUnder(mouseX) {
-        const box = stairs.getBoundingClientRect();  // where the staircase is on the screen
-        const column = Math.floor(((mouseX - box.left) / box.width) * steps.length);  // 0, 1, 2 or 3
-        return steps[Math.min(Math.max(column, 0), steps.length - 1)];  // never outside 0-3
-    }
-
-    // Moving the mouse anywhere over the staircase picks the step in that column, instantly
-    stairs.addEventListener("mousemove", (event) => showPanelPart(stepUnder(event.clientX).dataset.level));
-
-    // Leaving the staircase: down into the panel keeps the level (so it can be read), anywhere else shows the intro
-    stairs.addEventListener("mouseleave", (event) => {
-        if (!panel.contains(event.relatedTarget)) showPanelPart("0");
+    // Every time the mouse moves onto something new inside the staircase + panel area:
+    zone.addEventListener("mouseover", (event) => {
+        const step = event.target.closest(".step");  // the step the mouse is on (or null if it's not on a step)
+        if (step) {
+            showPanelPart(step.dataset.level);  // on a step: show its level
+        } else if (!panel.contains(event.target)) {
+            showPanelPart("0");  // the empty space above the steps: back to the intro
+        }
+        // in the panel: keep showing what's shown, so it can be read
     });
 
-    // Leaving the panel too (the whole area) brings the intro back
+    // Leaving the whole area (steps AND panel) brings the intro back
     zone.addEventListener("mouseleave", () => showPanelPart("0"));
 
     // Keyboard (tabbing to a step) and phones (tapping a step)

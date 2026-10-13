@@ -8,7 +8,6 @@
   align-items: end;  /* the steps align to the bottom of the staircase */
   height: clamp(180px, 34vh, 340px);  /* the staircase grows with the screen size, but not too small or too big */
   border-bottom: 1px solid var(--navy);  /* a line under the staircase */
-  cursor: pointer;  /* the whole staircase area reacts to the mouse (see levels_panel.js), so show the hand everywhere */
 }
 
 /* One step. Its height and colours come from the step-1 ... step-4 rules below. */
@@ -52,6 +51,18 @@
   background: var(--navy);
   transform: scale(0);  /* start invisible */
   /* no transition: appears instantly */
+}
+
+/* An invisible strip 6px wide on each side of every step. Together they fill the 12px gap between
+   two steps, so moving the mouse sideways from one step to the next never touches "empty space"
+   (which would briefly bring back the intro text). */
+.step::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -6px;
+  right: -6px;
 }
 
 .step.is-active::after{
