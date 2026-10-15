@@ -9,8 +9,18 @@
   height: var(--header-h);
   background: transparent;
   color: var(--navy);
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease,
+              opacity 0.4s ease, translate 0.4s ease, visibility 0.4s;   /* fading and sliding away/back (see .is-hidden below) */
+
 }
+
+/* added by header_hide.js on Pages 3 and 4: the menu bar fades away and drifts up a little */
+.site-header.is-hidden {
+  opacity: 0;              /* invisible */
+  translate: 0 -12px;      /* 12px higher than normal (first number = left/right, second = up/down) */
+  visibility: hidden;      /* and can't be clicked or tabbed to while it's gone */
+}
+
 
 /* added by header_transparent.js once the page is scrolled: frosted white glass */
 .site-header.scrolled {
