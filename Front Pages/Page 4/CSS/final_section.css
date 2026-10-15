@@ -6,7 +6,7 @@
 .page-4 {
   min-height: 100vh;                           /* one full screen tall */
   display: flex;                               /* lets the content fill the whole height, so the bottom line sits at the bottom */
-  padding-top: calc(var(--header-h) + 40px);   /* the same room for the menu bar as the other pages */
+  padding-top: calc(var(--header-h) + 80px);   /* room for the menu bar, plus 80px of extra space above the content */
   padding-bottom: 32px;
   background: var(--navy);                     /* dark navy, like the footer in your reference picture */
   color: var(--white);                         /* light text on the dark background */
@@ -21,6 +21,13 @@
 }
 
 /* ----- Left column ----- */
+.final-intro {
+  display: grid;
+  align-content: start;                        /* keep everything at the top, at its own height (don't stretch to fill the page) */
+  justify-items: start;                        /* everything lines up on the left edge ... */
+  width: fit-content;                          /* ... and the column is only as wide as its widest part (the text),
+                                                  so the logo below can be centred under the text and buttons */
+}
 .final-intro h2 {
   margin: 0 0 64px;                            /* 64px of space under the title */
   font-size: clamp(32px, 3vw, 44px);
@@ -38,6 +45,15 @@
   display: flex;
   flex-wrap: wrap;                             /* on narrow screens the second button moves under the first */
   gap: 12px;
+}
+
+/* The HI logo, under the buttons: just the white mark, on a see-through background, so it sits right on the navy */
+.final-logo {
+  justify-self: center;                        /* centred under the text and the two buttons ... */
+  translate: -40px 0;                          /* ... then nudged 40px to the left (first number = left/right, second = up/down) */
+  height: clamp(140px, 27vh, 270px);           /* grows with the screen height: at least 140px, at most 270px tall */
+  width: auto;                                 /* the width follows the height, so the logo keeps its shape */
+  margin-top: 40px;                            /* space between the buttons and the logo */
 }
 
 /* ----- Right column ----- */
