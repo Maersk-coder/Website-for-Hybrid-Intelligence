@@ -72,29 +72,29 @@
 }
 
 /* When each step starts growing: One after another, from 01 to 04 */
-.step-1 { --delay: 0.1s;}
-.step-2 { --delay: 0.3s;}
-.step-3 { --delay: 0.5s;}
-.step-4 { --delay: 0.7s;}
+.step-1 { --delay: 0s;}
+.step-2 { --delay: 0.12s;}
+.step-3 { --delay: 0.24s;}
+.step-4 { --delay: 0.36s;}
 
 /* building: Each step grows from the ground to its full height, one after another. The text under the steps fades in at the same time as the last step. */
 .levels.is-building .step {
   transform-origin: bottom;               /* grow from the bottom edge, not from the middle */
-  animation: levels-grow 0.7s cubic-bezier(0.3, 0.7, 0.2, 1) var(--delay) backwards; /* cubic-bezier is the speed curve; backwards = while waiting for its delay, the step already looks flat (the "from" state) */
+  animation: levels-grow 0.45s cubic-bezier(0.3, 0.7, 0.2, 1) var(--delay) backwards; /* cubic-bezier is the speed curve; backwards = while waiting for its delay, the step already looks flat (the "from" state) */
 }
 
 /* The number and title inside each step fade in once their step has grown to full height. The text under the steps fades in at the same time as the last step. */
 .levels.is-building .step > span {
-  animation: levels-fade 0.4s calc(var(--delay) + 0.45s) backwards;  /* the text fades in after its step has grown to full height */
+  animation: levels-fade 0.25s calc(var(--delay) + 0.28s) backwards;  /* the text fades in after its step has grown to full height */
 }
 
 /* Then the text under the ground line rises in, and lastly the footnote fades in. The text under the steps fades in at the same time as the last step. */
 .levels.is-building .levels-panel {
-  animation: levels-rise 0.6s ease 1.3s backwards;  /* the text under the steps rises in after the last step has grown to full height */
+  animation: levels-rise 0.4s ease 0.7s backwards;  /* the text under the steps rises in after the last step has grown to full height */
 }
 
 .levels.is-building .levels-note {
-  animation: levels-fade 0.6s 1.6s backwards;  /* the footnote fades in after the text under the steps has risen in */
+  animation: levels-fade 0.4s 0.9s backwards;  /* the footnote fades in after the text under the steps has risen in */
 }
 
 /* The moment themselves. "From" = how it starts. */
