@@ -20,6 +20,7 @@ function sectionOnScreen() {
 
 window.addEventListener("wheel", (event) => {
   if (event.ctrlKey) return;  // Ctrl + wheel = zoom in/out, so leave that alone
+  if (document.querySelector("dialog[open]")) return; // a pop-up is open: let the wheel scroll the pop-up, not jump between pages
   event.preventDefault();     // stop the browser's normal, slow scrolling
 
   // Mostly sideways (a trackpad often sends a few of these)? Not up or down, so ignore it.

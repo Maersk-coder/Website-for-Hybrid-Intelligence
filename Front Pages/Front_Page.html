@@ -22,6 +22,9 @@
   <link rel="stylesheet" href="Page 2/CSS/levels_panel.css">
   <!-- Page 3 -->
   <link rel="stylesheet" href="Page 3/CSS/page_3_section.css">
+  <!-- Page 4 -->
+  <link rel="stylesheet" href="Page 4/CSS/final_section.css">
+  <link rel="stylesheet" href="Page 4/CSS/coauthors_popup.css">
 </head>
 <body>
 
@@ -224,6 +227,66 @@
   <section class="page-3">
   </section>
 
+  <!-- PAGE 4: the final page. Who we are, the HI centres, contact, and the co-authors pop-up. -->
+  <section class="page-4">
+    <div class="container final">
+
+      <!-- Left column: the name, a short text, and two buttons -->
+      <div class="final-intro">
+        <h2>Hybrid Intelligence</h2>
+        <p>Organizations are aggressively seeking to cut costs with AI. But they fail to understand the consequences. Take part in making the world understand, that human expertise can't be replaced by AI.</p>
+        <div class="final-buttons">
+          <a href="#" class="btn btn-outline">Sign up for newsletter</a>
+          <!-- This one opens the co-authors pop-up (step 5). It's a <button>, because it does something on the page instead of going to another page. -->
+          <button type="button" class="btn btn-outline" id="coauthors-open">Co-authors</button>
+        </div>
+      </div>
+
+      <!-- Right column: the HI centres, and contact details -->
+      <div class="final-info">
+        <h3>Hybrid Intelligence centers and research groups</h3>
+        <ul class="final-links">
+          <li><a href="#">Center for Hybrid Intelligence at Aarhus University</a></li>
+          <li><a href="#">HI Research Programme at University of Oulu</a></li>
+          <li><a href="#">The Hybrid Intelligence Centre at Vrije Universiteit</a></li>
+          <li><a href="#">The Hybrid Intelligence research group at Lund University</a></li>
+        </ul>
+
+        <div class="final-contact">
+          <p class="final-contact-title">Part of Aarhus University<br>Department of Management</p>
+          <p>Universitetsbyen 61<br>8000 Aarhus C<br>Denmark</p>
+          <p><a href="#">Follow us on LinkedIn</a></p>
+          <p><a href="#">Privacy Policy</a></p>
+        </div>
+      </div>
+
+      <!-- Bottom line, across the whole width -->
+      <div class="final-bottom">
+        <p>&copy; 2026</p>
+        <p>Maintained by the Center for Hybrid Intelligence, Aarhus University BSS</p>
+      </div>
+
+    </div>
+  </section>
+
+   <!-- CO-AUTHORS POP-UP: hidden until the "Co-authors" button on Page 4 opens it.
+       <dialog> is HTML's built-in pop-up: the browser shows it on top of everything and dims the page behind it. -->
+  <dialog class="coauthors" id="coauthors" aria-labelledby="coauthors-title">
+    <!-- The white box. Clicking anywhere OUTSIDE this box (on the dimmed page) closes the pop-up. -->
+    <div class="coauthors-box">
+
+      <div class="coauthors-head">
+            <h2 id="coauthors-title">Co-authors</h2>
+          <!-- The X in the corner. "aria-label" tells screen readers what the × means. -->
+        <button type="button" class="coauthors-close" id="coauthors-close" aria-label="Close">&times;</button>
+      </div>
+      
+      <!-- Empty on purpose: coauthors_popup.js fills it with the names from coauthors_list.js -->
+      <ul class="coauthors-list" id="coauthors-list"></ul>
+    </div>
+    </dialog>
+
+
     <!-- ===== SCRIPTS: what makes the page move and react =====
        Grouped like the styles at the top: General first, then each page in order (Page 1, Page 2, ...). -->
 
@@ -248,6 +311,17 @@
   <!-- Page 2: the four levels -->
   <script src="Page 2/JS/levels_panel.js"></script>
   <script src="Page 2/JS/levels_build.js"></script>
+
+
+
+
+
+  <!-- Page 4: the co-authors pop-up. The list first, because the pop-up script uses it. -->
+  <script src="Page 4/JS/coauthors_list.js"></script>
+  <script src="Page 4/JS/coauthors_popup.js"></script>
+
+
+
 
 </body>
 </html>

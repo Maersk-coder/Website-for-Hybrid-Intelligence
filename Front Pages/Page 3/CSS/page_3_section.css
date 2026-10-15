@@ -4,6 +4,12 @@
   min-height: 100vh;                           /* one full screen tall, so the jump-scrolling has a whole page to land on (even while it's empty) */
   padding-top: calc(var(--header-h) + 40px);   /* the same room for the menu bar as Page 2 */
   padding-bottom: 32px;
-  background: var(--white);                    /* plain white for now, so you can see where Page 3 starts below Page 2's grey */
+  /* The same background as Page 1: its three soft coloured glows (standing still here, not drifting),
+     on top of its light blue-white gradient. The layers are listed top first, bottom last. */
+  background:
+    radial-gradient(circle at 70% 40%, rgba(120, 140, 255, 0.22) 0%, transparent 35%),
+    radial-gradient(circle at 85% 80%, rgba(203, 224, 238, 0.9) 0%, transparent 30%),
+    radial-gradient(circle at 20% 90%, rgba(221, 228, 243, 0.9) 0%, transparent 35%),
+    linear-gradient(180deg, #f8f9fd 0%, #eef1fa 55%, #e3e9f7 100%);
   color: var(--navy);
 }

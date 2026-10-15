@@ -1,0 +1,102 @@
+/* PAGE 4 · SECTION: the final page of the front page (like a footer).
+   Left: the name, a short text and two buttons. Right: the HI centres and contact. Bottom: a line across the whole width.
+   The co-authors pop-up has its own file (coauthors_popup.css). */
+
+/* ----- The section itself ----- */
+.page-4 {
+  min-height: 100vh;                           /* one full screen tall */
+  display: flex;                               /* lets the content fill the whole height, so the bottom line sits at the bottom */
+  padding-top: calc(var(--header-h) + 40px);   /* the same room for the menu bar as the other pages */
+  padding-bottom: 32px;
+  background: var(--navy);                     /* dark navy, like the footer in your reference picture */
+  color: var(--white);                         /* light text on the dark background */
+}
+
+/* The layout: two equal columns side by side, and the bottom line underneath both */
+.final {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);  /* two equal columns */
+  grid-template-rows: 1fr auto;                          /* row 1: the columns (all the space), row 2: the bottom line */
+  column-gap: 64px;                                      /* space between the two columns */
+}
+
+/* ----- Left column ----- */
+.final-intro h2 {
+  margin: 0 0 64px;                            /* 64px of space under the title */
+  font-size: clamp(32px, 3vw, 44px);
+  font-weight: 300;
+  line-height: 1.1;
+}
+.final-intro p {
+  margin: 0;
+  max-width: 420px;                            /* keeps the text in a narrow block, like in the picture */
+  font-size: 14px;
+  line-height: 1.5;
+}
+.final-buttons {
+  margin-top: 96px;                            /* big gap between the text and the buttons */
+  display: flex;
+  flex-wrap: wrap;                             /* on narrow screens the second button moves under the first */
+  gap: 12px;
+}
+
+/* ----- Right column ----- */
+.final-info {
+  padding-top: 112px;                          /* pushes the right column down, so its heading lines up with the text on the left */
+  font-size: 14px;
+}
+.final-info h3 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 500;
+}
+.final-links {
+  list-style: none;                            /* no bullet points */
+  margin: 24px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 18px;                                   /* space between the links */
+}
+
+/* The contact block, with a thin line above it */
+.final-contact {
+  margin-top: 40px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.35);   /* white, but only 35% visible: a soft line */
+  display: grid;
+  gap: 14px;
+}
+.final-contact p {
+  margin: 0;
+}
+.final-contact-title {
+  font-weight: 500;                            /* a bit bolder, like in the picture */
+}
+
+/* Links on Page 4: underlined only when the mouse is on them */
+.page-4 a:hover {
+  text-decoration: underline;
+}
+
+/* ----- Bottom line, across both columns ----- */
+.final-bottom {
+  grid-column: 1 / -1;                         /* spans from the first column to the last */
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);  /* the same two columns, so "Maintained by" lines up with the right column */
+  column-gap: 64px;
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.35);
+  font-size: 13px;
+}
+.final-bottom p {
+  margin: 0;
+}
+
+/* ----- Phones and narrow screens: everything in one column ----- */
+@media (max-width: 760px) {
+  .final,
+  .final-bottom { grid-template-columns: 1fr; }
+  .final-info { padding-top: 48px; }
+  .final-buttons { margin-top: 40px; }
+}

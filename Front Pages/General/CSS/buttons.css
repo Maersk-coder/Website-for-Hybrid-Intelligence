@@ -11,6 +11,7 @@
   text-transform: uppercase;
   border: 1px solid transparent;
   cursor: pointer;
+  Font-family: inherit;            /* <button> elements don't use the page font by themselves (links do) */
   transition: background-color 0.25s ease, transform 0.25s ease; /* changes happen smoothly over 0.25s instead of instantly */
 }
 
@@ -18,6 +19,10 @@
 .btn-light { background: var(--white); color: var(--navy); }
 .btn-dark { background: var(--navy); color: var(--white); }
 .btn-dark:hover { background: var(--indigo); }
+/* See-through button with a white outline, for dark backgrounds (Page 4) */
+.btn-outline { background: transparent; color: var(--white); border-color: var(--white); }
+.btn-outline:hover { background: var(--white); color: var(--navy); }
+
 
 /* Round arrow button that sits next to a normal button */
 .btn-arrow {

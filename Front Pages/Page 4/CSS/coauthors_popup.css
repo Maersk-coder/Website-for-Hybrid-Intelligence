@@ -1,0 +1,110 @@
+/* PAGE 4 · CO-AUTHORS POP-UP: the white box with all the co-authors, on top of a dimmed page.
+   Opened and closed by Page 4/JS/coauthors_popup.js. */
+
+/* The <dialog> itself is invisible: no border, no background, no padding.
+   What you SEE is the white box inside it. Because the dialog is exactly as big as the box,
+   any click on the dialog that is NOT on the box must be a click on the dimmed page around it:
+   that's how "click outside to close" can be recognised (step 5). */
+.coauthors {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  width: min(1040px, 100% - 32px);      /* at most 1040px wide; on small screens the full width minus 16px each side */
+  max-height: 85vh;                     /* at most 85% of the screen height; the list scrolls inside if it's longer */
+}
+
+/* The dimmed page behind the pop-up. "::backdrop" is a layer the browser puts behind every open <dialog>. */
+.coauthors::backdrop {
+  background: rgba(10, 0, 51, 0.55);    /* the site's navy, at 55% strength */
+  backdrop-filter: blur(3px);           /* blurs the page behind it a little */
+}
+
+/* While the pop-up is open, the page behind it can't be scrolled */
+html:has(.coauthors[open]) {
+  overflow: hidden;
+}
+
+/* ----- The white box ----- */
+.coauthors-box {
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;               /* the heading on top, the list under it */
+  background: var(--white);
+  color: var(--navy);
+  border-radius: 16px;
+  overflow: hidden;                     /* keeps the list inside the rounded corners */
+  box-shadow: 0 24px 60px rgba(10, 0, 51, 0.35);   /* a soft shadow, so the box seems to float above the page */
+}
+
+/* The top of the box: "Co-authors" on the left, the X on the right */
+.coauthors-head {
+  display: flex;
+  justify-content: space-between;       /* pushes the heading and the X to opposite sides */
+  align-items: center;
+  padding: 24px 28px 16px;
+  border-bottom: 1px solid rgba(10, 0, 51, 0.12);
+}
+.coauthors-head h2 {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 300;
+}
+
+/* The X button: a round outline with a big × in the middle */
+.coauthors-close {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid rgba(10, 0, 51, 0.2);
+  background: transparent;
+  color: var(--navy);
+  font: inherit;
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+}
+.coauthors-close:hover {
+  background: var(--lavender);          /* the soft lavender from the site's colours */
+}
+.coauthors-close:focus-visible {
+  outline: 2px solid var(--indigo);
+  outline-offset: 3px;
+}
+
+/* ----- The list of co-authors ----- */
+.coauthors-list {
+  list-style: none;
+  margin: 0;
+  padding: 20px 28px 28px;
+  overflow-y: auto;                     /* scrolls up and down inside the box when the list is longer than the box */
+  min-height: 0;                        /* lets the list shrink inside the box, so the scrolling above can happen */
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));   /* as many 220px+ columns as fit: 4 on a big screen, 1 on a phone */
+  gap: 18px 28px;                       /* 18px between rows, 28px between columns */
+}
+
+/* One co-author: name, title and place, each on its own line */
+.coauthors-list li {
+  display: grid;
+  align-content: start;                 /* keep the three lines together at the top, even if a neighbour is taller */
+  gap: 2px;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.coauthor-name {
+  font-size: 14px;
+  font-weight: 500;
+}
+.coauthor-role {
+  opacity: 0.75;
+}
+.coauthor-place {
+  opacity: 0.6;                         /* the lightest of the three */
+}
+
+/* Phones: a bit less space around the edges */
+@media (max-width: 760px) {
+  .coauthors-head { padding: 18px 18px 12px; }
+  .coauthors-list { padding: 16px 18px 20px; }
+}
