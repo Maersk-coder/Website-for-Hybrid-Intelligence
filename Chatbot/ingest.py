@@ -45,9 +45,9 @@ PREVIEW_FILE = HERE / "preview.txt"   # where --preview saves the cleaned text
 COLLECTION_NAME = "papers"
 
 # Chunk sizes, counted in words.
-CHUNK_MIN_WORDS = 300   # a chunk is not closed before it has this many words
-CHUNK_MAX_WORDS = 500   # ...and never grows past this many
-OVERLAP_WORDS = 50      # each chunk starts with the last 50 words of the one before,
+CHUNK_MIN_WORDS = 500   # a chunk is not closed before it has this many words
+CHUNK_MAX_WORDS = 700   # ...and never grows past this many
+OVERLAP_WORDS = 100      # each chunk starts with the last 50 words of the one before,
                         # so a sentence cut at the edge is still found whole
 
 # Paragraphs longer than this are cut (between sentences) into smaller pieces.
@@ -79,6 +79,10 @@ REFERENCES_HEADING = re.compile(
     r"(references|bibliography|works cited|literature cited|reference list)\s*:?\s*$",
     re.IGNORECASE,
 )
+
+# The heading where the paper itself starts, after the title and author names:
+# "Abstract", "Abstract.", "1 Introduction", "1. Introduction", "I. INTRODUCTION"
+START_HEADING = re.compile(r"^\s*(abstract\b|(\d+\.?|I\.)?\s*introduction\s*$)", re.IGNORECASE)
 
 # The stamp arXiv prints down the side of page 1: "arXiv:2101.12345v2 [cs.AI] 12 Jan 2021"
 ARXIV_STAMP = re.compile(r"^arXiv:\d{4}\.\d{4,5}", re.IGNORECASE)
@@ -180,6 +184,21 @@ def find_title(doc, pdf_path):
     return re.sub(r"[_\-]+", " ", pdf_path.stem).strip(), "file name"
 
 
+def find_start(pages):
+    """Find where the paper itself starts, after the title, authors and addresses.
+
+    Looks for an "Abstract" or "Introduction" heading on the first 3 pages.
+    Returns (page index, block index) of that heading, or None if there is none
+    (then nothing is skipped).
+    """
+    for page_index, blocks in enumerate(pages[:3]):
+        for block_index, block in enumerate(blocks):
+            first_line = block["raw"].strip().split("\n")[0]
+            if START_HEADING.match(first_line):
+                return page_index, block_index
+    return None
+
+
 def extract_paper(pdf_path):
     """Read one PDF and return its cleaned text plus some information about it.
 
@@ -188,6 +207,7 @@ def extract_paper(pdf_path):
       num_pages            - number of pages in the PDF
       paragraphs           - list of (page number, paragraph text)
       removed              - examples of headers/footers that were removed
+      start                - (page, heading) where the text starts, or None
       references_page      - page where the reference list starts (or None)
       word_count           - number of words kept
     """
@@ -218,6 +238,10 @@ def extract_paper(pdf_path):
     min_repeats = max(3, int(num_pages * REPEAT_SHARE))
     repeated = {fp for fp, count in margin_counts.items() if count >= min_repeats}
 
+    # --- Skip the title page part (title, authors, addresses, dates) --------
+    # The title is stored separately, so nothing useful is lost.
+    start = find_start(pages)
+
     # --- Keep the good blocks, stop at the reference list -------------------
     paragraphs = []
     removed = set()
@@ -225,10 +249,12 @@ def extract_paper(pdf_path):
 
     for page_index, blocks in enumerate(pages):
         page_number = page_index + 1
-        for block in blocks:
+        for block_index, block in enumerate(blocks):
             text = block["text"]
             if len(text) < 2:
                 continue
+            if start and (page_index, block_index) < start:
+                continue  # before the Abstract/Introduction heading
 
             # The reference list: only trusted in the later part of the paper,
             # so a "References" mentioned early on doesn't cut the paper short.
@@ -258,6 +284,7 @@ def extract_paper(pdf_path):
         "num_pages": num_pages,
         "paragraphs": paragraphs,
         "removed": sorted(removed),
+        "start": (start[0] + 1, pages[start[0]][start[1]]["text"][:40]) if start else None,
         "references_page": references_page,
         "word_count": word_count,
     }
@@ -466,6 +493,11 @@ def preview(file_name):
     summary.append(f"Title:       {paper['title']}   (from {paper['title_source']})")
     summary.append(f"Pages:       {paper['num_pages']}")
     summary.append(f"Words kept:  {paper['word_count']}")
+    if paper["start"]:
+        page, heading = paper["start"]
+        summary.append(f"Starts at:   '{heading}...' on page {page} (title/author part skipped)")
+    else:
+        summary.append("Starts at:   page 1 (no Abstract/Introduction heading found, nothing skipped)")
     if paper["references_page"]:
         summary.append(f"References:  start on page {paper['references_page']} (skipped)")
     else:

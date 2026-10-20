@@ -41,6 +41,14 @@ give a balanced answer and note where papers disagree. If the excerpts do not \
 contain the answer, say clearly that the papers you have don't cover it rather \
 than guessing. Write clearly for a general audience."""
 
+# Extra rules sent together with every question, right after the excerpts.
+# Small models follow short, concrete rules best when they come next to the question.
+ANSWER_RULES = """Rules for your answer:
+- Explain in your own words. Do not copy long passages from the excerpts.
+- Keep it to about 150-250 words.
+- Use only the excerpts that are relevant to the question. Ignore the others.
+- Cite as [Paper title, p. X], copying the paper title exactly as written above."""
+
 # How many chunks to retrieve for each question.
 NUMBER_OF_CHUNKS = 6
 
@@ -128,17 +136,14 @@ def retrieve(question, number=NUMBER_OF_CHUNKS):
 def build_message(question, chunks):
     """Put the excerpts and the question together into the message for the AI model."""
     parts = ["Research excerpts:\n"]
-    for number, chunk in enumerate(chunks, start=1):
+    for chunk in chunks:
         parts.append(
-            f"[Excerpt {number}]\n"
+            "---\n"
             f"Paper title: {chunk['title']}\n"
             f"Page: {page_label(chunk)}\n"
             f"{chunk['text']}\n"
         )
-    parts.append(
-        "When you cite, copy the paper title exactly as written above.\n\n"
-        f"Question: {question}"
-    )
+    parts.append(ANSWER_RULES + "\n\n" + f"Question: {question}")
     return "\n".join(parts)
 
 
@@ -221,6 +226,20 @@ def ask_claude(message):
     return "".join(block.text for block in response.content if block.type == "text").strip()
 
 
+def fix_excerpt_citations(answer, chunks):
+    """Small models sometimes cite "[Excerpt 2, p. 4]" instead of the paper title.
+
+    This puts the real title in its place: "[Hybrid Intelligence, p. 4]".
+    """
+    def to_title(match):
+        number = int(match.group(1))
+        if 1 <= number <= len(chunks):
+            return chunks[number - 1]["title"]
+        return match.group(0)  # a number we don't know: leave it as it is
+
+    return re.sub(r"\bExcerpt\s+(\d+)(?=,\s*pp?\.)", to_title, answer)
+
+
 def find_sources(answer, chunks):
     """Find which papers the answer actually cites, and which pages.
 
@@ -244,6 +263,8 @@ def find_sources(answer, chunks):
                 if page and page not in pages:
                     pages.append(page)
         if pages:
+            # Sort by the first number, then shortest first: "2", "5", "5-6", "7"
+            pages.sort(key=lambda page: (int(re.match(r"\d+", page).group()), len(page)))
             sources.append({"title": title, "file_name": chunk["file_name"], "pages": pages})
     return sources
 
@@ -258,4 +279,5 @@ def answer_question(question):
     """
     chunks = retrieve(question)
     answer = ask_ai(build_message(question, chunks))
+    answer = fix_excerpt_citations(answer, chunks)
     return {"answer": answer, "sources": find_sources(answer, chunks), "chunks": chunks}

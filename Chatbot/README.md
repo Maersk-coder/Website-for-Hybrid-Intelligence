@@ -153,6 +153,7 @@ If the right passage isn't in the list, the problem is the search, not Claude.
 | Setting | What it does |
 |---|---|
 | `SYSTEM_PROMPT` | The instructions the AI follows for every answer. |
+| `ANSWER_RULES` | Short extra rules sent next to each question: own words, about 150–250 words, only relevant excerpts, how to cite. |
 | `NUMBER_OF_CHUNKS` | How many excerpts are sent with each question (6). |
 | `OLLAMA_CONTEXT_SIZE` | Ollama only: how much text the model can read at once. Must fit the 6 excerpts. |
 | `EFFORT` | Claude only: how carefully Claude thinks: `low`, `medium`, `high`, `xhigh`, `max`. Higher = better but slower and more expensive. |
@@ -222,6 +223,9 @@ Claude is billed to the key's account. A claude.ai subscription (Pro/Max) does n
 
 - **Headers and footers:** text at the top or bottom of the page that repeats on many pages
   (like a journal name) is removed. So are lines that are only a page number.
+- **Title page part:** if an "Abstract" or "Introduction" heading is found on the first 3 pages,
+  everything before it (title, author names, addresses, dates) is skipped. The title is saved
+  separately. If there is no such heading, nothing is skipped.
 - **Broken words:** `collab-` + `oration` at a line break becomes `collaboration`.
 - **References:** everything from the "References" / "Bibliography" heading onwards is skipped.
   (Appendices after the references are skipped too.)
