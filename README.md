@@ -36,6 +36,13 @@ Front Pages/
 
 Each new section gets its own `Page N` folder with `CSS` and `JS` inside.
 
+## Chatbot
+
+The `Chatbot/` folder holds a Python chatbot that answers questions about AI and Hybrid
+Intelligence from a collection of research papers (it will appear on Page 3).
+See [Chatbot/README.md](Chatbot/README.md). The research papers themselves are not uploaded,
+because of copyright. They are listed in [Chatbot/papers/README.md](Chatbot/papers/README.md).
+
 ## Built with
 
 - HTML, CSS and plain JavaScript (no frameworks)

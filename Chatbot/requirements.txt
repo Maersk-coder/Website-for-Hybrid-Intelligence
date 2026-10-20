@@ -1,0 +1,8 @@
+# The Python packages the chatbot needs.
+# Install them all with:  pip install -r requirements.txt
+
+pymupdf>=1.24        # reads the text out of PDF files
+chromadb>=1.0        # the vector database that stores the paper chunks
+ollama>=0.6          # talks to Ollama (free AI model on your own computer)
+anthropic>=1.0       # talks to Claude (Anthropic's paid AI model)
+python-dotenv>=1.0   # reads your secret settings from the .env file
