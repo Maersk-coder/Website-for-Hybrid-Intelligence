@@ -272,6 +272,11 @@ Three things must run at the same time:
 
 The website's address must be in `ALLOWED_ORIGINS` in `.env` (Live Server's
 `http://127.0.0.1:5500` already is). Otherwise the browser blocks the chat and it says it can't reach the chatbot.
+(In the `api.py` terminal you then see `OPTIONS /chat/stream ... 400 Bad Request`.)
+
+Opening `Front_Page.html` by double-clicking also works if `ALLOWED_ORIGINS` ends with `,null`
+(a double-clicked file introduces itself as "null"). Only use that on your own computer, and remove
+it before the website goes online. After changing `.env`, restart `api.py` (Ctrl+C, then `python api.py`).
 
 ## Choosing the AI model: Ollama (free) or Claude (paid)
 
