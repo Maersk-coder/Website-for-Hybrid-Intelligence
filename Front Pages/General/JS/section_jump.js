@@ -21,6 +21,19 @@ function sectionOnScreen() {
 window.addEventListener("wheel", (event) => {
   if (event.ctrlKey) return;  // Ctrl + wheel = zoom in/out, so leave that alone
   if (document.querySelector("dialog[open]")) return; // a pop-up is open: let the wheel scroll the pop-up, not jump between pages
+
+  // The mouse is over the chat panel (Page 3): the wheel scrolls the chat (the messages, or the start screen
+  // on a short screen), never jumps between pages. Where there is nothing to scroll (the top bar, the question
+  // box, or already at the end), the wheel does nothing. To jump to another page, move the mouse off the panel.
+  if (event.target.closest(".hi-chat")) {
+    const area = event.target.closest(".hi-chat-messages, .hi-chat-start");
+    const canScroll = area && (event.deltaY > 0
+      ? area.scrollTop + area.clientHeight < area.scrollHeight - 1   // room to scroll down
+      : area.scrollTop > 0);                                         // room to scroll up
+    if (!canScroll) event.preventDefault();
+    return;
+  }
+
   event.preventDefault();     // stop the browser's normal, slow scrolling
 
   // Mostly sideways (a trackpad often sends a few of these)? Not up or down, so ignore it.

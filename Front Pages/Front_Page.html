@@ -223,8 +223,9 @@
 
   </section>
 
-  <!-- PAGE 3: the third part of the front page. Empty for now: its content goes here. -->
+  <!-- PAGE 3: the chatbot. The box is empty on purpose: chat-widget.js (at the bottom) builds the chat panel inside it. -->
   <section class="page-3">
+    <div class="page-3-chat" id="hi-chat"></div>
   </section>
 
   <!-- PAGE 4: the final page. Who we are, the HI centres, contact, and the co-authors pop-up. -->
@@ -318,7 +319,9 @@
   <script src="Page 2/JS/levels_build.js"></script>
 
 
-  <!-- Page 3: Chatbot + more -->
+  <!-- Page 3: the chat panel. It lives in the Chatbot folder, so it can be used on other websites too.
+       data-api = the address of the chatbot server (api.py), data-target = the box on Page 3 it goes in. -->
+  <script src="../Chatbot/widget/chat-widget.js" data-api="http://127.0.0.1:8000" data-target="#hi-chat"></script>
 
 
   <!-- Page 4: the co-authors pop-up. The list first, because the pop-up script uses it. -->

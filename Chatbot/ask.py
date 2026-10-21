@@ -5,7 +5,9 @@ How to run it (inside the Chatbot folder, with the virtual environment on):
   python ask.py                  ask questions, see answers and sources
   python ask.py --show-chunks    also show the excerpts that were found for each question
 
-Type a question and press Enter. Type "quit" (or press Ctrl+C) to stop.
+Type a question and press Enter. Follow-up questions work: the chatbot remembers
+the last few questions and answers. Type "new" to start a fresh conversation,
+"quit" (or press Ctrl+C) to stop.
 """
 
 import argparse
@@ -44,7 +46,10 @@ def main():
                         help="also print the excerpts that were found for each question")
     args = parser.parse_args()
 
-    print("Ask a question about AI and Hybrid Intelligence. Type 'quit' to stop.")
+    print("Ask a question about AI and Hybrid Intelligence. Type 'quit' to stop, 'new' to start over.")
+
+    # The conversation so far, so follow-up questions ("tell me more") work.
+    history = []
 
     while True:
         try:
@@ -57,13 +62,21 @@ def main():
             continue
         if question.lower() in ("quit", "exit", "q"):
             break
+        if question.lower() == "new":
+            history = []
+            print("Started a new conversation.")
+            continue
 
         print("Thinking...")
         try:
-            result = answer_question(question)
+            result = answer_question(question, history)
         except ChatbotError as error:
             print(f"\n{error}")
             continue
+
+        # Remember this question and answer for the next follow-up.
+        history.append({"role": "user", "content": question})
+        history.append({"role": "assistant", "content": result["answer"]})
 
         if args.show_chunks:
             show_chunks(result["chunks"])

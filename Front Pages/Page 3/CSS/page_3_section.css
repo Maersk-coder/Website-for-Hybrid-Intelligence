@@ -1,9 +1,12 @@
-/* PAGE 3 · SECTION: the third part of the front page (under the four levels). Empty for now. */
+/* PAGE 3 · SECTION: the third part of the front page (under the four levels): the chatbot. */
 
 .page-3 {
-  min-height: 100vh;                           /* one full screen tall, so the jump-scrolling has a whole page to land on (even while it's empty) */
-  padding-top: calc(var(--header-h) + 40px);   /* the same room for the menu bar as Page 2 */
-  padding-bottom: 32px;
+  height: 100vh;                               /* exactly one full screen tall: the chat panel scrolls inside, the page doesn't grow */
+  height: 100svh;                              /* on phones: the screen height without the browser's address bar (older browsers use the line above) */
+  padding-top: calc(var(--header-h) + 28px);   /* room for the menu bar */
+  padding-bottom: 28px;
+  display: flex;
+  justify-content: center;                     /* the chat panel in the middle */
   /* The same background as Page 1: its three soft coloured glows (standing still here, not drifting),
      on top of its light blue-white gradient. The layers are listed top first, bottom last. */
   background:
@@ -12,4 +15,11 @@
     radial-gradient(circle at 20% 90%, rgba(221, 228, 243, 0.9) 0%, transparent 35%),
     linear-gradient(180deg, #f8f9fd 0%, #eef1fa 55%, #e3e9f7 100%);
   color: var(--navy);
+}
+
+/* The box the chat panel goes in (chat-widget.js fills it). The panel takes this box's size:
+   720px wide (or the full width minus a small gap on narrow screens), and the full height left over. */
+.page-3-chat {
+  width: min(720px, 100% - 32px);
+  height: 100%;
 }

@@ -6,8 +6,8 @@ of research papers, and says which paper and page each claim comes from.
 
 It will be shown as a chat panel on Page 3 of the website.
 
-> Work in progress, built in stages. Done so far: **Stage 1 (setup)**, **Stage 2 (reading the papers)**
-> and **Stage 3 (answering questions in the terminal)**.
+> Work in progress, built in stages. Done so far: **Stage 1 (setup)**, **Stage 2 (reading the papers)**,
+> **Stage 3 (answering questions in the terminal)**, **Stage 4 (the web API)** and **Stage 5 (the chat panel)**.
 
 ## How it works (RAG)
 
@@ -39,11 +39,14 @@ The database (`data/`) is not uploaded either. It is built from the PDFs with `p
 | `ingest.py` | Reads the PDFs, cleans the text, cuts it into chunks and saves them in the database. |
 | `rag.py` | The "brain": finds the 6 best chunks for a question and asks the AI model (Ollama or Claude) to answer from them. The instructions for the AI (`SYSTEM_PROMPT`) are at the top. |
 | `ask.py` | Ask questions in the terminal and see the answers and sources. |
+| `api.py` | A small web server, so the website's chat panel can send questions and get answers. |
+| `widget/chat-widget.js` | The chat panel for a website: builds it, sends questions to `api.py`, shows the answers word by word with numbered sources. |
+| `widget/chat-widget.css` | The look of the chat panel (navy, with a soft glow). Loaded automatically by `chat-widget.js`. |
 | `requirements.txt` | The Python packages the chatbot needs. |
 | `.env.example` | Example of the secret settings file. Copy it to `.env` and fill it in. |
 | `.gitignore` | Tells Git which files to leave out (secrets, database, papers). |
 
-Coming in later stages: `api.py` (web server) and `widget/` (the chat panel for the website).
+Coming in a later stage: test questions and deployment notes.
 
 ## Setup (once)
 
@@ -146,7 +149,75 @@ python ask.py --show-chunks
 ```
 
 Each excerpt has a *distance*: lower means a closer match to the question.
-If the right passage isn't in the list, the problem is the search, not Claude.
+If the right passage isn't in the list, the problem is the search, not the AI.
+
+Follow-up questions work ("Why is that?"): the chatbot remembers the last 3 questions and answers.
+Type `new` to start a fresh conversation.
+
+## The web API (api.py)
+
+The website can't run Python, so it talks to the chatbot through a small web server.
+
+```powershell
+python api.py
+```
+
+Leave this terminal open: the server runs until you press **Ctrl+C**. While it runs:
+
+- **http://127.0.0.1:8000/health** - shows `"status": "ok"`, the number of chunks and the model in use.
+- **http://127.0.0.1:8000/docs** - a test page made by FastAPI. Click **POST /chat** → **Try it out**,
+  type a question in `"message"` and click **Execute**. The answer appears under *Response body*.
+
+What it accepts and sends back:
+
+```json
+POST /chat
+{
+  "message": "Why is that?",
+  "history": [
+    {"role": "user", "content": "Do humans and AI perform better together?"},
+    {"role": "assistant", "content": "On average, no ..."}
+  ]
+}
+
+answer:
+{
+  "answer": "... [When combinations of humans and AI are useful: ..., p. 2] ...",
+  "sources": [{"title": "...", "file_name": "...", "pages": ["1", "2"]}]
+}
+```
+
+`history` is optional. The chat panel sends the earlier conversation there, so follow-ups work.
+
+**`POST /chat/stream`** takes the same question, but sends the answer **piece by piece while it is
+being written**, so the chat panel can show the first words after a few seconds instead of waiting
+for the whole answer. The reply is one small JSON object per line:
+
+```
+{"type": "text", "text": "Hybrid"}
+{"type": "text", "text": " Intelligence"}
+...
+{"type": "done", "answer": "<the full answer>", "sources": [...]}
+```
+
+If something goes wrong, the last line is `{"type": "error", "detail": "a friendly message"}`.
+The full answer in the `done` line can differ slightly from the pieces, because citations are
+repaired at the end. The chat panel shows the `done` version.
+
+**Speed with Ollama:** the AI *reads* the excerpts in a few seconds, but *writes* only about
+9 tokens per second on a laptop, so a whole answer takes 40-60 seconds. With `/chat/stream` the
+first words appear after about 10 seconds. Fewer excerpts would not make it noticeably faster.
+
+**Protection** (settings at the top of `api.py`):
+
+| Setting | What it does |
+|---|---|
+| `MAX_MESSAGE_CHARS` | Questions longer than 1000 characters are refused. |
+| `RATE_LIMIT`, `RATE_WINDOW_SECONDS` | Each visitor (IP address) can ask at most 10 questions per minute. |
+| `ALLOWED_ORIGINS` (in `.env`) | Only these websites may use the server from a browser. Now: the VS Code Live Server addresses for testing. Later: your real domain. Note: this stops *other websites*, not people calling the server directly. The rate limit protects against that. |
+
+Errors come back as `{"detail": "a friendly message"}`, with these codes: 400 (empty or too long),
+422 (wrong format), 429 (too many questions), 503 (the AI or index isn't ready, e.g. Ollama not running), 500 (unexpected).
 
 ### Settings in rag.py
 
@@ -157,6 +228,50 @@ If the right passage isn't in the list, the problem is the search, not Claude.
 | `NUMBER_OF_CHUNKS` | How many excerpts are sent with each question (6). |
 | `OLLAMA_CONTEXT_SIZE` | Ollama only: how much text the model can read at once. Must fit the 6 excerpts. |
 | `EFFORT` | Claude only: how carefully Claude thinks: `low`, `medium`, `high`, `xhigh`, `max`. Higher = better but slower and more expensive. |
+
+## The chat panel (widget/)
+
+A chat panel that can be put on any website with **one** `<script>` tag. On the Hybrid Intelligence
+site it sits in the middle of Page 3.
+
+```html
+<div id="hi-chat" style="width: 720px; height: 600px"></div>
+<script src="../Chatbot/widget/chat-widget.js" data-api="http://127.0.0.1:8000" data-target="#hi-chat"></script>
+```
+
+| Attribute | What it is |
+|---|---|
+| `src` | Where `chat-widget.js` is. `chat-widget.css` must be in the same folder. |
+| `data-api` | The address of the chatbot server (`api.py`). Change it when the server moves online. |
+| `data-target` | The box the panel goes in. The panel takes the box's width and height. |
+
+What it does:
+
+- **Start screen:** the headline, a short intro and example questions to click.
+- **Conversation:** your questions on the right, answers on the left, written word by word while
+  they arrive (it uses `/chat/stream`). Citations become small tags like `1 · p. 3`; the full
+  paper titles are listed under **Sources**. **New chat** starts over.
+- **Follow-up questions** work: the last messages are sent along.
+- **While waiting:** "Reading the papers…" with pulsing dots.
+- **Errors** (server not running, too many questions, ...) are shown as a message in the chat.
+- **Phones:** the panel fills the screen width and gets more compact.
+- **Mouse wheel:** over the panel it scrolls the chat; next to the panel it jumps between pages
+  (see `Front Pages/General/JS/section_jump.js`).
+
+Texts (headline, example questions, ...) are in `TEXTS` and `EXAMPLE_QUESTIONS` at the top of
+`chat-widget.js`. Colors are at the top of `chat-widget.css`.
+
+### Trying it on the website
+
+Three things must run at the same time:
+
+1. **Ollama** (it runs in the background after installing; check for the llama icon near the clock).
+2. **The chatbot server**, in a terminal in the Chatbot folder: `python api.py` (leave it open).
+3. **The website** with VS Code's **Live Server**: right-click `Front Pages/Front_Page.html` →
+   *Open with Live Server*. Scroll to Page 3 and ask a question.
+
+The website's address must be in `ALLOWED_ORIGINS` in `.env` (Live Server's
+`http://127.0.0.1:5500` already is). Otherwise the browser blocks the chat and it says it can't reach the chatbot.
 
 ## Choosing the AI model: Ollama (free) or Claude (paid)
 
@@ -178,22 +293,33 @@ No code changes are needed.
 
 1. Download and install Ollama from [ollama.com/download](https://ollama.com/download) (Windows version).
    After installing, Ollama runs in the background (a small llama icon near the clock).
-2. Open a **new** terminal and download the model (about 3 GB, once):
+2. Open a **new** terminal and download the model (about 3.5 GB, once):
    ```powershell
-   ollama pull gemma3:4b
+   ollama pull qwen3.5:4b
    ```
 3. Check that `.env` contains:
    ```
    LLM_PROVIDER=ollama
-   OLLAMA_MODEL=gemma3:4b
+   OLLAMA_MODEL=qwen3.5:4b
+   OLLAMA_THINK=false
    ```
 4. Run `python ask.py` as usual.
 
 **Other models:** any model from [ollama.com/library](https://ollama.com/library) can be used.
 Download it with `ollama pull <name>` and put the name in `OLLAMA_MODEL`. Bigger models give
-better answers but need more memory and are slower. `gemma3:4b` fits a laptop with 16 GB of memory
-and a 4 GB graphics card. With more memory, try a model around 8 billion parameters (e.g. names
-ending in `:8b`).
+better answers but need more memory and are slower. On a laptop with 16 GB of memory and a 4 GB
+graphics card:
+
+| `OLLAMA_MODEL` | Download | Notes |
+|---|---|---|
+| `qwen3.5:4b` | ~3.5 GB | **Used now.** Faster. With the 8,192-token reading limit it runs about half on the graphics card, half on the processor (`ollama ps` shows this). |
+| `qwen3.5:9b` | ~7 GB | Strongest that fits. Slower: part of it runs on the processor. |
+| `gemma3:4b` | ~3.4 GB | Fast. Can't think step by step (keep `OLLAMA_THINK=false`). |
+
+`ollama list` shows the models you have downloaded. `ollama rm <name>` deletes one to free disk space.
+
+**Thinking (`OLLAMA_THINK`):** Qwen models can reason step by step before they answer. Set
+`OLLAMA_THINK=true` to try it. Answers may get better, but each one can take minutes on a laptop.
 
 ### Switching to Claude (paid)
 

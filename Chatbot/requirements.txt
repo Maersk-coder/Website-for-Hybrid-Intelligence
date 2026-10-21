@@ -6,3 +6,5 @@ chromadb>=1.0        # the vector database that stores the paper chunks
 ollama>=0.6          # talks to Ollama (free AI model on your own computer)
 anthropic>=1.0       # talks to Claude (Anthropic's paid AI model)
 python-dotenv>=1.0   # reads your secret settings from the .env file
+fastapi>=0.115       # builds the web API (api.py)
+uvicorn>=0.30        # runs the web API as a server

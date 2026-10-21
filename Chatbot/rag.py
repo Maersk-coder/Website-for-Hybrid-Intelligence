@@ -43,18 +43,25 @@ than guessing. Write clearly for a general audience."""
 
 # Extra rules sent together with every question, right after the excerpts.
 # Small models follow short, concrete rules best when they come next to the question.
+# {example} is replaced with a real citation from the excerpts, e.g. [Hybrid Intelligence, p. 5].
 ANSWER_RULES = """Rules for your answer:
 - Explain in your own words. Do not copy long passages from the excerpts.
 - Keep it to about 150-250 words.
 - Use only the excerpts that are relevant to the question. Ignore the others.
-- Cite as [Paper title, p. X], copying the paper title exactly as written above."""
+- Cite every claim with the real title and page of the paper, for example: {example}
+  Copy the title exactly. Never write the words "Paper title" in a citation."""
 
 # How many chunks to retrieve for each question.
 NUMBER_OF_CHUNKS = 6
 
+# Conversation memory: how many earlier messages the AI sees (6 = the last 3
+# questions and 3 answers), and the most characters kept from each one.
+MAX_HISTORY_MESSAGES = 6
+MAX_HISTORY_CHARS = 3000
+
 # Used when .env doesn't say otherwise.
 DEFAULT_PROVIDER = "ollama"
-DEFAULT_OLLAMA_MODEL = "gemma3:4b"
+DEFAULT_OLLAMA_MODEL = "qwen3.5:4b"
 DEFAULT_OLLAMA_URL = "http://localhost:11434"
 DEFAULT_CLAUDE_MODEL = "claude-opus-5-5"
 
@@ -139,52 +146,113 @@ def build_message(question, chunks):
     for chunk in chunks:
         parts.append(
             "---\n"
-            f"Paper title: {chunk['title']}\n"
+            f"Title: {chunk['title']}\n"
             f"Page: {page_label(chunk)}\n"
             f"{chunk['text']}\n"
         )
-    parts.append(ANSWER_RULES + "\n\n" + f"Question: {question}")
+    # A real example citation, made from the first excerpt.
+    example = f"[{chunks[0]['title']}, p. {page_label(chunks[0])}]"
+    parts.append(ANSWER_RULES.format(example=example) + "\n\n" + f"Question: {question}")
     return "\n".join(parts)
 
 
-def ask_ai(message):
-    """Send the message to the AI model chosen in .env and return its answer."""
-    provider = (os.getenv("LLM_PROVIDER") or DEFAULT_PROVIDER).strip().lower()
+def clean_history(history):
+    """Keep only the last few messages of the conversation, in a safe shape.
+
+    history is a list like [{"role": "user", "content": "..."}, {"role": "assistant", ...}].
+    Messages with an unknown role or no text are dropped, long ones are shortened,
+    and the list always starts with a question (the AI models require that).
+    """
+    cleaned = []
+    for message in history or []:
+        role = message.get("role")
+        content = str(message.get("content") or "").strip()
+        if role in ("user", "assistant") and content:
+            cleaned.append({"role": role, "content": content[:MAX_HISTORY_CHARS]})
+
+    cleaned = cleaned[-MAX_HISTORY_MESSAGES:]
+    while cleaned and cleaned[0]["role"] != "user":
+        cleaned.pop(0)
+    return cleaned
+
+
+def search_text(question, history):
+    """The text used to search the papers.
+
+    A follow-up like "tell me more about that" means nothing on its own,
+    so the previous question is searched together with it.
+    """
+    earlier_questions = [message["content"] for message in history if message["role"] == "user"]
+    if earlier_questions:
+        return earlier_questions[-1] + "\n" + question
+    return question
+
+
+def get_provider():
+    """Which AI is used: "ollama" or "anthropic" (from .env)."""
+    return (os.getenv("LLM_PROVIDER") or DEFAULT_PROVIDER).strip().lower()
+
+
+def model_description():
+    """A short description of the AI in use, e.g. "ollama / qwen3.5:4b"."""
+    if get_provider() == "anthropic":
+        return "anthropic / " + (os.getenv("ANTHROPIC_MODEL") or DEFAULT_CLAUDE_MODEL)
+    return "ollama / " + (os.getenv("OLLAMA_MODEL") or DEFAULT_OLLAMA_MODEL)
+
+
+def stream_ai(message, history):
+    """Send the message (plus the earlier conversation) to the AI chosen in .env.
+
+    Gives back the answer piece by piece (a few words at a time) while it is
+    being written, so it can be shown straight away.
+    """
+    provider = get_provider()
     if provider == "ollama":
-        return ask_ollama(message)
-    if provider == "anthropic":
-        return ask_claude(message)
-    raise ChatbotError(f"Unknown LLM_PROVIDER '{provider}' in .env. Use 'ollama' or 'anthropic'.")
+        yield from stream_ollama(message, history)
+    elif provider == "anthropic":
+        # Claude writes fast, so here the whole answer simply comes as one piece.
+        yield ask_claude(message, history)
+    else:
+        raise ChatbotError(f"Unknown LLM_PROVIDER '{provider}' in .env. Use 'ollama' or 'anthropic'.")
 
 
-def ask_ollama(message):
-    """Send the message to a model running in Ollama on this computer."""
+def stream_ollama(message, history):
+    """Send the message to a model running in Ollama on this computer.
+
+    Gives back the answer piece by piece while the model writes it.
+    """
     model = os.getenv("OLLAMA_MODEL") or DEFAULT_OLLAMA_MODEL
     client = ollama.Client(host=os.getenv("OLLAMA_URL") or DEFAULT_OLLAMA_URL)
 
+    # "Thinking" models (like Qwen) can first reason step by step before answering.
+    # That can give better answers, but is much slower on a laptop. Off unless .env says true.
+    think = os.getenv("OLLAMA_THINK", "false").strip().lower() == "true"
+
     try:
-        response = client.chat(
+        pieces = client.chat(
             model=model,
-            messages=[
-                {"role": "system", "content": SYSTEM_PROMPT},
-                {"role": "user", "content": message},
-            ],
+            # The instructions first, then the earlier conversation, then the new message.
+            messages=[{"role": "system", "content": SYSTEM_PROMPT}]
+                     + history
+                     + [{"role": "user", "content": message}],
+            think=think,
             options={"num_ctx": OLLAMA_CONTEXT_SIZE},
+            stream=True,  # get the answer in pieces while it's being written
         )
+        for piece in pieces:
+            if piece.message.content:
+                yield piece.message.content
     except ConnectionError:
         raise ChatbotError("Could not reach Ollama. Is the Ollama app running? (see README)")
     except ollama.ResponseError as error:
         if error.status_code == 404:
             raise ChatbotError(f"The model '{model}' isn't downloaded yet. Run: ollama pull {model}")
+        if "does not support thinking" in str(error.error):
+            raise ChatbotError(f"The model '{model}' can't think step by step. Set OLLAMA_THINK=false in .env.")
         raise ChatbotError(f"Ollama returned an error: {error.error}")
 
-    answer = response.message.content or ""
-    # Some models write out their thinking between <think> tags first. Remove it.
-    answer = re.sub(r"<think>.*?</think>", "", answer, flags=re.DOTALL)
-    return answer.strip()
 
-
-def ask_claude(message):
+def ask_claude(message, history):
     """Send the message to Claude (Anthropic, paid) and return the text of its answer."""
     api_key = os.getenv("ANTHROPIC_API_KEY", "")
     if not api_key or api_key == "your-key-goes-here":
@@ -199,7 +267,7 @@ def ask_claude(message):
         "model": model,
         "max_tokens": MAX_TOKENS,
         "system": SYSTEM_PROMPT,
-        "messages": [{"role": "user", "content": message}],
+        "messages": history + [{"role": "user", "content": message}],
         "output_config": {"effort": EFFORT},
     }
     if model in MODELS_WITH_FALLBACK:
@@ -226,10 +294,11 @@ def ask_claude(message):
     return "".join(block.text for block in response.content if block.type == "text").strip()
 
 
-def fix_excerpt_citations(answer, chunks):
-    """Small models sometimes cite "[Excerpt 2, p. 4]" instead of the paper title.
+def fix_citations(answer, chunks):
+    """Repair citations that small models sometimes write wrongly.
 
-    This puts the real title in its place: "[Hybrid Intelligence, p. 4]".
+      "[Excerpt 2, p. 4]"                       -> "[Hybrid Intelligence, p. 4]"
+      "[Paper title: Hybrid Intelligence, p. 4]" -> "[Hybrid Intelligence, p. 4]"
     """
     def to_title(match):
         number = int(match.group(1))
@@ -237,7 +306,9 @@ def fix_excerpt_citations(answer, chunks):
             return chunks[number - 1]["title"]
         return match.group(0)  # a number we don't know: leave it as it is
 
-    return re.sub(r"\bExcerpt\s+(\d+)(?=,\s*pp?\.)", to_title, answer)
+    answer = re.sub(r"\bExcerpt\s+(\d+)(?=,\s*pp?\.)", to_title, answer)
+    answer = re.sub(r"\[\s*(Paper\s+)?title:\s*", "[", answer, flags=re.IGNORECASE)
+    return answer
 
 
 def find_sources(answer, chunks):
@@ -269,15 +340,40 @@ def find_sources(answer, chunks):
     return sources
 
 
-def answer_question(question):
-    """Answer one question. This is the function ask.py and api.py use.
+def answer_question_stream(question, history=None):
+    """Answer one question, giving the answer piece by piece while it is written.
 
-    Returns a dictionary with:
-      answer  - the text the AI model wrote
-      sources - the papers (and pages) cited in the answer
-      chunks  - the excerpts that were retrieved (for checking with --show-chunks)
+    history (optional) is the earlier conversation:
+      [{"role": "user", "content": "..."}, {"role": "assistant", "content": "..."}, ...]
+    Only the plain questions and answers are kept there, not the excerpts.
+
+    Gives back:
+      ("text", "a few words")  for each new piece of the answer, and at the very end
+      ("done", {...})          a dictionary with:
+          answer  - the full answer, with citations repaired
+          sources - the papers (and pages) cited in the answer
+          chunks  - the excerpts that were retrieved (for checking with --show-chunks)
     """
-    chunks = retrieve(question)
-    answer = ask_ai(build_message(question, chunks))
-    answer = fix_excerpt_citations(answer, chunks)
-    return {"answer": answer, "sources": find_sources(answer, chunks), "chunks": chunks}
+    history = clean_history(history)
+    chunks = retrieve(search_text(question, history))
+
+    pieces = []
+    for piece in stream_ai(build_message(question, chunks), history):
+        pieces.append(piece)
+        yield "text", piece
+
+    answer = "".join(pieces)
+    # Some models write out their thinking between <think> tags first. Remove it.
+    answer = re.sub(r"<think>.*?</think>", "", answer, flags=re.DOTALL).strip()
+    answer = fix_citations(answer, chunks)
+    yield "done", {"answer": answer, "sources": find_sources(answer, chunks), "chunks": chunks}
+
+
+def answer_question(question, history=None):
+    """Answer one question and give back the whole answer at once (used by ask.py and /chat).
+
+    Returns the same dictionary as the "done" step of answer_question_stream.
+    """
+    for kind, data in answer_question_stream(question, history):
+        if kind == "done":
+            return data

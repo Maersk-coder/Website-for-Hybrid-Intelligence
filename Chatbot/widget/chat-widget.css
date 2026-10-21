@@ -1,0 +1,347 @@
+/* CHAT WIDGET: the look of the chat panel (built by chat-widget.js).
+   Every class starts with "hi-chat" so it can't clash with the website's own styles.
+   The panel fills the box it is put in: the website decides the width and height. */
+
+/* Colors, in one place. Change them here to restyle the whole panel. */
+.hi-chat {
+  --hi-chat-navy: #0a0033;
+  --hi-chat-indigo: #3f51b5;
+  --hi-chat-indigo-hover: #5163c9;
+  --hi-chat-sky: #cbe0ee;
+  --hi-chat-text: #e9ecf7;        /* answer text */
+  --hi-chat-soft: #b9c3e3;        /* small grey-blue text */
+}
+
+/* ---------- The panel ---------- */
+
+.hi-chat {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 28px;
+  color: #ffffff;
+  font-family: inherit;   /* the website's font (Poppins on the HI site) */
+  font-weight: 300;
+  /* Navy, with a soft indigo glow in the top-right corner and a fainter one bottom-left */
+  background:
+    radial-gradient(circle at 100% 0%, rgba(63, 81, 181, 0.55) 0%, transparent 45%),
+    radial-gradient(circle at 0% 100%, rgba(120, 140, 255, 0.16) 0%, transparent 40%),
+    var(--hi-chat-navy);
+  box-shadow: 0 28px 70px rgba(10, 0, 51, 0.3);
+}
+
+.hi-chat h2 { margin: 0; font-weight: 500; }
+.hi-chat button { font-family: inherit; cursor: pointer; }
+.hi-chat button:disabled { cursor: default; opacity: 0.5; }
+.hi-chat :focus-visible { outline: 2px solid var(--hi-chat-sky); outline-offset: 2px; }
+
+/* "Hybrid Intelligence" in the headline, in light blue */
+.hi-chat-highlight { color: var(--hi-chat-sky); }
+
+/* The round "HI" badge (the chatbot's logo) */
+.hi-chat-badge {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #cbe0ee 0%, #8f9ef0 100%);
+  color: var(--hi-chat-navy);
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.hi-chat-badge.is-small { width: 28px; height: 28px; font-size: 10.5px; }
+
+/* ---------- Start screen (before the first question) ---------- */
+
+.hi-chat-start {
+  flex-grow: 1;
+  overflow-y: auto;   /* on a short screen, the start screen can scroll */
+  padding: 44px 56px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.hi-chat-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--hi-chat-sky);
+}
+
+.hi-chat-title {
+  margin-top: 22px !important;
+  font-size: 40px;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+
+.hi-chat-intro {
+  margin: 16px 0 0;
+  max-width: 520px;
+  font-size: 16px;
+  line-height: 1.65;
+  color: #d4dbf0;
+}
+
+.hi-chat-try {
+  margin-top: 36px;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--hi-chat-soft);
+}
+
+.hi-chat-examples {
+  margin-top: 14px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+/* An example question you can click */
+.hi-chat-example {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.07);
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 400;
+  text-align: left;
+}
+.hi-chat-example svg { width: 16px; height: 16px; flex-shrink: 0; color: var(--hi-chat-sky); }
+.hi-chat-example:hover:not(:disabled) { background: rgba(255, 255, 255, 0.15); border-color: rgba(255, 255, 255, 0.35); }
+
+/* ---------- Conversation (after the first question) ---------- */
+
+/* The slim top bar with the headline and "New chat" */
+.hi-chat-top {
+  display: none;   /* only shown in the conversation */
+  padding: 20px 28px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+.hi-chat-top-title { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.hi-chat-top-title h2 { font-size: 17px; }
+
+.hi-chat-new {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  min-height: 36px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: transparent;
+  color: var(--hi-chat-text);
+  font-size: 13px;
+  font-weight: 400;
+}
+.hi-chat-new:hover { background: rgba(255, 255, 255, 0.1); }
+
+/* The list of messages. It scrolls on its own; "overscroll-behavior: contain" stops
+   the scrolling from passing on to the page when it reaches the top or bottom. */
+.hi-chat-messages {
+  display: none;   /* only shown in the conversation */
+  flex-grow: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 22px 28px 16px;
+  flex-direction: column;
+  gap: 18px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(203, 224, 238, 0.3) transparent;
+}
+
+/* In the conversation: hide the start screen, show the top bar and the messages */
+.hi-chat.is-chatting .hi-chat-start { display: none; }
+.hi-chat.is-chatting .hi-chat-top,
+.hi-chat.is-chatting .hi-chat-messages { display: flex; }
+
+/* A question from the visitor: an indigo bubble on the right */
+.hi-chat-msg.is-user {
+  align-self: flex-end;
+  max-width: 75%;
+  background: var(--hi-chat-indigo);
+  padding: 12px 16px;
+  border-radius: 18px 18px 4px 18px;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+/* An answer from the chatbot: the HI badge, then the text */
+.hi-chat-msg.is-bot { display: flex; gap: 12px; align-items: flex-start; }
+
+.hi-chat-answer {
+  min-width: 0;
+  max-width: 92%;
+  padding-top: 3px;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--hi-chat-text);
+}
+.hi-chat-answer p { margin: 0 0 10px; }
+.hi-chat-answer ul { margin: 0 0 10px; padding-left: 20px; }
+.hi-chat-answer li { margin-bottom: 4px; }
+.hi-chat-answer strong { font-weight: 500; color: #ffffff; }
+.hi-chat-answer.is-error { color: #ffd2cc; }
+
+/* A citation in the text: "1 · p. 3" */
+.hi-chat-cite {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.6;
+  background: rgba(203, 224, 238, 0.16);
+  color: var(--hi-chat-sky);
+  border-radius: 6px;
+  padding: 0 6px;
+  white-space: nowrap;
+}
+
+/* "Reading the papers…" with three pulsing dots */
+.hi-chat-working { display: flex; gap: 10px; align-items: center; font-size: 13px; color: var(--hi-chat-sky); }
+.hi-chat-dots { display: flex; gap: 5px; }
+.hi-chat-dots i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--hi-chat-sky);
+  animation: hi-chat-pulse 1.2s ease-in-out infinite;
+}
+.hi-chat-dots i:nth-child(2) { animation-delay: 0.2s; }
+.hi-chat-dots i:nth-child(3) { animation-delay: 0.4s; }
+@keyframes hi-chat-pulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hi-chat-dots i { animation: none; opacity: 0.7; }
+}
+
+/* The "Sources" box under an answer */
+.hi-chat-sources {
+  margin-top: 4px;
+  padding: 12px 14px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 14px;
+}
+.hi-chat-sources-label {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--hi-chat-soft);
+}
+.hi-chat-sources ol { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.hi-chat-sources li { display: flex; gap: 10px; align-items: flex-start; font-size: 12.5px; line-height: 1.5; color: #ffffff; }
+.hi-chat-source-number {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  border-radius: 6px;
+  background: rgba(203, 224, 238, 0.16);
+  color: var(--hi-chat-sky);
+  font-size: 11px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.hi-chat-source-pages { color: var(--hi-chat-soft); }
+
+/* ---------- The question box at the bottom ---------- */
+
+.hi-chat-form { padding: 16px 56px 28px; }
+.hi-chat.is-chatting .hi-chat-form { padding: 14px 28px 24px; }
+
+.hi-chat-inputbox {
+  display: flex;
+  align-items: center;
+  background: #ffffff;
+  border-radius: 999px;
+  padding: 6px 6px 6px 24px;
+  box-shadow: 0 0 0 4px rgba(63, 81, 181, 0.45);   /* the soft indigo glow around it */
+}
+
+.hi-chat-input {
+  flex-grow: 1;
+  min-width: 0;
+  height: 44px;
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 15px;
+  color: var(--hi-chat-navy);
+}
+.hi-chat-input::placeholder { color: #6b6890; }
+.hi-chat-input:focus { outline: none; }   /* the whole box shows focus instead (next rule) */
+.hi-chat-inputbox:focus-within { box-shadow: 0 0 0 4px rgba(63, 81, 181, 0.45), 0 0 0 6px var(--hi-chat-sky); }
+
+.hi-chat-send {
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: none;
+  background: var(--hi-chat-indigo);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.hi-chat-send:hover:not(:disabled) { background: var(--hi-chat-indigo-hover); }
+
+.hi-chat-note { margin: 12px 0 0; font-size: 11px; color: var(--hi-chat-soft); text-align: center; }
+
+/* Hidden on screen, but read out by screen readers */
+.hi-chat-hidden-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* ---------- Phones and small screens ---------- */
+
+@media (max-width: 600px) {
+  .hi-chat { border-radius: 20px; }
+  .hi-chat-start { padding: 28px 20px 16px; }
+  .hi-chat-title { font-size: 28px; }
+  .hi-chat-intro { font-size: 14.5px; }
+  .hi-chat-try { margin-top: 24px; }
+  .hi-chat-top { padding: 14px 16px; }
+  .hi-chat-top-title h2 { font-size: 14px; }
+  .hi-chat-new { padding: 0 10px; }
+  .hi-chat-messages { padding: 16px; }
+  .hi-chat-msg.is-user { max-width: 85%; }
+  .hi-chat-answer { max-width: 100%; }
+  .hi-chat-form,
+  .hi-chat.is-chatting .hi-chat-form { padding: 12px 16px 16px; }
+  .hi-chat-inputbox { padding-left: 18px; }
+}

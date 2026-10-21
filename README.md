@@ -6,7 +6,9 @@ A website about **Hybrid Intelligence**: combining human creativity, ethics and 
 
 ## How to view it
 
-No installation needed. Open `Front Pages/Front_Page.html` in a web browser (double-click it).
+No installation needed. Open `Front Pages/Front_Page.html` in a web browser (double-click it, or use VS Code's Live Server).
+
+The chat on Page 3 also needs the chatbot server running: see [Chatbot/README.md](Chatbot/README.md) ("Trying it on the website").
 
 ## What's built so far
 
@@ -15,6 +17,7 @@ No installation needed. Open `Front Pages/Front_Page.html` in a web browser (dou
 | **Header** | Logo and the main menu (Manifesto, Tools & Frameworks, Research, Use Cases, Press, FAQ). It turns see-through over the animation. |
 | **Page 1 – Animation section** | The opening screen: a 3D cloud of dots that changes shape, flowing background lines, and labels for the four levels: Individual, Workflow, Organization, Society & Economy. |
 | **Page 2** | The next section. Being built now. |
+| **Page 3 – Chatbot** | A chat panel in the middle of the page: ask questions about AI and Hybrid Intelligence, answered from research papers with sources. The mouse wheel scrolls the chat while the pointer is over it. |
 
 Scrolling jumps one whole section at a time.
 
