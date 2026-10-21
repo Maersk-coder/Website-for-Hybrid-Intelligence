@@ -1,0 +1,11 @@
+/* SECTION LINES: Page 1's rippling contour lines as a quiet background on other pages
+   (Page 2 and Page 3). Drawn by General/JS/section_lines.js. */
+
+.section-lines {
+  position: absolute;   /* placed freely in its section, behind the content */
+  inset: 0;             /* fills the whole section */
+  width: 100%;
+  height: 100%;
+  opacity: 0.45;        /* fainter than on Page 1, so the lines blend into the background. Lower = fainter */
+  pointer-events: none; /* the mouse goes straight through to whatever is underneath */
+}

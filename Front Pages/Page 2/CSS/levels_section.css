@@ -3,6 +3,7 @@
 
 /* ----- The section itself ----- */
 .page-2 {
+  position: relative;  /* the faint background lines (section_lines.css) are placed within this section */
   min-height: 100vh;  /* the section is at least as tall as the screen */
   display: flex;  /* flexbox lets the column inside fill the whole height of the section */
   padding-top: calc(var(--header-h) + 40px);  /* room for the menu bar, plus 40px of extra space above the heading */
@@ -21,6 +22,7 @@
 
 /* The column holding everything: heading, staircase + panel, footnote */
 .levels{
+  position: relative;  /* puts the content on top of the background lines */
   display:grid;
   grid-template-rows: auto 1fr auto;  /* 3 rows: heading (as tall as it needs), staircase + panel (all the space left), footnote (as tall as it needs) */
   gap:28px; /* space between the 3 parts*/

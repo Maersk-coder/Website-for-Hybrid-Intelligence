@@ -26,13 +26,7 @@
   animation: glow-drift 24s ease-in-out infinite alternate;
 }
 
-/* The drawing surface for the rippling lines (drawn by Page 3/JS/page_3_lines.js), filling the section */
-.page-3-lines {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-}
+/* The rippling lines are a General part: see General/CSS/section_lines.css */
 
 /* People who turn off motion in their system settings see the glow standing still */
 @media (prefers-reduced-motion: reduce) {
