@@ -225,6 +225,10 @@
 
   <!-- PAGE 3: the chatbot. The box is empty on purpose: chat-widget.js (at the bottom) builds the chat panel inside it. -->
   <section class="page-3">
+    <!-- Background layers (decoration only), the same as Page 1's: drifting glows and rippling lines -->
+    <div class="page-3-glow" aria-hidden="true"></div>
+    <canvas class="page-3-lines" aria-hidden="true"></canvas>
+
     <div class="page-3-chat" id="hi-chat"></div>
   </section>
 
@@ -322,6 +326,8 @@
   <!-- Page 3: the chat panel. It lives in the Chatbot folder, so it can be used on other websites too.
        data-api = the address of the chatbot server (api.py), data-target = the box on Page 3 it goes in. -->
   <script src="../Chatbot/widget/chat-widget.js" data-api="http://127.0.0.1:8000" data-target="#hi-chat"></script>
+  <!-- The rippling lines behind the chat. Uses Page 1's line drawing, so it comes after Page 1's scripts. -->
+  <script src="Page 3/JS/page_3_lines.js"></script>
 
 
   <!-- Page 4: the co-authors pop-up. The list first, because the pop-up script uses it. -->
