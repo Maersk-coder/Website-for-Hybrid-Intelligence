@@ -6,7 +6,16 @@ let target = 0;          // the section we are on, or gliding to
 let lastScrollTime = 0;  // when the wheel last moved
 let lastDirection = 0;   // 1 = last scroll was down, -1 = up
 let lastJumpTime = 0;    // when the last jump started
-let lastStrength = 0;    // how strong the last scroll signal was
+let signals = [];        // the scroll signals of the last 0.3 seconds, as [time, strength], oldest first
+
+// How strong the scrolling was between "from" and "to" milliseconds ago: all signals in that time added up.
+// (Adding them up over time, instead of looking at single signals, also works when a busy page hands over
+//  several signals bundled into one big one: the total over 0.1 seconds stays the same.)
+function strengthBetween(now, from, to) {
+  return signals
+    .filter(([time]) => now - time < from && now - time >= to)
+    .reduce((total, [, strength]) => total + strength, 0);
+}
 
 // Which section is on screen? The one whose top is closest to the top of the screen.
 function sectionOnScreen() {
@@ -46,22 +55,33 @@ window.addEventListener("wheel", (event) => {
   const now = event.timeStamp;
   const direction = event.deltaY > 0 ? 1 : -1;  // deltaY above 0 = scrolling down, below 0 = up
   const strength = Math.abs(event.deltaY);      // how strong this scroll signal is
-
-  // Does this scroll signal start a new jump? (A trackpad keeps sending weaker and weaker signals for
-  // about a second after you let go. Those are the old scroll "rolling out" and must not count.)
-  const paused = now - lastScrollTime > 60;     // the wheel was still for a moment
   const turned = direction !== lastDirection;   // it turned the other way
+
+  // Remember this signal, and forget the ones older than 0.3 seconds (or from before turning around).
+  if (turned) signals = [];
+  signals.push([now, strength]);
+  signals = signals.filter(([time]) => now - time < 300);
+
+  // Is the scrolling fading out? A trackpad keeps sending weaker and weaker signals for about a second
+  // after you let go: the old scroll "rolling out". A mouse wheel, or fingers still moving on the pad,
+  // stay as strong or get stronger. So: compare the last 0.1 s with the 0.2 s before it (per 0.1 s).
+  const recentSpeed = strengthBetween(now, 100, 0);
+  const earlierSpeed = strengthBetween(now, 300, 100) / 2;
+  const fading = recentSpeed < earlierSpeed * 0.7;
+
+  // Does this scroll signal start a new jump?
+  const paused = now - lastScrollTime > 60;     // the wheel was still for a moment
   const pushedAgain =                           // a new swipe while the old one is still rolling out:
-    strength > lastStrength * 2 &&              //   the signal suddenly gets twice as strong,
-    strength > 20 &&                            //   it's a real push, not a tiny wobble,
+    recentSpeed > earlierSpeed * 2 &&           //   the scrolling suddenly gets twice as strong,
+    recentSpeed > 40 &&                         //   it's a real push, not a tiny wobble,
     now - lastJumpTime > 300;                   //   and the last jump didn't JUST start (a swipe starts weak and builds up)
   const keepGoing =                             // still scrolling after the last glide has finished:
     now - lastJumpTime > 600 &&                 //   the last jump had 0.6s to glide into place,
-    strength >= 15;                             //   and this is real scrolling, not the faint end of a trackpad roll-out
+    strength >= 15;                             //   and this is real scrolling, not a tiny wobble
 
   lastScrollTime = now;
   lastDirection = direction;
-  lastStrength = strength;
+  if (!turned && fading) return;                                 // a trackpad rolling out: never a new jump
   if (!paused && !turned && !pushedAgain && !keepGoing) return;  // still the same scroll: ignore
 
   // Not gliding right now? Then start from the section on screen
