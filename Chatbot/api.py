@@ -74,10 +74,11 @@ app.add_middleware(
 
 
 # The shape of the data going in and out. FastAPI checks incoming data against
-# these, and shows them on the /docs page.
+# these, and shows them on the /docs page. Each class lists the fields and their type
+# (str = text, list[...] = a list of ...). Data that doesn't fit is refused automatically.
 
 class HistoryMessage(BaseModel):
-    role: Literal["user", "assistant"]   # who said it: the visitor or the chatbot
+    role: Literal["user", "assistant"]   # who said it: the visitor or the chatbot (only these two words are allowed)
     content: str
 
 
@@ -108,6 +109,8 @@ class ChatResponse(BaseModel):
 
 # For each visitor (by IP address): the times of their recent questions.
 # This is kept in memory, so it starts empty again when the server restarts.
+# defaultdict(deque) = a dictionary that makes an empty list for a new visitor by itself.
+# A deque is a list where the oldest item can be removed quickly from the front.
 recent_questions = defaultdict(deque)
 # Several questions can be handled at the same time, so changes to
 # recent_questions are done one at a time with this lock.
@@ -131,6 +134,11 @@ def too_many_questions(visitor):
 # ---------------------------------------------------------------------------
 # Endpoints
 # ---------------------------------------------------------------------------
+# A line like @app.post("/chat") above a function is a "decorator": it tells FastAPI
+# "when a POST request arrives at /chat, run this function, and send back what it returns".
+# FastAPI fills in the function's inputs itself: body = the question (checked against
+# ChatRequest above), request = details like the visitor's IP address.
+# raise HTTPException(code, "message") stops and sends that error code and message back.
 
 def check_question(body, request):
     """The checks every question goes through. Returns (message, history), or stops with an error."""
@@ -179,6 +187,9 @@ def chat_stream(body: ChatRequest, request: Request):
     """
     message, history = check_question(body, request)
 
+    # lines() is a generator (see core/ai_model.py): each "yield" is one line for the chat panel.
+    # StreamingResponse (at the bottom) sends every line the moment it is yielded, instead of
+    # waiting for the whole answer.
     def lines():
         try:
             for kind, data in answer_question_stream(message, history):
@@ -207,6 +218,8 @@ def health():
     return {"status": "ok", "chunks_in_index": chunks, "model": model_description()}
 
 
+# This decorator says: when data doesn't fit ChatRequest (FastAPI raises a RequestValidationError),
+# run this function instead of sending FastAPI's own long error.
 @app.exception_handler(RequestValidationError)
 def wrong_format(request, error):
     """Data in the wrong shape (e.g. no "message"): a short, friendly error instead of a long one."""
@@ -220,6 +233,8 @@ def wrong_format(request, error):
 # Start the server when the file is run: python api.py
 # ---------------------------------------------------------------------------
 
+# This part only runs when you start this file yourself (python api.py),
+# not when another file imports it (for example a test).
 if __name__ == "__main__":
     import uvicorn
 

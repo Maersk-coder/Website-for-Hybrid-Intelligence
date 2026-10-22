@@ -20,6 +20,8 @@ PIECE_MAX_WORDS = CHUNK_MAX_WORDS - CHUNK_MIN_WORDS
 def split_long_paragraph(text):
     """Cut a paragraph longer than PIECE_MAX_WORDS into pieces, between sentences."""
     # A sentence ends with . ! or ? followed by a space and a capital letter or number.
+    # (?<=...) means "right after this" and (?=...) "right before this": the text is split
+    # at the space between two sentences, and the full stop stays with its sentence.
     sentences = re.split(r"(?<=[.!?])\s+(?=[A-Z0-9\"(\[])", text)
 
     pieces = []
@@ -57,12 +59,16 @@ def make_chunks(paragraphs):
         else:
             pieces.extend((page, part) for part in split_long_paragraph(text))
 
+    # How it works: go through the pieces one by one and add them to the chunk being built.
+    # When the chunk is full, save it, and start the next one with the end of this one (the overlap).
     chunks = []
     current = []        # the texts in the chunk being built
     current_words = 0
     first_page = None   # page of the first new piece in the chunk
     last_page = None
 
+    # A small function inside this function: it saves the chunk being built.
+    # (It can use current, first_page and last_page from the lines above.)
     def close_chunk():
         chunks.append({"text": "\n\n".join(current), "page": first_page, "page_end": last_page})
 

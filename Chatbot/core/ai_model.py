@@ -22,12 +22,18 @@ def stream_answer(message, history):
 
     Gives back the answer piece by piece (a few words at a time) while the model
     writes it, so it can be shown straight away.
+
+    This is a "generator": because it uses "yield" instead of "return", it doesn't give back
+    one finished answer, but hands out each piece the moment it arrives, to whoever loops
+    over it ("for piece in stream_answer(...)" in core/answers.py).
     """
     client = ollama.Client(host=OLLAMA_URL)
     try:
         pieces = client.chat(
             model=OLLAMA_MODEL,
-            # The instructions first, then the earlier conversation, then the new message.
+            # The messages, each with a "role": "system" = the instructions, "user" = a question,
+            # "assistant" = an earlier answer. The instructions first, then the earlier
+            # conversation, then the new message.
             messages=[{"role": "system", "content": SYSTEM_PROMPT}]
                      + history
                      + [{"role": "user", "content": message}],

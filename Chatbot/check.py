@@ -20,7 +20,11 @@ import sys
 from pathlib import Path
 
 HERE = Path(__file__).parent
-problems = 0
+problems = 0   # how many [FAIL] lines were printed (counted by fail() below)
+
+# Note: most imports are inside the check functions, not at the top of the file.
+# That way check_packages() runs first and can say which package is missing,
+# instead of the whole file crashing on a missing import.
 
 
 def ok(text):
@@ -28,7 +32,7 @@ def ok(text):
 
 
 def fail(text, fix):
-    global problems
+    global problems   # "global": change the counter at the top of the file, not a new one inside this function
     problems += 1
     print(f"[FAIL]  {text}")
     print(f"        -> {fix}")
@@ -43,7 +47,7 @@ def check_packages():
     missing = []
     for package in ("pymupdf", "chromadb", "ollama", "httpx", "fastapi", "uvicorn", "dotenv"):
         try:
-            importlib.import_module(package)
+            importlib.import_module(package)   # the same as "import pymupdf", but with the name in a variable
         except ImportError:
             missing.append(package)
     if missing:
@@ -89,6 +93,7 @@ def check_papers_and_index():
         fail("The search index is empty", "Run: python ingest.py")
         return
 
+    # The file names of all chunks in the index. { } makes a "set": each name only once.
     indexed = {info["file_name"] for info in collection.get(include=["metadatas"])["metadatas"]}
     ok(f"Search index has {count} chunks from {len(indexed)} paper(s)")
 
@@ -107,6 +112,7 @@ def check_ollama():
     from settings import OLLAMA_MODEL, OLLAMA_URL
 
     try:
+        # httpx.get visits an address, like a browser does. Ollama answers with its version number.
         version = httpx.get(f"{OLLAMA_URL}/api/version", timeout=3).json()["version"]
     except Exception:
         fail("Ollama is not running (or is busy updating itself)",

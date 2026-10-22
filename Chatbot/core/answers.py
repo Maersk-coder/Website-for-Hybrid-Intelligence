@@ -78,13 +78,17 @@ def fix_citations(answer, chunks):
       "[Excerpt 2, p. 4]"                       -> "[Hybrid Intelligence, p. 4]"
       "[Paper title: Hybrid Intelligence, p. 4]" -> "[Hybrid Intelligence, p. 4]"
     """
+    # re.sub calls this small function for every "Excerpt N" it finds, and puts in
+    # whatever it returns. match.group(1) is the N, match.group(0) the whole "Excerpt N".
     def to_title(match):
         number = int(match.group(1))
         if 1 <= number <= len(chunks):
             return chunks[number - 1]["title"]
         return match.group(0)  # a number we don't know: leave it as it is
 
+    # "Excerpt 2" only when ", p." or ", pp." comes right after it ((?=...) = "followed by").
     answer = re.sub(r"\bExcerpt\s+(\d+)(?=,\s*pp?\.)", to_title, answer)
+    # "[Paper title: " or "[Title: " at the start of a citation becomes just "[".
     answer = re.sub(r"\[\s*(Paper\s+)?title:\s*", "[", answer, flags=re.IGNORECASE)
     return answer
 
@@ -104,6 +108,8 @@ def find_sources(answer, chunks):
         seen_titles.add(title)
 
         # e.g. "Hybrid Intelligence, p. 3" or "Hybrid Intelligence, pp. 3-4"
+        # re.escape makes signs in the title (like ? or :) count as normal letters.
+        # The group ( ) catches the page numbers: digits, dashes, commas and spaces, ending with a digit.
         pattern = re.escape(title) + r",\s*pp?\.\s*([\d\-–, ]+\d)"
         pages = []
         for found in re.findall(pattern, answer):
@@ -113,6 +119,7 @@ def find_sources(answer, chunks):
                     pages.append(page)
         if pages:
             # Sort by the first number, then shortest first: "2", "5", "5-6", "7"
+            # (key = what to sort by; lambda is a tiny one-line function that works it out per page)
             pages.sort(key=lambda page: (int(re.match(r"\d+", page).group()), len(page)))
             sources.append({"title": title, "file_name": chunk["file_name"], "pages": pages})
     return sources
@@ -139,6 +146,9 @@ def answer_question_stream(question, history=None):
     history = clean_history(history)
     chunks = retrieve(search_text(question, history))
 
+    # Like stream_answer, this is a generator: each "yield" hands a piece on straight away
+    # (to api.py, which sends it to the chat panel), while the pieces are also kept to
+    # put the whole answer together at the end.
     pieces = []
     for piece in stream_answer(build_message(question, chunks), history):
         pieces.append(piece)
@@ -156,6 +166,7 @@ def answer_question(question, history=None):
 
     Returns the same dictionary as the "done" step of answer_question_stream.
     """
+    # Run through all the pieces without showing them, and keep only the final "done" step.
     for kind, data in answer_question_stream(question, history):
         if kind == "done":
             return data

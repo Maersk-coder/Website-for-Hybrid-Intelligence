@@ -23,6 +23,10 @@ from settings import MARGIN_SHARE, REPEAT_SHARE
 # ---------------------------------------------------------------------------
 # Patterns used for cleaning (regular expressions)
 # ---------------------------------------------------------------------------
+# A regular expression ("regex") describes a text pattern. The most used signs below:
+#   ^ = the start of the text     $ = the end       \d = a digit       \s = a space
+#   ? = the part before it is optional      a|b = a or b      ( ) = a group
+#   re.IGNORECASE = capital letters or not doesn't matter
 
 # A line that is only a page number: "7", "Page 7", "7 of 20", "7/20"
 PAGE_NUMBER = re.compile(r"^(page\s*)?\d{1,4}(\s*(of|/)\s*\d{1,4})?$", re.IGNORECASE)
@@ -60,6 +64,8 @@ def clean_block(text):
 
     # Join words broken over two lines: "collab-\noration" -> "collaboration".
     # Only when the next line starts with a small letter...
+    # (re.sub = find and replace. (\w) and ([a-z]) are groups: the letter before the "-" and
+    #  the letter after the line break. \1\2 puts those two letters back, without the "-" and break.)
     text = re.sub(r"(\w)-[ \t]*\n[ \t]*([a-z])", r"\1\2", text)
     # ...otherwise keep the hyphen: "Human-\nAI" -> "Human-AI".
     text = re.sub(r"(\w)-[ \t]*\n[ \t]*", r"\1-", text)
@@ -105,6 +111,8 @@ def title_from_first_page(doc):
     """Guess the title as the text in the biggest letters near the top of page 1."""
     page = doc[0]
     pieces = []  # (letter size, text) for every bit of text near the top
+    # get_text("dict") describes the page in layers: blocks (paragraphs) contain lines,
+    # and lines contain "spans" (pieces of text in one font and size). bbox = the span's box on the page.
     for block in page.get_text("dict")["blocks"]:
         for line in block.get("lines", []):
             # Skip sideways text (like the arXiv stamp down the edge).
@@ -185,6 +193,8 @@ def extract_paper(pdf_path):
     for page in doc:
         height = page.rect.height
         blocks = []
+        # Each block comes as 7 values: its box on the page (x0, y0 = top-left corner,
+        # x1, y1 = bottom-right corner; y grows downwards), its text, its number and its type.
         for x0, y0, x1, y1, text, block_no, block_type in page.get_text("blocks"):
             if block_type != 0:  # 0 = text, 1 = image
                 continue
@@ -194,6 +204,7 @@ def extract_paper(pdf_path):
     doc.close()
 
     # --- Find headers/footers: text in the margins that repeats on many pages ---
+    # A Counter is a dictionary that counts: margin_counts["journal of ai"] = on how many pages it was.
     margin_counts = Counter()
     for blocks in pages:
         # set(): count each text once per page
@@ -216,6 +227,7 @@ def extract_paper(pdf_path):
             text = block["text"]
             if len(text) < 2:
                 continue
+            # (page, block) pairs compare like dates: first the page number, then the block number.
             if start and (page_index, block_index) < start:
                 continue  # before the Abstract/Introduction heading
 
@@ -247,6 +259,7 @@ def extract_paper(pdf_path):
         "num_pages": num_pages,
         "paragraphs": paragraphs,
         "removed": sorted(removed),
+        # For the preview: the page number (counting from 1) and the first 40 letters of the heading
         "start": (start[0] + 1, pages[start[0]][start[1]]["text"][:40]) if start else None,
         "references_page": references_page,
         "word_count": word_count,

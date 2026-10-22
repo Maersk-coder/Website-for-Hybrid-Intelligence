@@ -118,6 +118,9 @@ RATE_WINDOW_SECONDS = 60
 # Settings from the .env file (change them in .env, not here)
 # ---------------------------------------------------------------------------
 
+# load_dotenv copies the lines in .env into the "environment" (settings the computer keeps
+# for a running program). os.getenv("NAME") then reads one. "or ..." gives the value to use
+# when .env doesn't have that line.
 load_dotenv(HERE / ".env")
 
 # Which Ollama model writes the answers, and where Ollama runs.
@@ -130,4 +133,6 @@ OLLAMA_THINK = os.getenv("OLLAMA_THINK", "false").strip().lower() == "true"
 
 # The websites allowed to use the server (separated by commas in .env).
 # Browsers block other websites from calling it. This is called CORS.
+# The line below cuts the text at every comma, removes spaces, and skips empty bits:
+# "a.com, b.com" -> ["a.com", "b.com"]
 ALLOWED_ORIGINS = [origin.strip() for origin in os.getenv("ALLOWED_ORIGINS", "").split(",") if origin.strip()]

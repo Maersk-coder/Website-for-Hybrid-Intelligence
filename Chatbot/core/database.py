@@ -34,6 +34,8 @@ _collection = None  # the index is opened once, then reused
 
 def get_collection():
     """Open the index for searching (only the first time) and return it."""
+    # "global" lets this function change _collection (outside the function), so the opened
+    # index is kept for the next question instead of being opened again every time.
     global _collection
     if _collection is None:
         collection = open_database().get_or_create_collection(name=COLLECTION_NAME)

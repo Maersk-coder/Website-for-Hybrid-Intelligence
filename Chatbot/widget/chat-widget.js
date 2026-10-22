@@ -11,6 +11,8 @@
 // The panel fills the box, so the box decides its size (see Page 3/CSS/page_3_section.css).
 // The script loads its own look (chat-widget.css, in the same folder), then builds the panel.
 
+// All the code is wrapped in (function () { ... })(); : a function that runs straight away.
+// That keeps its names (like TEXTS or ask) private, so they can't clash with the website's own scripts.
 (function () {
   // ---------------------------------------------------------------------------
   // Settings and texts (change these if you want)
@@ -128,6 +130,8 @@
     let html = escapeHtml(text);
 
     // Citations -> numbered tags. A bracket is only changed if every part of it is a known paper.
+    // /\[([^\[\]]+)\]/g finds every "[ ... ]" (g = all of them, not just the first). For each one,
+    // the arrow function gets the whole bracket and what's inside it, and returns what to put in its place.
     html = html.replace(/\[([^\[\]]+)\]/g, (whole, inside) => {
       const tags = inside.split(";").map((part) => {
         const match = part.trim().match(/^(.+?),\s*pp?\.\s*(.+)$/);
@@ -186,6 +190,7 @@
     ).join("");
 
     // The panel's parts. Only one of "start" and "top + messages" is visible at a time.
+    // The text between backticks `...` is a "template string": ${...} puts a value into the HTML.
     target.innerHTML = `
       <section class="hi-chat" aria-label="Chat with the research">
         <div class="hi-chat-top">
@@ -254,6 +259,8 @@
     }
 
     // Ask one question: show it, send it to the server, and show the answer as it arrives.
+    // "async" + "await": the function can wait for the server (await ...) without freezing
+    // the page. Meanwhile the visitor can still scroll, and the dots keep pulsing.
     async function ask(question) {
       question = question.trim();
       if (!question || busy) return;
@@ -269,10 +276,14 @@
       scrollDown(true);
       setBusy(true);
 
+      // An AbortController can cancel the request halfway (used when "New chat" is clicked).
       const controller = new AbortController();
       stopRequest = () => controller.abort();
 
+      // try { ... } catch { ... } finally { ... }: if anything in "try" fails (like no connection),
+      // "catch" shows a friendly message instead of the page breaking. "finally" always runs at the end.
       try {
+        // fetch sends the question to the server (api.py). JSON.stringify turns it into text.
         const response = await fetch(apiUrl + "/chat/stream", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -288,6 +299,9 @@
         }
 
         // The answer arrives as lines of JSON, a few words at a time (see api.py, /chat/stream).
+        // The reader hands out whatever has arrived so far, each time we ask for it (reader.read()).
+        // It comes as raw bytes; the decoder turns those into text. A piece can end halfway through
+        // a line, so the unfinished end is kept in "waiting" until the rest of the line arrives.
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
         let waiting = "";   // text received that isn't a complete line yet

@@ -51,6 +51,7 @@ def ingest(rebuild=False):
 
     for pdf_path in pdf_files:
         # Already indexed? Then skip it. (Use --rebuild to start over.)
+        # where= searches the chunks' extra information: is there one chunk from this file?
         already = collection.get(where={"file_name": pdf_path.name}, limit=1)
         if already["ids"]:
             skipped.append(pdf_path.name)
@@ -86,6 +87,8 @@ def ingest(rebuild=False):
                 "page_end": chunk["page_end"],
                 "chunk_id": chunk_id,
             })
+        # Save them all at once. ChromaDB makes the embedding for each chunk here,
+        # which is why this step takes a few seconds per paper.
         collection.add(ids=ids, documents=[c["text"] for c in chunks], metadatas=metadatas)
 
         new_papers += 1
@@ -171,6 +174,8 @@ if __name__ == "__main__":
     # Hide MuPDF's low-level warnings about slightly broken PDFs.
     pymupdf.TOOLS.mupdf_display_errors(False)
 
+    # argparse reads the options typed after "python ingest.py" (like --rebuild), and makes
+    # "python ingest.py --help" show them. "Mutually exclusive" = you can use one of them, not both.
     parser = argparse.ArgumentParser(description="Build the search index from the PDFs in papers/.")
     choice = parser.add_mutually_exclusive_group()
     choice.add_argument("--rebuild", action="store_true",
