@@ -1,14 +1,17 @@
 """
 api.py - a small web server, so the website's chat panel can talk to the chatbot.
 
-The website sends a question to this server, the server answers it with rag.py
-(search the papers + ask the AI) and sends back the answer and the sources.
+The website sends a question to this server, the server answers it (core/answers.py:
+search the papers + ask the AI) and sends back the answer and the sources.
 
 Addresses ("endpoints") it has:
   POST /chat         send {"message": "...", "history": [...]}, get {"answer": "...", "sources": [...]}
-  POST /chat/stream  the same, but the answer comes piece by piece while it is written
+  POST /chat/stream  the same, but the answer comes piece by piece while it is written (the chat panel uses this)
   GET  /health       check that the server is running
   GET  /docs         a test page FastAPI makes automatically, to try /chat in the browser
+
+Problems are written to logs/server.log (with the date and time), so you can look
+at them later, even after closing the terminal.
 
 How to run it (inside the Chatbot folder, with the virtual environment on):
   python api.py
@@ -16,11 +19,11 @@ Then open http://127.0.0.1:8000/docs in your browser. Stop it with Ctrl+C.
 """
 
 import json
-import os
+import logging
 import threading
 import time
-import traceback
 from collections import defaultdict, deque
+from logging.handlers import RotatingFileHandler
 from typing import Literal
 
 from fastapi import FastAPI, HTTPException, Request
@@ -29,29 +32,27 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel
 
-# Importing rag also reads the settings in .env.
-from rag import ChatbotError, answer_question, answer_question_stream, get_collection, model_description
+from core.ai_model import model_description
+from core.answers import answer_question, answer_question_stream
+from core.database import get_collection
+from core.errors import ChatbotError
+from settings import (
+    ALLOWED_ORIGINS, LOG_FILE, MAX_MESSAGE_CHARS, RATE_LIMIT, RATE_WINDOW_SECONDS, SERVER_HOST, SERVER_PORT,
+)
 
 
 # ---------------------------------------------------------------------------
-# Settings (change these if you want)
+# The error log: problems go to the terminal AND to logs/server.log
 # ---------------------------------------------------------------------------
 
-# The longest question a visitor may send, in characters.
-MAX_MESSAGE_CHARS = 1000
-
-# Each visitor may ask at most this many questions...
-RATE_LIMIT = 10
-# ...per this many seconds.
-RATE_WINDOW_SECONDS = 60
-
-# The websites allowed to use this server (from .env, separated by commas).
-# Browsers block other websites from calling it. This is called CORS.
-ALLOWED_ORIGINS = [
-    origin.strip()
-    for origin in os.getenv("ALLOWED_ORIGINS", "").split(",")
-    if origin.strip()
-]
+LOG_FILE.parent.mkdir(parents=True, exist_ok=True)
+log = logging.getLogger("chatbot")
+log.setLevel(logging.INFO)
+# The file is kept small: at 1 MB it starts a new one, and keeps the 3 newest old ones.
+file_log = RotatingFileHandler(LOG_FILE, maxBytes=1_000_000, backupCount=3, encoding="utf-8")
+file_log.setFormatter(logging.Formatter("%(asctime)s  %(levelname)s  %(message)s", "%Y-%m-%d %H:%M:%S"))
+log.addHandler(file_log)
+log.addHandler(logging.StreamHandler())  # also show it in the terminal
 
 
 # ---------------------------------------------------------------------------
@@ -63,6 +64,7 @@ app = FastAPI(
     description="Answers questions about AI and Hybrid Intelligence from research papers.",
 )
 
+# Only the websites in ALLOWED_ORIGINS (in .env) may use this server from a browser.
 app.add_middleware(
     CORSMiddleware,
     allow_origins=ALLOWED_ORIGINS,
@@ -101,7 +103,7 @@ class ChatResponse(BaseModel):
 
 
 # ---------------------------------------------------------------------------
-# Rate limiting: at most RATE_LIMIT questions per visitor per minute
+# Rate limiting: at most RATE_LIMIT questions per visitor per RATE_WINDOW_SECONDS
 # ---------------------------------------------------------------------------
 
 # For each visitor (by IP address): the times of their recent questions.
@@ -134,6 +136,7 @@ def check_question(body, request):
     """The checks every question goes through. Returns (message, history), or stops with an error."""
     visitor = request.client.host if request.client else "unknown"
     if too_many_questions(visitor):
+        log.warning("Too many questions from %s", visitor)
         raise HTTPException(429, "You're asking questions very quickly. Please wait a minute and try again.")
 
     message = body.message.strip()
@@ -154,10 +157,11 @@ def chat(body: ChatRequest, request: Request):
         result = answer_question(message, history)
     except ChatbotError as error:
         # A known problem with a friendly message (e.g. Ollama is not running).
+        log.warning("Question %r: %s", message[:80], error)
         raise HTTPException(503, str(error))
     except Exception:
-        # An unexpected problem: show the details in the terminal, not to the visitor.
-        traceback.print_exc()
+        # An unexpected problem: the details go to the log, not to the visitor.
+        log.exception("Unexpected error for question %r", message[:80])
         raise HTTPException(500, "Something went wrong on our side. Please try again.")
 
     return {"answer": result["answer"], "sources": result["sources"]}
@@ -183,9 +187,10 @@ def chat_stream(body: ChatRequest, request: Request):
                 else:
                     yield json.dumps({"type": "done", "answer": data["answer"], "sources": data["sources"]}) + "\n"
         except ChatbotError as error:
+            log.warning("Question %r: %s", message[:80], error)
             yield json.dumps({"type": "error", "detail": str(error)}) + "\n"
         except Exception:
-            traceback.print_exc()
+            log.exception("Unexpected error for question %r", message[:80])
             yield json.dumps({"type": "error", "detail": "Something went wrong on our side. Please try again."}) + "\n"
 
     # "ndjson" = newline-delimited JSON: one JSON object per line.
@@ -218,6 +223,6 @@ def wrong_format(request, error):
 if __name__ == "__main__":
     import uvicorn
 
-    print("Chatbot server starting. Test page: http://127.0.0.1:8000/docs  (stop with Ctrl+C)")
-    # 127.0.0.1 = only this computer can reach the server.
-    uvicorn.run(app, host="127.0.0.1", port=8000)
+    print(f"Chatbot server starting. Test page: http://{SERVER_HOST}:{SERVER_PORT}/docs  (stop with Ctrl+C)")
+    log.info("Server started (%s, allowed websites: %s)", model_description(), ", ".join(ALLOWED_ORIGINS) or "none")
+    uvicorn.run(app, host=SERVER_HOST, port=SERVER_PORT)

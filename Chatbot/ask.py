@@ -1,5 +1,5 @@
 """
-ask.py - ask the chatbot questions in the terminal.
+ask.py - ask the chatbot questions in the terminal (for testing; the website uses api.py).
 
 How to run it (inside the Chatbot folder, with the virtual environment on):
   python ask.py                  ask questions, see answers and sources
@@ -8,12 +8,17 @@ How to run it (inside the Chatbot folder, with the virtual environment on):
 Type a question and press Enter. Follow-up questions work: the chatbot remembers
 the last few questions and answers. Type "new" to start a fresh conversation,
 "quit" (or press Ctrl+C) to stop.
+
+--show-chunks is the best tool when an answer is poor: if the right passage isn't
+among the excerpts found, the problem is the search, not the AI model.
 """
 
 import argparse
 import sys
 
-from rag import ChatbotError, answer_question, page_label
+from core.answers import answer_question
+from core.database import page_label
+from core.errors import ChatbotError
 
 
 def show_chunks(chunks):

@@ -4,7 +4,8 @@ A chatbot that answers questions about AI and Hybrid Intelligence (collaboration
 humans and AI), including what is good and bad about AI. It answers **only** from a collection
 of research papers, and says which paper and page each claim comes from.
 
-It will be shown as a chat panel on Page 3 of the website.
+It is shown as a chat panel in the middle of Page 3 of the website. The answers are written by a
+free AI model (**Ollama**) running on your own computer.
 
 > Work in progress, built in stages. Done so far: **Stage 1 (setup)**, **Stage 2 (reading the papers)**,
 > **Stage 3 (answering questions in the terminal)**, **Stage 4 (the web API)** and **Stage 5 (the chat panel)**.
@@ -13,13 +14,12 @@ It will be shown as a chat panel on Page 3 of the website.
 
 RAG means *retrieval-augmented generation*:
 
-1. **Ingest (once):** the text of every paper is cut into small pieces ("chunks") and saved in a
+1. **Ingest (once):** the text of every paper is cut into pieces ("chunks") and saved in a
    *vector database*. Each chunk is stored with an embedding (numbers that describe its meaning).
 2. **Retrieve (every question):** the question is compared with all chunks, and the 6 closest
    in meaning are picked.
-3. **Generate:** the question and those 6 chunks are sent to an AI model, which writes an
-   answer using only those chunks, with sources. The AI model is either **Ollama** (free, on your
-   own computer) or **Claude** (paid). See [Choosing the AI model](#choosing-the-ai-model-ollama-free-or-claude-paid).
+3. **Generate:** the question and those 6 chunks are sent to the AI model, which writes an
+   answer using only those chunks, with sources.
 
 ## Important: the research papers are not in this repository
 
@@ -30,23 +30,52 @@ yourself, get those papers and put them in `papers/`.
 
 The database (`data/`) is not uploaded either. It is built from the PDFs with `python ingest.py`.
 
-## Files
+## The folder
 
-| File / folder | What it is |
+The files you **run** are at the top. The machinery they use is in `core/`, one file per job.
+
+```
+Chatbot/
+├── ingest.py          RUN: build the search index from the PDFs
+├── ask.py             RUN: ask questions in the terminal (for testing)
+├── api.py             RUN: the web server the website's chat panel talks to
+├── check.py           RUN: check that everything is ready, and say what to fix
+├── settings.py        ALL settings and texts in one place
+│
+├── core/              the machinery (you don't run these)
+│   ├── errors.py         ChatbotError: a problem with a friendly message
+│   ├── pdf_text.py       read a PDF, clean its text, find its title
+│   ├── chunks.py         cut the text into chunks
+│   ├── database.py       the search index: store chunks, find the best matches
+│   ├── ai_model.py       talk to Ollama
+│   └── answers.py        answer a question: search, ask the AI, repair citations, list sources
+│
+├── widget/            the chat panel for the website (chat-widget.js + chat-widget.css)
+├── papers/            your PDFs (+ README.md with the list of papers)
+├── data/              made automatically: the search index (chroma/) and preview.txt
+├── logs/              made automatically: server.log, the problems api.py ran into
+│
+├── .env               your own settings (made from .env.example)
+├── .env.example       an example of .env
+├── requirements.txt   the Python packages needed
+└── .gitignore         the files Git leaves out (settings, database, papers, logs)
+```
+
+### Where to look when something goes wrong
+
+**Start with `python check.py`.** It checks the packages, the settings, the PDFs, the index,
+Ollama, the model and the server, and says what to fix.
+
+| What you see | Where to look |
 |---|---|
-| `papers/` | Put the PDF research papers here. `papers/README.md` lists them. |
-| `data/chroma/` | The vector database. Created automatically, not uploaded to GitHub. |
-| `ingest.py` | Reads the PDFs, cleans the text, cuts it into chunks and saves them in the database. |
-| `rag.py` | The "brain": finds the 6 best chunks for a question and asks the AI model (Ollama or Claude) to answer from them. The instructions for the AI (`SYSTEM_PROMPT`) are at the top. |
-| `ask.py` | Ask questions in the terminal and see the answers and sources. |
-| `api.py` | A small web server, so the website's chat panel can send questions and get answers. |
-| `widget/chat-widget.js` | The chat panel for a website: builds it, sends questions to `api.py`, shows the answers word by word with numbered sources. |
-| `widget/chat-widget.css` | The look of the chat panel (navy, with a soft glow). Loaded automatically by `chat-widget.js`. |
-| `requirements.txt` | The Python packages the chatbot needs. |
-| `.env.example` | Example of the secret settings file. Copy it to `.env` and fill it in. |
-| `.gitignore` | Tells Git which files to leave out (secrets, database, papers). |
-
-Coming in a later stage: test questions and deployment notes.
+| "Could not reach Ollama" | Ollama isn't running (or is updating itself): look for the llama icon near the clock. Code: `core/ai_model.py` |
+| The chat says it can't reach the chatbot | `api.py` isn't running, or the website's address isn't in `ALLOWED_ORIGINS` in `.env` |
+| Strange text, headers left in, wrong paper title | `core/pdf_text.py`. Check the PDF with `python ingest.py --preview "file.pdf"` |
+| The search finds the wrong excerpts | `core/database.py` / `core/chunks.py`. Check with `python ask.py --show-chunks` |
+| Answers are too long, copy the papers, or ignore the rules | `SYSTEM_PROMPT` and `ANSWER_RULES` in `settings.py` |
+| Citations or the Sources list look wrong | `core/answers.py` (`fix_citations`, `find_sources`) |
+| Something went wrong while the server was running | `logs/server.log`: each problem with the date and time |
+| The chat panel looks or behaves wrong | `widget/chat-widget.js` / `widget/chat-widget.css` |
 
 ## Setup (once)
 
@@ -91,12 +120,23 @@ This takes a few minutes (ChromaDB is big).
 Copy-Item .env.example .env
 ```
 
-`.env` holds your settings: which AI model answers the questions and, if you use Claude, your
-secret API key. It is never uploaded to GitHub. Out of the box it is set to the free Ollama.
+`.env` holds your own settings: which Ollama model writes the answers, and which websites may use
+the chatbot. It is never uploaded to GitHub.
 
-### 4. Install Ollama and download a model
+### 4. Install Ollama and download the model
 
-See [Choosing the AI model](#choosing-the-ai-model-ollama-free-or-claude-paid) below.
+1. Download and install Ollama from [ollama.com/download](https://ollama.com/download) (Windows version).
+   After installing, Ollama runs in the background (a small llama icon near the clock).
+2. Open a **new** terminal and download the model (about 3.5 GB, once):
+   ```powershell
+   ollama pull qwen3.5:4b
+   ```
+
+### 5. Check
+
+```powershell
+python check.py
+```
 
 ## Building the index from the papers
 
@@ -107,9 +147,9 @@ python ingest.py --preview "name-of-paper.pdf"
 ```
 
 Use the file name of a PDF in `papers/`, with the quotes. This shows a summary in the terminal
-(the title found, the page where the reference list starts, how many chunks it makes and which
-headers/footers were removed) and saves the full cleaned text in `preview.txt`. Open that file in
-VS Code to read it. Each preview replaces the previous one. Nothing is added to the index.
+(the title found, where the text starts, where the reference list starts, how many chunks it makes
+and which headers/footers were removed) and saves the full cleaned text in `data/preview.txt`.
+Open that file in VS Code to read it. Each preview replaces the previous one. Nothing is added to the index.
 
 ### Build the index
 
@@ -128,18 +168,17 @@ python ingest.py
 python ingest.py --rebuild
 ```
 
-Use this after changing a PDF, removing a PDF, or changing the settings at the top of `ingest.py`.
+Use this after changing or removing a PDF, or after changing the chunk or PDF settings in `settings.py`.
 
 ## Asking questions in the terminal
 
-The AI model must be ready first: Ollama running with the model downloaded, or a Claude API key
-in `.env` (see [Choosing the AI model](#choosing-the-ai-model-ollama-free-or-claude-paid)).
+Ollama must be running, with the model downloaded.
 
 ```powershell
 python ask.py
 ```
 
-Type a question after `You:` and press Enter. After a few seconds you get the answer and the list
+Type a question after `You:` and press Enter. After a while you get the answer and the list
 of papers (and pages) it cites. Type `quit` to stop.
 
 To see which excerpts the search found for each question (useful when an answer is poor):
@@ -166,7 +205,7 @@ Leave this terminal open: the server runs until you press **Ctrl+C**. While it r
 
 - **http://127.0.0.1:8000/health** - shows `"status": "ok"`, the number of chunks and the model in use.
 - **http://127.0.0.1:8000/docs** - a test page made by FastAPI. Click **POST /chat** → **Try it out**,
-  type a question in `"message"` and click **Execute**. The answer appears under *Response body*.
+  change the question in `"message"` if you like, and click **Execute**. The answer appears under *Response body*.
 
 What it accepts and sends back:
 
@@ -204,11 +243,11 @@ If something goes wrong, the last line is `{"type": "error", "detail": "a friend
 The full answer in the `done` line can differ slightly from the pieces, because citations are
 repaired at the end. The chat panel shows the `done` version.
 
-**Speed with Ollama:** the AI *reads* the excerpts in a few seconds, but *writes* only about
-9 tokens per second on a laptop, so a whole answer takes 40-60 seconds. With `/chat/stream` the
-first words appear after about 10 seconds. Fewer excerpts would not make it noticeably faster.
+**Speed:** the AI *reads* the excerpts in a few seconds, but *writes* only about 9 tokens per second
+on a laptop, so a whole answer takes 40-60 seconds. With `/chat/stream` the first words appear after
+about 10 seconds (about 25 seconds for the first question, while Ollama loads the model).
 
-**Protection** (settings at the top of `api.py`):
+**Protection** (settings in `settings.py` and `.env`):
 
 | Setting | What it does |
 |---|---|
@@ -219,15 +258,9 @@ first words appear after about 10 seconds. Fewer excerpts would not make it noti
 Errors come back as `{"detail": "a friendly message"}`, with these codes: 400 (empty or too long),
 422 (wrong format), 429 (too many questions), 503 (the AI or index isn't ready, e.g. Ollama not running), 500 (unexpected).
 
-### Settings in rag.py
-
-| Setting | What it does |
-|---|---|
-| `SYSTEM_PROMPT` | The instructions the AI follows for every answer. |
-| `ANSWER_RULES` | Short extra rules sent next to each question: own words, about 150–250 words, only relevant excerpts, how to cite. |
-| `NUMBER_OF_CHUNKS` | How many excerpts are sent with each question (6). |
-| `OLLAMA_CONTEXT_SIZE` | Ollama only: how much text the model can read at once. Must fit the 6 excerpts. |
-| `EFFORT` | Claude only: how carefully Claude thinks: `low`, `medium`, `high`, `xhigh`, `max`. Higher = better but slower and more expensive. |
+**The error log:** problems are also written to `logs/server.log`, with the date and time: when
+Ollama couldn't be reached, when someone asked too many questions, and the full details of any
+unexpected error. The file stays small: at 1 MB a new one is started (the 3 newest old ones are kept).
 
 ## The chat panel (widget/)
 
@@ -278,79 +311,49 @@ Opening `Front_Page.html` by double-clicking also works if `ALLOWED_ORIGINS` end
 (a double-clicked file introduces itself as "null"). Only use that on your own computer, and remove
 it before the website goes online. After changing `.env`, restart `api.py` (Ctrl+C, then `python api.py`).
 
-## Choosing the AI model: Ollama (free) or Claude (paid)
+## Settings
 
-The chatbot can use two kinds of AI model to write the answers. Searching the papers works the
-same with both. Only the step that *writes* the answer changes.
+**`settings.py`** holds all the settings and texts. The most useful ones:
 
-| | **Ollama** (current setting) | **Claude** (Anthropic) |
-|---|---|---|
-| Cost | Free | Paid per question (see below) |
-| Where it runs | On your own computer | On Anthropic's servers |
-| Answer quality | OK. Small models sometimes cite less exactly or miss nuance. | Very good, careful citations and balanced answers |
-| Speed | Depends on your computer (seconds to a minute) | A few seconds |
-| On a public website | Only while your own computer is on and running it | Works anywhere |
+| Setting | What it does |
+|---|---|
+| `SYSTEM_PROMPT` | The instructions the AI follows for every answer. |
+| `ANSWER_RULES` | Short extra rules sent next to each question: own words, about 150–250 words, only relevant excerpts, how to cite. |
+| `NUMBER_OF_CHUNKS` | How many excerpts are sent with each question (6). |
+| `CHUNK_MIN_WORDS`, `CHUNK_MAX_WORDS`, `OVERLAP_WORDS` | The size of the chunks (500–700 words, 100 words overlap). Rebuild the index after changing them. |
+| `OLLAMA_CONTEXT_SIZE` | How much text the model can read at once. Must fit the excerpts and the conversation. |
+| `MAX_HISTORY_MESSAGES` | How many earlier messages the AI sees (6 = the last 3 questions and answers). |
 
-You switch between them with **one line in `.env`**: `LLM_PROVIDER=ollama` or `LLM_PROVIDER=anthropic`.
-No code changes are needed.
+**`.env`** holds the settings that differ per computer:
 
-### Using Ollama (free)
+| Setting | What it does |
+|---|---|
+| `OLLAMA_MODEL` | Which Ollama model writes the answers (now `qwen3.5:4b`). |
+| `OLLAMA_URL` | Where Ollama runs (normally `http://localhost:11434`). |
+| `OLLAMA_THINK` | `true` = the model reasons step by step first. Can give better answers, but much slower. |
+| `ALLOWED_ORIGINS` | The websites allowed to use the chatbot. |
 
-1. Download and install Ollama from [ollama.com/download](https://ollama.com/download) (Windows version).
-   After installing, Ollama runs in the background (a small llama icon near the clock).
-2. Open a **new** terminal and download the model (about 3.5 GB, once):
-   ```powershell
-   ollama pull qwen3.5:4b
-   ```
-3. Check that `.env` contains:
-   ```
-   LLM_PROVIDER=ollama
-   OLLAMA_MODEL=qwen3.5:4b
-   OLLAMA_THINK=false
-   ```
-4. Run `python ask.py` as usual.
+### Other Ollama models
 
-**Other models:** any model from [ollama.com/library](https://ollama.com/library) can be used.
-Download it with `ollama pull <name>` and put the name in `OLLAMA_MODEL`. Bigger models give
-better answers but need more memory and are slower. On a laptop with 16 GB of memory and a 4 GB
-graphics card:
+Any model from [ollama.com/library](https://ollama.com/library) can be used. Download it with
+`ollama pull <name>` and put the name in `OLLAMA_MODEL` in `.env`. Bigger models give better answers
+but need more memory and are slower. On a laptop with 16 GB of memory and a 4 GB graphics card:
 
 | `OLLAMA_MODEL` | Download | Notes |
 |---|---|---|
-| `qwen3.5:4b` | ~3.5 GB | **Used now.** Faster. With the 8,192-token reading limit it runs about half on the graphics card, half on the processor (`ollama ps` shows this). |
-| `qwen3.5:9b` | ~7 GB | Strongest that fits. Slower: part of it runs on the processor. |
-| `gemma3:4b` | ~3.4 GB | Fast. Can't think step by step (keep `OLLAMA_THINK=false`). |
+| `qwen3.5:4b` | ~3.5 GB | **Used now.** With the 8,192-token reading limit it runs about half on the graphics card, half on the processor (`ollama ps` shows this). |
+| `qwen3.5:9b` | ~7 GB | Stronger, but slower: more of it runs on the processor. |
 
 `ollama list` shows the models you have downloaded. `ollama rm <name>` deletes one to free disk space.
 
-**Thinking (`OLLAMA_THINK`):** Qwen models can reason step by step before they answer. Set
-`OLLAMA_THINK=true` to try it. Answers may get better, but each one can take minutes on a laptop.
+### Switching to a paid model later (Claude)
 
-### Switching to Claude (paid)
+The chatbot used to have the option to let Claude (Anthropic's paid AI model) write the answers
+instead of Ollama: better and faster answers, but paid per question. It was removed to keep the
+code simple. That version is saved in Git, in commit **`0145a3c`**: see `rag.py` there
+(the functions `ask_claude` and `stream_ai`), and the "Choosing the AI model" part of its README.
 
-1. Create an account at [console.anthropic.com](https://console.anthropic.com) and add credit
-   (*Billing*). Optional but recommended: set a monthly spending limit (*Limits*).
-2. Create an API key (*API Keys*) and copy it.
-3. In `.env`, change these lines:
-   ```
-   LLM_PROVIDER=anthropic
-   ANTHROPIC_API_KEY=<paste your key here>
-   ANTHROPIC_MODEL=claude-opus-5-5
-   ```
-4. Run `python ask.py` as usual. To go back to Ollama, set `LLM_PROVIDER=ollama` again.
-
-Approximate cost per question with the Claude models (6 excerpts + one answer):
-
-| `ANTHROPIC_MODEL` | Cost per question | Questions per $1 |
-|---|---|---|
-| `claude-opus-5-5` (best) | ~5 cents | ~20 |
-| `claude-sonnet-5-5` | ~2 cents | ~50 |
-| `claude-haiku-5-5` (cheapest) | ~0.1 cent | ~1,000 |
-
-Using the API key is paid whether the website is published or not: every question sent to
-Claude is billed to the key's account. A claude.ai subscription (Pro/Max) does not include API use.
-
-## How the text is cleaned (ingest.py)
+## How the text is cleaned (core/pdf_text.py)
 
 - **Headers and footers:** text at the top or bottom of the page that repeats on many pages
   (like a journal name) is removed. So are lines that are only a page number.
@@ -362,11 +365,13 @@ Claude is billed to the key's account. A claude.ai subscription (Pro/Max) does n
   (Appendices after the references are skipped too.)
 - **Title:** taken from the PDF's hidden information, otherwise the biggest text on page 1,
   otherwise the file name.
-- **Chunks:** 300–500 words, built from whole paragraphs where possible, and each chunk starts
-  with the last 50 words of the one before. Each chunk is saved with the paper title,
+- **Chunks** (`core/chunks.py`): 500–700 words, built from whole paragraphs where possible, and each
+  chunk starts with the last 100 words of the one before. Each chunk is saved with the paper title,
   file name, page number(s) and a chunk id.
 
 ## Good to know
 
 - **OneDrive:** this folder is synced by OneDrive. If you see "file in use" or "permission
   denied" errors, pause OneDrive syncing while you run the scripts.
+- **Ollama updates itself** now and then. While it updates (a few minutes) it is switched off, and
+  the chat says it can't reach Ollama. `python check.py` tells you when it's back.

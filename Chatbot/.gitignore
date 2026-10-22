@@ -1,10 +1,14 @@
 # Files in the Chatbot folder that Git should NOT upload to GitHub
 
-# Your secret settings (API key)
+# Your own settings
 .env
 
-# The vector database. It is rebuilt from the PDFs with: python ingest.py
+# Made by the scripts: the search index (rebuilt with: python ingest.py)
+# and data/preview.txt (made by: python ingest.py --preview)
 data/
+
+# The error log made by api.py
+logs/
 
 # The virtual environment (the installed packages). Recreate it with the README steps.
 .venv/
@@ -12,9 +16,6 @@ data/
 # The research papers (copyright). Only the README in the folder is uploaded.
 papers/*
 !papers/README.md
-
-# The checking file made by: python ingest.py --preview
-preview.txt
 
 # Python's own cache files
 __pycache__/
