@@ -18,6 +18,7 @@ import os
 import re
 
 import anthropic
+import httpx  # the package Ollama uses to connect (installed together with ollama)
 import ollama
 from dotenv import load_dotenv
 
@@ -242,7 +243,9 @@ def stream_ollama(message, history):
         for piece in pieces:
             if piece.message.content:
                 yield piece.message.content
-    except ConnectionError:
+    except (ConnectionError, httpx.ConnectError):
+        # Ollama isn't running (not started, or busy updating itself).
+        # ConnectionError is what Ollama gives for a normal answer, httpx.ConnectError for a streamed one.
         raise ChatbotError("Could not reach Ollama. Is the Ollama app running? (see README)")
     except ollama.ResponseError as error:
         if error.status_code == 404:
