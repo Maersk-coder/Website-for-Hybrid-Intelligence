@@ -72,15 +72,32 @@ than guessing. Write clearly for a general audience."""
 # Extra rules sent together with every question, right after the excerpts.
 # Small models follow short, concrete rules best when they come next to the question.
 # {example} is replaced with a real citation from the excerpts, e.g. [Hybrid Intelligence, p. 5].
+# (Based on the scores in tests/results/2026-10-22_1824.md: answers were too long and too academic,
+#  and "not covered" answers went off on a tangent.)
 ANSWER_RULES = """Rules for your answer:
+- Write for people who know nothing about this topic: use everyday words and short sentences.
+  Avoid technical terms, or explain them in a few words.
+- Keep it short: 3 to 5 sentences. A question about a fact (how many, when, who) gets 1 or 2 sentences.
+  The visitor can always ask for more.
 - Explain in your own words. Do not copy long passages from the excerpts.
-- Keep it to about 150-250 words.
 - Use only the excerpts that are relevant to the question. Ignore the others.
-- Cite every claim with the real title and page of the paper, for example: {example}
-  Copy the title exactly. Never write the words "Paper title" in a citation."""
+- Cite every claim with the title and page, for example: {example}
+  Write the title exactly as it is written above. Never write the words "Paper title" in a citation.
+- If the excerpts don't answer the question, reply in 1 or 2 short sentences: say that your research
+  papers don't cover this and suggest searching elsewhere, like Google. Then invite the visitor to ask
+  anything else about Hybrid Intelligence or AI. Don't explain why, don't cite anything, add nothing else."""
 
 # How many chunks (excerpts) are found and sent with each question.
 NUMBER_OF_CHUNKS = 6
+
+# Questions that have nothing to do with the papers (like "What is the best pizza in Rome?") get this
+# fixed answer straight away, without asking the AI. A question counts as off-topic when even the
+# closest excerpt is further away than OFF_TOPIC_DISTANCE. Measured on 2026-10-23: off-topic questions
+# 1.64-1.89, real questions 0.5-1.4. Lower = more questions count as off-topic. (9 = switch it off.)
+# Check a question's distance with:  python ask.py --show-chunks
+OFF_TOPIC_DISTANCE = 1.6
+OFF_TOPIC_ANSWER = ("That's not something I can help with. Try a search engine like Google instead. "
+                    "You're welcome to ask me anything about Hybrid Intelligence or AI!")
 
 # Conversation memory: how many earlier messages the AI sees (6 = the last 3
 # questions and 3 answers), and the most characters kept from each one.

@@ -140,9 +140,22 @@ def too_many_questions(visitor):
 # ChatRequest above), request = details like the visitor's IP address.
 # raise HTTPException(code, "message") stops and sends that error code and message back.
 
+def visitor_address(request):
+    """The visitor's IP address, used for the question limit.
+
+    Through a Cloudflare Tunnel (see DEPLOYMENT.md) every visitor seems to come from this computer
+    itself, so Cloudflare sends the real address along in the "CF-Connecting-IP" header.
+    (The server only listens on 127.0.0.1, so only the tunnel and this computer can set that header.)
+    """
+    real_address = request.headers.get("cf-connecting-ip")
+    if real_address:
+        return real_address
+    return request.client.host if request.client else "unknown"
+
+
 def check_question(body, request):
     """The checks every question goes through. Returns (message, history), or stops with an error."""
-    visitor = request.client.host if request.client else "unknown"
+    visitor = visitor_address(request)
     if too_many_questions(visitor):
         log.warning("Too many questions from %s", visitor)
         raise HTTPException(429, "You're asking questions very quickly. Please wait a minute and try again.")

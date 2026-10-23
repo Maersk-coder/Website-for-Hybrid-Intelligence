@@ -13,7 +13,7 @@ import re
 
 from core.ai_model import stream_answer
 from core.database import page_label, retrieve
-from settings import ANSWER_RULES, MAX_HISTORY_CHARS, MAX_HISTORY_MESSAGES
+from settings import ANSWER_RULES, MAX_HISTORY_CHARS, MAX_HISTORY_MESSAGES, OFF_TOPIC_ANSWER, OFF_TOPIC_DISTANCE
 
 
 # ---------------------------------------------------------------------------
@@ -52,18 +52,38 @@ def search_text(question, history):
     return question
 
 
+def citation_names(chunks):
+    """The title each paper is cited with: a short version of long titles.
+
+    "When combinations of humans and AI are useful: A systematic review and meta-analysis"
+    becomes "When combinations of humans and AI are useful" (the part before the colon).
+    Shorter titles make the answers shorter and quicker to write; fix_citations puts the
+    full title back afterwards. Returns a dictionary: full title -> name to cite.
+    """
+    names = {}
+    for chunk in chunks:
+        title = chunk["title"]
+        names[title] = title.split(":")[0].strip() if ":" in title and len(title) > 60 else title
+    # Two papers with the same short title? Then those two keep their full titles.
+    for title, name in names.items():
+        if list(names.values()).count(name) > 1:
+            names[title] = title
+    return names
+
+
 def build_message(question, chunks):
     """Put the excerpts and the question together into the message for the AI model."""
+    names = citation_names(chunks)
     parts = ["Research excerpts:\n"]
     for chunk in chunks:
         parts.append(
             "---\n"
-            f"Title: {chunk['title']}\n"
+            f"Title: {names[chunk['title']]}\n"
             f"Page: {page_label(chunk)}\n"
             f"{chunk['text']}\n"
         )
     # A real example citation, made from the first excerpt.
-    example = f"[{chunks[0]['title']}, p. {page_label(chunks[0])}]"
+    example = f"[{names[chunks[0]['title']]}, p. {page_label(chunks[0])}]"
     parts.append(ANSWER_RULES.format(example=example) + "\n\n" + f"Question: {question}")
     return "\n".join(parts)
 
@@ -73,10 +93,11 @@ def build_message(question, chunks):
 # ---------------------------------------------------------------------------
 
 def fix_citations(answer, chunks):
-    """Repair citations that small models sometimes write wrongly.
+    """Repair citations that small models sometimes write wrongly, and put the full titles back.
 
-      "[Excerpt 2, p. 4]"                       -> "[Hybrid Intelligence, p. 4]"
-      "[Paper title: Hybrid Intelligence, p. 4]" -> "[Hybrid Intelligence, p. 4]"
+      "[Excerpt 2, p. 4]"                         -> "[Hybrid Intelligence, p. 4]"
+      "[Paper title: Hybrid Intelligence, p. 4]"   -> "[Hybrid Intelligence, p. 4]"
+      "[The Hybrid Intelligence Manifesto, p. 6]"  -> "[The Hybrid Intelligence Manifesto: A Multi-Level ..., p. 6]"
     """
     # re.sub calls this small function for every "Excerpt N" it finds, and puts in
     # whatever it returns. match.group(1) is the N, match.group(0) the whole "Excerpt N".
@@ -90,7 +111,29 @@ def fix_citations(answer, chunks):
     answer = re.sub(r"\bExcerpt\s+(\d+)(?=,\s*pp?\.)", to_title, answer)
     # "[Paper title: " or "[Title: " at the start of a citation becomes just "[".
     answer = re.sub(r"\[\s*(Paper\s+)?title:\s*", "[", answer, flags=re.IGNORECASE)
-    return answer
+
+    # Put the full titles back. The model cites the short titles from citation_names, or sometimes
+    # shortens a title itself; both are recognised (small or capital letters don't matter).
+    full_titles = {chunk["title"] for chunk in chunks}
+    by_short_name = {name.lower(): title for title, name in citation_names(chunks).items()}
+
+    def full_title(cited):
+        if cited.lower() in by_short_name:
+            return by_short_name[cited.lower()]
+        # A title the model shortened itself: the one full title that starts with it.
+        starting_with = [t for t in full_titles if len(cited) >= 10 and t.lower().startswith(cited.lower())]
+        return starting_with[0] if len(starting_with) == 1 else cited
+
+    # For each "[ ... ]": every part like "Some title, p. 3" (parts are separated by ";")
+    # gets its full title. Anything else in the brackets stays as it is.
+    def repair(match):
+        parts = []
+        for part in match.group(1).split(";"):
+            cited = re.match(r"\s*(.+?)(,\s*pp?\..*)$", part)
+            parts.append(full_title(cited.group(1).strip()) + cited.group(2) if cited else part.strip())
+        return "[" + "; ".join(parts) + "]"
+
+    return re.sub(r"\[([^\[\]]+)\]", repair, answer)
 
 
 def find_sources(answer, chunks):
@@ -145,6 +188,13 @@ def answer_question_stream(question, history=None):
     """
     history = clean_history(history)
     chunks = retrieve(search_text(question, history))
+
+    # Nothing to do with the papers? Even the closest excerpt is far away (see OFF_TOPIC_DISTANCE
+    # in settings.py). Then give the fixed short answer straight away, without asking the AI.
+    if chunks[0]["distance"] > OFF_TOPIC_DISTANCE:
+        yield "text", OFF_TOPIC_ANSWER
+        yield "done", {"answer": OFF_TOPIC_ANSWER, "sources": [], "chunks": chunks}
+        return
 
     # Like stream_answer, this is a generator: each "yield" hands a piece on straight away
     # (to api.py, which sends it to the chat panel), while the pieces are also kept to

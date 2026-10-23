@@ -7,8 +7,9 @@ of research papers, and says which paper and page each claim comes from.
 It is shown as a chat panel in the middle of Page 3 of the website. The answers are written by a
 free AI model (**Ollama**) running on your own computer.
 
-> Work in progress, built in stages. Done so far: **Stage 1 (setup)**, **Stage 2 (reading the papers)**,
-> **Stage 3 (answering questions in the terminal)**, **Stage 4 (the web API)** and **Stage 5 (the chat panel)**.
+> Built in 6 stages: **1** setup, **2** reading the papers, **3** answering questions in the terminal,
+> **4** the web API, **5** the chat panel, **6** test questions and going online
+> (see [Testing answer quality](#testing-answer-quality) and [DEPLOYMENT.md](DEPLOYMENT.md)).
 
 ## How it works (RAG)
 
@@ -51,10 +52,13 @@ Chatbot/
 │   └── answers.py        answer a question: search, ask the AI, repair citations, list sources
 │
 ├── widget/            the chat panel for the website (chat-widget.js + chat-widget.css)
+├── tests/             test questions (test_questions.md), the script that runs them
+│                      (run_tests.py) and its reports (results/)
 ├── papers/            your PDFs (+ README.md with the list of papers)
 ├── data/              made automatically: the search index (chroma/) and preview.txt
 ├── logs/              made automatically: server.log, the problems api.py ran into
 │
+├── DEPLOYMENT.md      how to put the website and the chatbot online
 ├── .env               your own settings (made from .env.example)
 ├── .env.example       an example of .env
 ├── requirements.txt   the Python packages needed
@@ -73,6 +77,7 @@ Ollama, the model and the server, and says what to fix.
 | Strange text, headers left in, wrong paper title | `core/pdf_text.py`. Check the PDF with `python ingest.py --preview "file.pdf"` |
 | The search finds the wrong excerpts | `core/database.py` / `core/chunks.py`. Check with `python ask.py --show-chunks` |
 | Answers are too long, copy the papers, or ignore the rules | `SYSTEM_PROMPT` and `ANSWER_RULES` in `settings.py` |
+| A real question gets "That's not something I can help with..." | `OFF_TOPIC_DISTANCE` in `settings.py` is too low for that question. Check its distance with `python ask.py --show-chunks` |
 | Citations or the Sources list look wrong | `core/answers.py` (`fix_citations`, `find_sources`) |
 | Something went wrong while the server was running | `logs/server.log`: each problem with the date and time |
 | The chat panel looks or behaves wrong | `widget/chat-widget.js` / `widget/chat-widget.css` |
@@ -311,6 +316,38 @@ Opening `Front_Page.html` by double-clicking also works if `ALLOWED_ORIGINS` end
 (a double-clicked file introduces itself as "null"). Only use that on your own computer, and remove
 it before the website goes online. After changing `.env`, restart `api.py` (Ctrl+C, then `python api.py`).
 
+## Testing answer quality
+
+[tests/test_questions.md](tests/test_questions.md) holds test questions of different kinds:
+definitions, benefits and risks, specific facts, a follow-up, a tricky question with a wrong
+assumption, and one the papers don't cover. For each it notes what a good answer contains, with
+page numbers. There are empty slots for questions about papers you add later.
+
+```powershell
+python tests/run_tests.py              all questions (about 10-20 minutes on a laptop)
+python tests/run_tests.py --only 3,6   only some questions
+```
+
+It asks the chatbot every question and saves a report in `tests/results/`, named after the date
+and time. For each question the report shows the answer, the sources, the excerpts the search
+found, the time it took, and three automatic checks:
+
+| Check | Means |
+|---|---|
+| **Search** | The search found the paper(s) a good answer needs. If not: the problem is the search (chunks, `NUMBER_OF_CHUNKS`). |
+| **Cited** | The answer cites those papers. If the search found them but the answer doesn't cite them: the problem is the AI or the prompt. |
+| **Not covered** | It said "the papers don't cover this" exactly when it should. |
+
+At the bottom of each question there's room for **your score (1-5)** and notes: the automatic
+checks can't tell whether an answer is actually *good*. Compare reports from before and after a
+change (the prompt in `settings.py`, the chunk sizes, the model) to see whether answers got better.
+
+## Going online
+
+See **[DEPLOYMENT.md](DEPLOYMENT.md)**: the website on GitHub Pages (free), and three routes for
+the chatbot server, with step-by-step instructions for running it from your own laptop through a
+free Cloudflare tunnel.
+
 ## Settings
 
 **`settings.py`** holds all the settings and texts. The most useful ones:
@@ -318,8 +355,9 @@ it before the website goes online. After changing `.env`, restart `api.py` (Ctrl
 | Setting | What it does |
 |---|---|
 | `SYSTEM_PROMPT` | The instructions the AI follows for every answer. |
-| `ANSWER_RULES` | Short extra rules sent next to each question: own words, about 150–250 words, only relevant excerpts, how to cite. |
+| `ANSWER_RULES` | Short extra rules sent next to each question: everyday words, 3–5 sentences (1–2 for facts), only relevant excerpts, how to cite, and a 1–2 sentence reply when the papers don't cover the question. |
 | `NUMBER_OF_CHUNKS` | How many excerpts are sent with each question (6). |
+| `OFF_TOPIC_DISTANCE`, `OFF_TOPIC_ANSWER` | Questions that have nothing to do with the papers (pizza, weather, ...) get `OFF_TOPIC_ANSWER` straight away, without asking the AI. A question counts as off-topic when even the best excerpt has a distance above 1.6. |
 | `CHUNK_MIN_WORDS`, `CHUNK_MAX_WORDS`, `OVERLAP_WORDS` | The size of the chunks (500–700 words, 100 words overlap). Rebuild the index after changing them. |
 | `OLLAMA_CONTEXT_SIZE` | How much text the model can read at once. Must fit the excerpts and the conversation. |
 | `MAX_HISTORY_MESSAGES` | How many earlier messages the AI sees (6 = the last 3 questions and answers). |
