@@ -1,0 +1,7 @@
+# Titles you set yourself, for papers where the automatic title is wrong.
+# (Check a paper's title with:  python ingest.py --preview "file name.pdf")
+#
+# One paper per line:   file name.pdf = The Right Title
+# Only the file name, without its folder. After changing this file: python ingest.py --rebuild
+
+The simple macroecnoomics of AI.pdf = The Simple Macroeconomics of AI

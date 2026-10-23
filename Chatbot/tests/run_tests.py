@@ -97,8 +97,10 @@ def ask(test, earlier):
             result = data
     total = time.time() - start
 
-    cited = {source["file_name"] for source in result["sources"]}
-    found = {chunk["file_name"] for chunk in result["chunks"]}
+    # Compare only the file names, not the folders, so moving a PDF to another subfolder of papers/
+    # doesn't break the test questions. Path(...).name = "Pro AI/paper.pdf" -> "paper.pdf"
+    cited = {Path(source["file_name"]).name for source in result["sources"]}
+    found = {Path(chunk["file_name"]).name for chunk in result["chunks"]}
     says_not_covered = bool(SAYS_NOT_COVERED.search(result["answer"]))
 
     return {

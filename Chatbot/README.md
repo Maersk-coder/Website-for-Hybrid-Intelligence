@@ -47,6 +47,7 @@ Chatbot/
 │   ├── errors.py         ChatbotError: a problem with a friendly message
 │   ├── pdf_text.py       read a PDF, clean its text, find its title
 │   ├── chunks.py         cut the text into chunks
+│   ├── embeddings.py     turn text into numbers for searching (Ollama: nomic-embed-text)
 │   ├── database.py       the search index: store chunks, find the best matches
 │   ├── ai_model.py       talk to Ollama
 │   └── answers.py        answer a question: search, ask the AI, repair citations, list sources
@@ -54,7 +55,8 @@ Chatbot/
 ├── widget/            the chat panel for the website (chat-widget.js + chat-widget.css)
 ├── tests/             test questions (test_questions.md), the script that runs them
 │                      (run_tests.py) and its reports (results/)
-├── papers/            your PDFs (+ README.md with the list of papers)
+├── papers/            your PDFs, in subfolders if you like (e.g. "Pro AI/", "Hybrid Intelligence/"),
+│                      + README.md (the list of papers) and titles.txt (titles you set yourself)
 ├── data/              made automatically: the search index (chroma/) and preview.txt
 ├── logs/              made automatically: server.log, the problems api.py ran into
 │
@@ -75,7 +77,8 @@ Ollama, the model and the server, and says what to fix.
 | "Could not reach Ollama" | Ollama isn't running (or is updating itself): look for the llama icon near the clock. Code: `core/ai_model.py` |
 | The chat says it can't reach the chatbot | `api.py` isn't running, or the website's address isn't in `ALLOWED_ORIGINS` in `.env` |
 | Strange text, headers left in, wrong paper title | `core/pdf_text.py`. Check the PDF with `python ingest.py --preview "file.pdf"` |
-| The search finds the wrong excerpts | `core/database.py` / `core/chunks.py`. Check with `python ask.py --show-chunks` |
+| The search finds the wrong excerpts | `core/database.py` / `core/chunks.py` / `core/embeddings.py`. Check with `python ask.py --show-chunks` |
+| "The index was built with another embedding model" | `EMBEDDING_MODEL` in `settings.py` was changed: run `python ingest.py --rebuild` |
 | Answers are too long, copy the papers, or ignore the rules | `SYSTEM_PROMPT` and `ANSWER_RULES` in `settings.py` |
 | A real question gets "That's not something I can help with..." | `OFF_TOPIC_DISTANCE` in `settings.py` is too low for that question. Check its distance with `python ask.py --show-chunks` |
 | Citations or the Sources list look wrong | `core/answers.py` (`fix_citations`, `find_sources`) |
@@ -128,14 +131,17 @@ Copy-Item .env.example .env
 `.env` holds your own settings: which Ollama model writes the answers, and which websites may use
 the chatbot. It is never uploaded to GitHub.
 
-### 4. Install Ollama and download the model
+### 4. Install Ollama and download the two models
 
 1. Download and install Ollama from [ollama.com/download](https://ollama.com/download) (Windows version).
    After installing, Ollama runs in the background (a small llama icon near the clock).
-2. Open a **new** terminal and download the model (about 3.5 GB, once):
+2. Open a **new** terminal and download the two models (once):
    ```powershell
    ollama pull qwen3.5:4b
+   ollama pull nomic-embed-text
    ```
+   `qwen3.5:4b` (about 3.5 GB) writes the answers. `nomic-embed-text` (about 270 MB) turns text into
+   numbers for the search (see [How the search works](#how-the-search-works)).
 
 ### 5. Check
 
@@ -156,13 +162,27 @@ Use the file name of a PDF in `papers/`, with the quotes. This shows a summary i
 and which headers/footers were removed) and saves the full cleaned text in `data/preview.txt`.
 Open that file in VS Code to read it. Each preview replaces the previous one. Nothing is added to the index.
 
+### A wrong title? Set it yourself
+
+The title is found automatically, but that sometimes fails, for example with a cover page where all
+the text is the same size. Then add a line to **`papers/titles.txt`**:
+
+```
+The simple macroecnoomics of AI.pdf = The Simple Macroeconomics of AI
+```
+
+Only the file name, without its folder. Then rebuild the index (`python ingest.py --rebuild`).
+
 ### Build the index
 
 ```powershell
 python ingest.py
 ```
 
-- The first run downloads a small model (about 80 MB) that ChromaDB uses to make embeddings.
+PDFs in subfolders of `papers/` are found too. Each paper is stored with its folder in its name
+(e.g. `Pro AI/Generative AI at Work.pdf`). After moving PDFs to another folder, rebuild the index.
+
+- Ollama must be running: it makes the embeddings (about 2 minutes for 7 papers on a laptop).
 - Papers that are already in the index are skipped, so you can add new PDFs and run it again.
 - At the end you get a summary, and a list of PDFs with little or no text. Those are probably
   scanned images and need OCR (text recognition) before the chatbot can use them.
@@ -356,9 +376,11 @@ free Cloudflare tunnel.
 |---|---|
 | `SYSTEM_PROMPT` | The instructions the AI follows for every answer. |
 | `ANSWER_RULES` | Short extra rules sent next to each question: everyday words, 3–5 sentences (1–2 for facts), only relevant excerpts, how to cite, and a 1–2 sentence reply when the papers don't cover the question. |
-| `NUMBER_OF_CHUNKS` | How many excerpts are sent with each question (6). |
+| `NUMBER_OF_CHUNKS` | How many excerpts are sent with each question (8). |
+| `MAX_CHUNKS_PER_PAPER`, `SEARCH_CANDIDATES` | At most 4 of those excerpts come from the same paper, so long papers can't crowd out the others (the search picks them from the best 25 matches). |
+| `EMBEDDING_MODEL` | The Ollama model that makes the embeddings for searching (`nomic-embed-text`). Rebuild the index after changing it. |
 | `OFF_TOPIC_DISTANCE`, `OFF_TOPIC_ANSWER` | Questions that have nothing to do with the papers (pizza, weather, ...) get `OFF_TOPIC_ANSWER` straight away, without asking the AI. A question counts as off-topic when even the best excerpt has a distance above 1.6. |
-| `CHUNK_MIN_WORDS`, `CHUNK_MAX_WORDS`, `OVERLAP_WORDS` | The size of the chunks (500–700 words, 100 words overlap). Rebuild the index after changing them. |
+| `CHUNK_MIN_WORDS`, `CHUNK_MAX_WORDS`, `OVERLAP_WORDS` | The size of the chunks (250–400 words, 50 words overlap). Rebuild the index after changing them. |
 | `OLLAMA_CONTEXT_SIZE` | How much text the model can read at once. Must fit the excerpts and the conversation. |
 | `MAX_HISTORY_MESSAGES` | How many earlier messages the AI sees (6 = the last 3 questions and answers). |
 
@@ -399,13 +421,29 @@ code simple. That version is saved in Git, in commit **`0145a3c`**: see `rag.py`
   everything before it (title, author names, addresses, dates) is skipped. The title is saved
   separately. If there is no such heading, nothing is skipped.
 - **Broken words:** `collab-` + `oration` at a line break becomes `collaboration`.
-- **References:** everything from the "References" / "Bibliography" heading onwards is skipped.
-  (Appendices after the references are skipped too.)
-- **Title:** taken from the PDF's hidden information, otherwise the biggest text on page 1,
-  otherwise the file name.
-- **Chunks** (`core/chunks.py`): 500–700 words, built from whole paragraphs where possible, and each
-  chunk starts with the last 100 words of the one before. Each chunk is saved with the paper title,
-  file name, page number(s) and a chunk id.
+- **References:** everything from the "References" / "Bibliography" heading onwards is skipped
+  (appendices after the references too). The heading only counts after the first 30% of the pages
+  (`REFERENCES_FROM_SHARE`), so one in a table of contents is ignored.
+- **Title:** taken from `papers/titles.txt` if it's there, otherwise the PDF's hidden information
+  (unless it's a placeholder like "Paper draft"), otherwise the biggest text on page 1, otherwise
+  the file name.
+- **Chunks** (`core/chunks.py`): 250–400 words, built from whole paragraphs where possible, and each
+  chunk starts with the last 50 words of the one before. Each chunk is saved with the paper title,
+  file name (with its folder), page number(s) and a chunk id.
+
+## How the search works
+
+Each chunk, and each question, is turned into an **embedding**: a list of 768 numbers that captures
+what the text is about. Texts about similar things get similar numbers. The search compares the
+question's numbers with every chunk's, and the closest chunks are the best matches (the *distance*
+shown by `python ask.py --show-chunks`: lower = closer).
+
+The embeddings are made by **`nomic-embed-text`**, a model that runs in Ollama (`core/embeddings.py`).
+It reads the whole chunk. (Until October 2026 the chatbot used ChromaDB's standard model, which only
+read the first ~190 words of each chunk, so most of each chunk was invisible to the search.)
+
+Then, from the best 25 matches, 8 are picked, with at most 4 from the same paper, so one long paper
+can't crowd out the others and the AI sees several points of view.
 
 ## Good to know
 

@@ -19,7 +19,11 @@ Each question starts with `## Q` + a number + the question. Under it, these line
 - **A good answer:** the points a good answer contains, with the pages where they are in the
   papers. This is for you, when you score the answers. The script doesn't check it.
 
-An empty question (`## Q11 (empty)`) is skipped. Fill in the empty ones when you add papers.
+An empty question (`## Q16 (empty)`) is skipped. To add questions for new papers, copy one of
+the questions below, give it the next number (Q16, Q17, ...) and change the text.
+
+Papers: Q1–Q10 are about the papers in `papers/Hybrid Intelligence/`, Q11–Q15 about those in
+`papers/Pro AI/` (Q15 asks across several papers).
 
 ---
 
@@ -140,37 +144,74 @@ An empty question (`## Q11 (empty)`) is skipped. Fill in the empty ones when you
 - **A good answer:**
   - Says clearly that the papers don't cover this, and doesn't make anything up.
 
-## Q11 (empty)
+## Q11 How much did an AI assistant help customer support workers, and who benefited most?
 
-- **Kind:**
-- **Expected papers:**
+- **Kind:** specific facts
+- **Expected papers:** Generative AI at Work.pdf
+- **Not covered:** no
+- **A good answer:** (Generative AI at Work, p. 1-2)
+  - About 15% more customer issues resolved per hour, on average (study of 5,172 support agents).
+  - Less experienced and lower-skilled workers gained the most: faster *and* better.
+  - The most experienced workers gained a little speed and lost a little quality.
+
+## Q12 What is the "jagged technological frontier"?
+
+- **Kind:** definition
+- **Expected papers:** Navigating the Jagged Technological Frontier.pdf
+- **Not covered:** no
+- **A good answer:** (Navigating the Jagged Technological Frontier, p. 2)
+  - AI's abilities are uneven: it helps with some tasks but makes others worse, even tasks that
+    seem equally difficult.
+  - Possibly the experiment: 758 consultants (Boston Consulting Group). On tasks inside the
+    frontier, AI users finished 12.2% more tasks, 25.1% faster, with better quality; on a task
+    outside it, they were 19% less likely to get it right.
+
+## Q13 How much will AI increase economic productivity over the next ten years?
+
+- **Kind:** disagreement (modest estimate vs. big forecasts)
+- **Expected papers:** The simple macroecnoomics of AI.pdf
+- **Not covered:** no
+- **A good answer:** (The Simple Macroeconomics of AI, p. 2-3)
+  - Modest: at most about 0.66% more total factor productivity over 10 years, maybe less than 0.53%.
+  - Bigger forecasts exist (e.g. Goldman Sachs), but this paper argues they are too optimistic,
+    partly because hard tasks are harder for AI to learn.
+  - Possibly: AI may widen the gap between income from capital and income from work.
+  - A great answer notes the contrast with big gains for individual workers (Generative AI at Work).
+
+## Q14 Does using ChatGPT to write essays affect how people learn?
+
+- **Kind:** risks
+- **Expected papers:** Your Brain on ChatGPT.pdf
+- **Not covered:** no
+- **A good answer:** (Your Brain on ChatGPT, p. 2)
+  - In a study with 54 participants, the ChatGPT group showed the weakest brain connectivity
+    (measured with EEG), compared with a search-engine group and a no-tools group.
+  - They felt less ownership of their essays and could hardly quote what they had just written.
+  - Over 4 months the ChatGPT group did worse than the no-tools group (brain activity, language, scores).
+  - Possibly: a preliminary study (a preprint, not yet peer-reviewed).
+
+## Q15 Is AI good or bad for workers?
+
+- **Kind:** balanced answer across several papers
+- **Expected papers:** Generative AI at Work.pdf, Navigating the Jagged Technological Frontier.pdf
 - **Not covered:** no
 - **A good answer:**
+  - Good: productivity gains, especially for less experienced workers (Generative AI at Work, p. 1-2);
+    faster and better work on tasks AI is good at (Navigating the Jagged Technological Frontier, p. 2).
+  - Bad: worse results on tasks outside AI's abilities (Jagged Frontier, p. 2); weaker learning and
+    skills when relying on AI (Your Brain on ChatGPT, p. 2; Hybrid Intelligence Manifesto, p. 21);
+    a growing gap between capital and work income (The Simple Macroeconomics of AI, p. 2).
+  - Balanced: it depends on the task and on how AI is used; no single yes or no.
 
-## Q12 (empty)
+## Q16 Can you elaborate more on that?
 
-- **Kind:**
-- **Expected papers:**
+- **Kind:** follow-up asking for more (must add, not repeat)
+- **Expected papers:** Hybrid Intelligence.pdf
 - **Not covered:** no
+- **Follow-up to:** 2
 - **A good answer:**
-
-## Q13 (empty)
-
-- **Kind:**
-- **Expected papers:**
-- **Not covered:** no
-- **A good answer:**
-
-## Q14 (empty)
-
-- **Kind:**
-- **Expected papers:**
-- **Not covered:** no
-- **A good answer:**
-
-## Q15 (empty)
-
-- **Kind:**
-- **Expected papers:**
-- **Not covered:** no
-- **A good answer:**
+  - Starts directly with new content: no "You asked me to elaborate..." and no repeat of Q2's answer.
+  - Adds new points, e.g. Moravec's paradox: easy for computers to pass intelligence tests, hard to
+    match a one-year-old's perception (Hybrid Intelligence, p. 4); "system 1" (fast, intuitive) vs
+    "system 2" (slow, logical) thinking (p. 4); humans handle unusual "broken-leg" cases (p. 4);
+    or AlphaGo, which learned from humans and then taught them new moves (p. 6).

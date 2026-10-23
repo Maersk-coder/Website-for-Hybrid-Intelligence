@@ -71,8 +71,12 @@ def citation_names(chunks):
     return names
 
 
-def build_message(question, chunks):
-    """Put the excerpts and the question together into the message for the AI model."""
+def build_message(question, chunks, previous_question=None):
+    """Put the excerpts and the question together into the message for the AI model.
+
+    previous_question (for a follow-up): the visitor's question before this one. A follow-up like
+    "Can you elaborate more on that?" means nothing on its own, so the message says what it is about.
+    """
     names = citation_names(chunks)
     parts = ["Research excerpts:\n"]
     for chunk in chunks:
@@ -85,6 +89,9 @@ def build_message(question, chunks):
     # A real example citation, made from the first excerpt.
     example = f"[{names[chunks[0]['title']]}, p. {page_label(chunks[0])}]"
     parts.append(ANSWER_RULES.format(example=example) + "\n\n" + f"Question: {question}")
+    if previous_question:
+        parts.append(f'(This follows the earlier question: "{previous_question}". '
+                     "Add new information about it that wasn't in your previous answer.)")
     return "\n".join(parts)
 
 
@@ -134,6 +141,23 @@ def fix_citations(answer, chunks):
         return "[" + "; ".join(parts) + "]"
 
     return re.sub(r"\[([^\[\]]+)\]", repair, answer)
+
+
+def cited_in(answer):
+    """Which (paper title, page) pairs an answer cites, e.g. {("hybrid intelligence", "4-5")}.
+
+    Used for follow-up questions: the excerpts the previous answer already used are avoided,
+    so the AI gets new material to add, instead of repeating itself.
+    """
+    cited = set()
+    for bracket in re.findall(r"\[([^\[\]]+)\]", answer):
+        for part in bracket.split(";"):
+            found = re.match(r"\s*(.+?),\s*pp?\.\s*(.+)$", part)
+            if found:
+                for page in found.group(2).split(","):
+                    # "4–5" (long dash) and "4-5" are the same pages
+                    cited.add((found.group(1).strip().lower(), page.strip().replace("–", "-")))
+    return cited
 
 
 def find_sources(answer, chunks):
@@ -187,7 +211,10 @@ def answer_question_stream(question, history=None):
           chunks  - the excerpts that were retrieved (for checking with --show-chunks)
     """
     history = clean_history(history)
-    chunks = retrieve(search_text(question, history))
+    # In a follow-up, avoid the excerpts the previous answer already used (see cited_in).
+    earlier_answers = [message["content"] for message in history if message["role"] == "assistant"]
+    already_used = cited_in(earlier_answers[-1]) if earlier_answers else set()
+    chunks = retrieve(search_text(question, history), avoid=already_used)
 
     # Nothing to do with the papers? Even the closest excerpt is far away (see OFF_TOPIC_DISTANCE
     # in settings.py). Then give the fixed short answer straight away, without asking the AI.
@@ -199,8 +226,11 @@ def answer_question_stream(question, history=None):
     # Like stream_answer, this is a generator: each "yield" hands a piece on straight away
     # (to api.py, which sends it to the chat panel), while the pieces are also kept to
     # put the whole answer together at the end.
+    earlier_questions = [message["content"] for message in history if message["role"] == "user"]
+    previous_question = earlier_questions[-1] if earlier_questions else None
+
     pieces = []
-    for piece in stream_answer(build_message(question, chunks), history):
+    for piece in stream_answer(build_message(question, chunks, previous_question), history):
         pieces.append(piece)
         yield "text", piece
 
@@ -208,6 +238,9 @@ def answer_question_stream(question, history=None):
     # Some models write out their thinking between <think> tags first. Remove it.
     answer = re.sub(r"<think>.*?</think>", "", answer, flags=re.DOTALL).strip()
     answer = fix_citations(answer, chunks)
+    # Lines with nothing but citations on them (a list of citations at the end) are removed:
+    # the Sources list under the answer already shows them.
+    answer = re.sub(r"^[ \t]*(\[[^\[\]]+\][ \t.]*)+$\n?", "", answer, flags=re.MULTILINE).strip()
     yield "done", {"answer": answer, "sources": find_sources(answer, chunks), "chunks": chunks}
 
 

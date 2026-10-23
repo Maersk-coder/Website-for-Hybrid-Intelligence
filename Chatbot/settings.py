@@ -23,7 +23,8 @@ from dotenv import load_dotenv
 # Everything is found from where this file is, so it works no matter
 # which folder you run the scripts from.
 HERE = Path(__file__).parent
-PAPERS_FOLDER = HERE / "papers"                     # your PDFs
+PAPERS_FOLDER = HERE / "papers"                     # your PDFs (subfolders are fine)
+TITLES_FILE = PAPERS_FOLDER / "titles.txt"          # titles you set yourself, when the automatic one is wrong
 DATABASE_FOLDER = HERE / "data" / "chroma"          # the search index (made by ingest.py)
 PREVIEW_FILE = HERE / "data" / "preview.txt"        # where  ingest.py --preview  saves the cleaned text
 LOG_FILE = HERE / "logs" / "server.log"             # where api.py writes down errors
@@ -45,14 +46,22 @@ REPEAT_SHARE = 0.30
 # A PDF with fewer words than this per page is probably a scanned image.
 LOW_TEXT_WORDS_PER_PAGE = 50
 
+# A "References" heading only counts after this part of the paper (0.3 = after the first 30% of
+# the pages), so one in a table of contents is ignored. Papers with a long appendix after the
+# references (e.g. "Generative AI at Work": references on page 38 of 106) need it this low.
+REFERENCES_FROM_SHARE = 0.3
+
 
 # ---------------------------------------------------------------------------
 # Cutting the text into chunks (core/chunks.py)
 # ---------------------------------------------------------------------------
 
-CHUNK_MIN_WORDS = 500   # a chunk is not closed before it has this many words
-CHUNK_MAX_WORDS = 700   # ...and never grows past this many
-OVERLAP_WORDS = 100     # each chunk starts with the last 100 words of the one before,
+# Medium-sized chunks: big enough to keep a thought together, small enough that each chunk is about
+# one thing, so it matches a specific question well. (Was 500-700 words; very long chunks mix
+# several topics, which makes the search less precise.)
+CHUNK_MIN_WORDS = 250   # a chunk is not closed before it has this many words
+CHUNK_MAX_WORDS = 400   # ...and never grows past this many
+OVERLAP_WORDS = 50      # each chunk starts with the last 50 words of the one before,
                         # so a sentence cut at the edge is still found whole
 
 
@@ -75,10 +84,15 @@ than guessing. Write clearly for a general audience."""
 # (Based on the scores in tests/results/2026-10-22_1824.md: answers were too long and too academic,
 #  and "not covered" answers went off on a tangent.)
 ANSWER_RULES = """Rules for your answer:
+- Start directly with the answer. Never talk about the question or about yourself
+  (no "You asked...", "Based on the provided research...").
 - Write for people who know nothing about this topic: use everyday words and short sentences.
   Avoid technical terms, or explain them in a few words.
 - Keep it short: 3 to 5 sentences. A question about a fact (how many, when, who) gets 1 or 2 sentences.
   The visitor can always ask for more.
+- When it helps, give one concrete example from the excerpts (a study, a number, a real case).
+- If the visitor asks for more about your previous answer ("elaborate", "tell me more", "why"),
+  do NOT repeat what you already said: add new details, examples or explanations from the excerpts.
 - Explain in your own words. Do not copy long passages from the excerpts.
 - Use only the excerpts that are relevant to the question. Ignore the others.
 - Cite every claim with the title and page, for example: {example}
@@ -88,14 +102,28 @@ ANSWER_RULES = """Rules for your answer:
   anything else about Hybrid Intelligence or AI. Don't explain why, don't cite anything, add nothing else."""
 
 # How many chunks (excerpts) are found and sent with each question.
-NUMBER_OF_CHUNKS = 6
+# (8 medium chunks is about as much text as the 6 long ones before.)
+NUMBER_OF_CHUNKS = 8
+
+# At most this many of those chunks may come from the same paper, so one long paper can't fill all
+# the places and the AI sees several papers' points of view. To find enough, the search looks at the
+# best SEARCH_CANDIDATES chunks. (MAX_CHUNKS_PER_PAPER = NUMBER_OF_CHUNKS switches the limit off.)
+MAX_CHUNKS_PER_PAPER = 4
+SEARCH_CANDIDATES = 25
+
+# The Ollama model that makes the embeddings (the numbers the search compares).
+# Download it once with:  ollama pull nomic-embed-text
+# After changing it, rebuild the index:  python ingest.py --rebuild
+EMBEDDING_MODEL = "nomic-embed-text"
 
 # Questions that have nothing to do with the papers (like "What is the best pizza in Rome?") get this
 # fixed answer straight away, without asking the AI. A question counts as off-topic when even the
-# closest excerpt is further away than OFF_TOPIC_DISTANCE. Measured on 2026-10-23: off-topic questions
-# 1.64-1.89, real questions 0.5-1.4. Lower = more questions count as off-topic. (9 = switch it off.)
-# Check a question's distance with:  python ask.py --show-chunks
-OFF_TOPIC_DISTANCE = 1.6
+# closest excerpt is further away than OFF_TOPIC_DISTANCE. Measured with nomic-embed-text on 2026-10-23:
+# off-topic questions 0.80-1.07 (pizza, weather, homework, bread, a joke), real questions 0.42-0.74
+# ("Who wrote the manifesto?" 0.74), AI questions the papers don't cover ~0.64.
+# Lower = more questions count as off-topic. (9 = switch it off.) Measure again after changing
+# EMBEDDING_MODEL. Check a question's distance with:  python ask.py --show-chunks
+OFF_TOPIC_DISTANCE = 0.77
 OFF_TOPIC_ANSWER = ("That's not something I can help with. Try a search engine like Google instead. "
                     "You're welcome to ask me anything about Hybrid Intelligence or AI!")
 

@@ -4,7 +4,10 @@ ingest.py - builds the search index from the research papers.
 What it does, step by step:
   1. Opens every PDF in the papers/ folder and takes out the clean text   (core/pdf_text.py)
   2. Cuts the text into "chunks" of about 500-700 words                   (core/chunks.py)
-  3. Saves the chunks in the search index, in data/chroma/                (core/database.py)
+  3. Turns each chunk into an embedding (numbers for searching)           (core/embeddings.py)
+  4. Saves the chunks in the search index, in data/chroma/                (core/database.py)
+
+Ollama must be running: it makes the embeddings (model: EMBEDDING_MODEL in settings.py).
 
 How to run it (inside the Chatbot folder, with the virtual environment on):
   python ingest.py                       add new PDFs to the index
@@ -20,14 +23,31 @@ from pathlib import Path
 import pymupdf
 
 from core.chunks import make_chunks
-from core.database import open_database
+from core.database import index_matches_model, open_collection, open_database
+from core.embeddings import embed_documents
+from core.errors import ChatbotError
 from core.pdf_text import extract_paper
-from settings import COLLECTION_NAME, LOW_TEXT_WORDS_PER_PAGE, PAPERS_FOLDER, PREVIEW_FILE
+from settings import COLLECTION_NAME, EMBEDDING_MODEL, LOW_TEXT_WORDS_PER_PAGE, PAPERS_FOLDER, PREVIEW_FILE
+
+
+def paper_name(pdf_path):
+    """The name a paper is stored under: its place inside papers/, e.g. "Pro AI/Generative AI at Work.pdf".
+
+    Including the folder means two papers with the same file name in different folders don't get mixed up.
+    """
+    return pdf_path.relative_to(PAPERS_FOLDER).as_posix()   # as_posix: always "/" between folders
+
+
+def paper_folder(pdf_path):
+    """The subfolder of papers/ a paper is in, e.g. "Pro AI" ("" for a PDF directly in papers/)."""
+    folder = pdf_path.parent.relative_to(PAPERS_FOLDER).as_posix()
+    return "" if folder == "." else folder
 
 
 def ingest(rebuild=False):
-    """Index every PDF in papers/ that isn't in the index yet."""
-    pdf_files = sorted(PAPERS_FOLDER.glob("*.pdf"))
+    """Index every PDF in papers/ (and its subfolders) that isn't in the index yet."""
+    # rglob = search this folder AND all folders inside it ("recursive glob").
+    pdf_files = sorted(PAPERS_FOLDER.rglob("*.pdf"))
     if not pdf_files:
         print(f"No PDF files found in {PAPERS_FOLDER}")
         return
@@ -40,8 +60,12 @@ def ingest(rebuild=False):
         except Exception:
             pass  # there was no index yet, nothing to delete
 
-    # Uses ChromaDB's default embedding model. The first time, it downloads it (~80 MB).
-    collection = client.get_or_create_collection(name=COLLECTION_NAME)
+    collection = open_collection(client)
+    # An index made with another embedding model can't be added to: its numbers don't compare.
+    if not index_matches_model(collection):
+        print(f"The index was built with another embedding model than {EMBEDDING_MODEL}.")
+        print("Run:  python ingest.py --rebuild")
+        return
 
     new_papers = 0
     new_chunks = 0
@@ -50,27 +74,29 @@ def ingest(rebuild=False):
     failed = []     # (file name, error message)
 
     for pdf_path in pdf_files:
+        name = paper_name(pdf_path)
+
         # Already indexed? Then skip it. (Use --rebuild to start over.)
         # where= searches the chunks' extra information: is there one chunk from this file?
-        already = collection.get(where={"file_name": pdf_path.name}, limit=1)
+        already = collection.get(where={"file_name": name}, limit=1)
         if already["ids"]:
-            skipped.append(pdf_path.name)
+            skipped.append(name)
             continue
 
         try:
             paper = extract_paper(pdf_path)
         except Exception as error:
-            failed.append((pdf_path.name, str(error)))
-            print(f"  ! {pdf_path.name}: could not be read ({error})")
+            failed.append((name, str(error)))
+            print(f"  ! {name}: could not be read ({error})")
             continue
 
         words_per_page = paper["word_count"] / max(paper["num_pages"], 1)
         if words_per_page < LOW_TEXT_WORDS_PER_PAGE:
-            low_text.append((pdf_path.name, round(words_per_page)))
+            low_text.append((name, round(words_per_page)))
 
         chunks = make_chunks(paper["paragraphs"])
         if not chunks:
-            print(f"  ! {pdf_path.name}: no text found, nothing stored")
+            print(f"  ! {name}: no text found, nothing stored")
             continue
 
         # Each chunk is stored with its text, a unique id, and "metadata"
@@ -78,18 +104,24 @@ def ingest(rebuild=False):
         ids = []
         metadatas = []
         for number, chunk in enumerate(chunks):
-            chunk_id = f"{pdf_path.name}::chunk-{number}"
+            chunk_id = f"{name}::chunk-{number}"
             ids.append(chunk_id)
             metadatas.append({
                 "title": paper["title"],
-                "file_name": pdf_path.name,
+                "file_name": name,
+                "folder": paper_folder(pdf_path),
                 "page": chunk["page"],
                 "page_end": chunk["page_end"],
                 "chunk_id": chunk_id,
             })
-        # Save them all at once. ChromaDB makes the embedding for each chunk here,
-        # which is why this step takes a few seconds per paper.
-        collection.add(ids=ids, documents=[c["text"] for c in chunks], metadatas=metadatas)
+        # Make the embeddings (Ollama, a few seconds per paper), then save everything at once.
+        texts = [c["text"] for c in chunks]
+        try:
+            embeddings = embed_documents(texts)
+        except ChatbotError as error:
+            print(f"\nStopped: {error}")
+            return
+        collection.add(ids=ids, documents=texts, metadatas=metadatas, embeddings=embeddings)
 
         new_papers += 1
         new_chunks += len(chunks)
@@ -98,7 +130,7 @@ def ingest(rebuild=False):
     # --- Summary --------------------------------------------------------------
     print()
     print("=== Summary ===")
-    print(f"PDFs in papers/:        {len(pdf_files)}")
+    print(f"PDFs in papers/:        {len(pdf_files)}  (including subfolders)")
     print(f"Newly indexed:          {new_papers}  ({new_chunks} chunks)")
     print(f"Already indexed:        {len(skipped)}  (skipped)")
     print(f"Chunks in the index:    {collection.count()}")
@@ -122,17 +154,21 @@ def preview(file_name):
     """
     pdf_path = Path(file_name)
     if not pdf_path.exists():
-        pdf_path = PAPERS_FOLDER / file_name  # allow just the name of a file in papers/
+        pdf_path = PAPERS_FOLDER / file_name  # a name inside papers/, like "Pro AI/paper.pdf"
     if not pdf_path.exists():
-        print(f"File not found: {file_name}")
-        return
+        # Just the file name, without its folder: look for it in all the subfolders.
+        found = sorted(PAPERS_FOLDER.rglob(Path(file_name).name))
+        if not found:
+            print(f"File not found: {file_name}")
+            return
+        pdf_path = found[0]
 
     paper = extract_paper(pdf_path)
     chunks = make_chunks(paper["paragraphs"])
 
     # The summary box at the top
     summary = ["=" * 70]
-    summary.append(f"File:        {pdf_path.name}")
+    summary.append(f"File:        {paper_name(pdf_path) if PAPERS_FOLDER in pdf_path.parents else pdf_path.name}")
     summary.append(f"Title:       {paper['title']}   (from {paper['title_source']})")
     summary.append(f"Pages:       {paper['num_pages']}")
     summary.append(f"Words kept:  {paper['word_count']}")

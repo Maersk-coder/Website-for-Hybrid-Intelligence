@@ -17,7 +17,7 @@ from collections import Counter
 
 import pymupdf  # PyMuPDF: reads PDF files
 
-from settings import MARGIN_SHARE, REPEAT_SHARE
+from settings import MARGIN_SHARE, REFERENCES_FROM_SHARE, REPEAT_SHARE, TITLES_FILE
 
 
 # ---------------------------------------------------------------------------
@@ -104,7 +104,27 @@ def is_real_title(title):
         return False
     if lower.startswith(("arxiv", "doi")):
         return False
+    # A placeholder made only of words like these ("Paper draft", "Working paper") is not a real title.
+    placeholder_words = {"paper", "draft", "document", "manuscript", "preprint", "article", "working",
+                         "report", "title", "template", "final", "version", "submission"}
+    if set(re.findall(r"[a-z]+", lower)) <= placeholder_words:
+        return False
     return True
+
+
+def read_titles_file():
+    """Read papers/titles.txt: titles you set yourself, for papers where the automatic title is wrong.
+
+    Each line looks like:   file name.pdf = The Right Title
+    Lines starting with # are notes. Returns a dictionary: file name -> title.
+    """
+    titles = {}
+    if TITLES_FILE.exists():
+        for line in TITLES_FILE.read_text(encoding="utf-8").splitlines():
+            if "=" in line and not line.strip().startswith("#"):
+                file_name, title = line.split("=", 1)
+                titles[file_name.strip()] = title.strip()
+    return titles
 
 
 def title_from_first_page(doc):
@@ -138,7 +158,12 @@ def title_from_first_page(doc):
 
 
 def find_title(doc, pdf_path):
-    """Return (title, where it came from). Tries three places, best first."""
+    """Return (title, where it came from). Tries four places, best first."""
+    # A title you set yourself in papers/titles.txt always wins.
+    own_titles = read_titles_file()
+    if pdf_path.name in own_titles:
+        return own_titles[pdf_path.name], "titles.txt"
+
     metadata_title = (doc.metadata or {}).get("title", "")
     if is_real_title(metadata_title):
         return metadata_title.strip(), "PDF metadata"
@@ -231,10 +256,10 @@ def extract_paper(pdf_path):
             if start and (page_index, block_index) < start:
                 continue  # before the Abstract/Introduction heading
 
-            # The reference list: only trusted in the later part of the paper,
-            # so a "References" mentioned early on doesn't cut the paper short.
+            # The reference list: only trusted after the first part of the paper (REFERENCES_FROM_SHARE),
+            # so a "References" in a table of contents doesn't cut the paper short.
             first_line = block["raw"].strip().split("\n")[0]
-            if REFERENCES_HEADING.match(first_line) and page_index >= int(num_pages * 0.4):
+            if REFERENCES_HEADING.match(first_line) and page_index >= int(num_pages * REFERENCES_FROM_SHARE):
                 references_page = page_number
                 break
 

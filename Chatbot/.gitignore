@@ -13,9 +13,10 @@ logs/
 # The virtual environment (the installed packages). Recreate it with the README steps.
 .venv/
 
-# The research papers (copyright). Only the README in the folder is uploaded.
+# The research papers (copyright). Only the README (the list of papers) and titles.txt are uploaded.
 papers/*
 !papers/README.md
+!papers/titles.txt
 
 # Python's own cache files
 __pycache__/

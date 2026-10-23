@@ -80,17 +80,23 @@ def check_papers_and_index():
     """3 + 4. Are there PDFs, and are they all in the search index?"""
     from settings import COLLECTION_NAME, PAPERS_FOLDER
 
-    pdfs = sorted(path.name for path in PAPERS_FOLDER.glob("*.pdf"))
+    # All PDFs in papers/ and its subfolders, named the way ingest.py stores them ("Pro AI/paper.pdf").
+    pdfs = sorted(path.relative_to(PAPERS_FOLDER).as_posix() for path in PAPERS_FOLDER.rglob("*.pdf"))
     if pdfs:
-        ok(f"{len(pdfs)} PDF(s) in papers/")
+        ok(f"{len(pdfs)} PDF(s) in papers/ (including subfolders)")
     else:
         fail("No PDFs in papers/", "Put your research papers (PDF files) in the papers folder")
 
-    from core.database import open_database
-    collection = open_database().get_or_create_collection(name=COLLECTION_NAME)
+    from core.database import index_matches_model, open_collection, open_database
+    from settings import EMBEDDING_MODEL
+    collection = open_collection(open_database())
     count = collection.count()
     if count == 0:
         fail("The search index is empty", "Run: python ingest.py")
+        return
+    if not index_matches_model(collection):
+        fail(f"The search index was built with another embedding model than {EMBEDDING_MODEL}",
+             "Run: python ingest.py --rebuild")
         return
 
     # The file names of all chunks in the index. { } makes a "set": each name only once.
@@ -109,7 +115,7 @@ def check_papers_and_index():
 def check_ollama():
     """5. Is Ollama running, and is the model downloaded?"""
     import httpx
-    from settings import OLLAMA_MODEL, OLLAMA_URL
+    from settings import EMBEDDING_MODEL, OLLAMA_MODEL, OLLAMA_URL
 
     try:
         # httpx.get visits an address, like a browser does. Ollama answers with its version number.
@@ -121,10 +127,12 @@ def check_ollama():
     ok(f"Ollama is running (version {version})")
 
     models = [model["name"] for model in httpx.get(f"{OLLAMA_URL}/api/tags", timeout=5).json().get("models", [])]
-    if OLLAMA_MODEL in models or f"{OLLAMA_MODEL}:latest" in models:
-        ok(f"Model {OLLAMA_MODEL} is downloaded")
-    else:
-        fail(f"Model {OLLAMA_MODEL} is not downloaded", f"Run: ollama pull {OLLAMA_MODEL}")
+    # Two models are needed: one that writes the answers, one that makes the embeddings for searching.
+    for model, job in ((OLLAMA_MODEL, "writes the answers"), (EMBEDDING_MODEL, "makes the embeddings for searching")):
+        if model in models or f"{model}:latest" in models:
+            ok(f"Model {model} is downloaded ({job})")
+        else:
+            fail(f"Model {model} is not downloaded ({job})", f"Run: ollama pull {model}")
 
 
 def check_server():
