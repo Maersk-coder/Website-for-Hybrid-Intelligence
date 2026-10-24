@@ -12,8 +12,10 @@ Look here when: citations or the Sources list look wrong, or follow-up questions
 import re
 
 from core.ai_model import stream_answer
-from core.database import page_label, retrieve
-from settings import ANSWER_RULES, MAX_HISTORY_CHARS, MAX_HISTORY_MESSAGES, OFF_TOPIC_ANSWER, OFF_TOPIC_DISTANCE
+from core.database import get_word_index, page_label, retrieve
+from settings import (
+    ANSWER_RULES, MAX_HISTORY_CHARS, MAX_HISTORY_MESSAGES, OFF_TOPIC_ANSWER, OFF_TOPIC_DISTANCE, WORD_MATCH_FOR_TOPIC,
+)
 
 
 # ---------------------------------------------------------------------------
@@ -214,11 +216,15 @@ def answer_question_stream(question, history=None):
     # In a follow-up, avoid the excerpts the previous answer already used (see cited_in).
     earlier_answers = [message["content"] for message in history if message["role"] == "assistant"]
     already_used = cited_in(earlier_answers[-1]) if earlier_answers else set()
-    chunks = retrieve(search_text(question, history), avoid=already_used)
+    searched_for = search_text(question, history)
+    chunks = retrieve(searched_for, avoid=already_used)
 
-    # Nothing to do with the papers? Even the closest excerpt is far away (see OFF_TOPIC_DISTANCE
-    # in settings.py). Then give the fixed short answer straight away, without asking the AI.
-    if chunks[0]["distance"] > OFF_TOPIC_DISTANCE:
+    # Nothing to do with the papers? Even the closest excerpt is far away in meaning
+    # (OFF_TOPIC_DISTANCE) AND no excerpt contains most of the question's important words
+    # (WORD_MATCH_FOR_TOPIC; this keeps special terms like "stochastic parrot" in).
+    # Then give the fixed short answer straight away, without asking the AI.
+    closest = min(chunk["distance"] for chunk in chunks)
+    if closest > OFF_TOPIC_DISTANCE and get_word_index().word_match(searched_for) < WORD_MATCH_FOR_TOPIC:
         yield "text", OFF_TOPIC_ANSWER
         yield "done", {"answer": OFF_TOPIC_ANSWER, "sources": [], "chunks": chunks}
         return

@@ -48,6 +48,7 @@ Chatbot/
 │   ├── pdf_text.py       read a PDF, clean its text, find its title
 │   ├── chunks.py         cut the text into chunks
 │   ├── embeddings.py     turn text into numbers for searching (Ollama: nomic-embed-text)
+│   ├── keywords.py       the word search: excerpts with the question's rare words
 │   ├── database.py       the search index: store chunks, find the best matches
 │   ├── ai_model.py       talk to Ollama
 │   └── answers.py        answer a question: search, ask the AI, repair citations, list sources
@@ -77,7 +78,7 @@ Ollama, the model and the server, and says what to fix.
 | "Could not reach Ollama" | Ollama isn't running (or is updating itself): look for the llama icon near the clock. Code: `core/ai_model.py` |
 | The chat says it can't reach the chatbot | `api.py` isn't running, or the website's address isn't in `ALLOWED_ORIGINS` in `.env` |
 | Strange text, headers left in, wrong paper title | `core/pdf_text.py`. Check the PDF with `python ingest.py --preview "file.pdf"` |
-| The search finds the wrong excerpts | `core/database.py` / `core/chunks.py` / `core/embeddings.py`. Check with `python ask.py --show-chunks` |
+| The search finds the wrong excerpts | `core/database.py` / `core/chunks.py` / `core/embeddings.py` / `core/keywords.py`. Check with `python ask.py --show-chunks` |
 | "The index was built with another embedding model" | `EMBEDDING_MODEL` in `settings.py` was changed: run `python ingest.py --rebuild` |
 | Answers are too long, copy the papers, or ignore the rules | `SYSTEM_PROMPT` and `ANSWER_RULES` in `settings.py` |
 | A real question gets "That's not something I can help with..." | `OFF_TOPIC_DISTANCE` in `settings.py` is too low for that question. Check its distance with `python ask.py --show-chunks` |
@@ -379,7 +380,7 @@ free Cloudflare tunnel.
 | `NUMBER_OF_CHUNKS` | How many excerpts are sent with each question (8). |
 | `MAX_CHUNKS_PER_PAPER`, `SEARCH_CANDIDATES` | At most 3 of those excerpts come from the same paper, so long papers can't crowd out the others (the search picks them from the best 25 matches). |
 | `EMBEDDING_MODEL` | The Ollama model that makes the embeddings for searching (`nomic-embed-text`). Rebuild the index after changing it. |
-| `OFF_TOPIC_DISTANCE`, `OFF_TOPIC_ANSWER` | Questions that have nothing to do with the papers (pizza, weather, ...) get `OFF_TOPIC_ANSWER` straight away, without asking the AI. A question counts as off-topic when even the best excerpt has a distance above 1.6. |
+| `OFF_TOPIC_DISTANCE`, `WORD_MATCH_FOR_TOPIC`, `OFF_TOPIC_ANSWER` | Questions that have nothing to do with the papers (pizza, weather, ...) get `OFF_TOPIC_ANSWER` straight away, without asking the AI. A question counts as off-topic when even the best excerpt has a distance above 0.77 **and** no excerpt contains at least 75% of the question's important words (see [How the search works](#how-the-search-works)). |
 | `CHUNK_MIN_WORDS`, `CHUNK_MAX_WORDS`, `OVERLAP_WORDS` | The size of the chunks (250–400 words, 50 words overlap). Rebuild the index after changing them. |
 | `OLLAMA_CONTEXT_SIZE` | How much text the model can read at once. Must fit the excerpts and the conversation. |
 | `MAX_HISTORY_MESSAGES` | How many earlier messages the AI sees (6 = the last 3 questions and answers). |
@@ -442,8 +443,29 @@ The embeddings are made by **`nomic-embed-text`**, a model that runs in Ollama (
 It reads the whole chunk. (Until October 2026 the chatbot used ChromaDB's standard model, which only
 read the first ~190 words of each chunk, so most of each chunk was invisible to the search.)
 
-Then, from the best 25 matches, 8 are picked, with at most 3 from the same paper, so one long paper
-can't crowd out the others and the AI sees several points of view.
+### The word search
+
+The meaning search is good at everyday language, but weak at rare special terms ("stochastic
+parrot", "AMIE", "Moravec paradox"). So a **word search** (`core/keywords.py`) runs next to it:
+it finds the excerpts that contain the question's words, where **rare words count a lot** ("parrot"
+is in only a few excerpts) and common words count very little ("human" is in hundreds). The two
+rankings are combined: an excerpt near the top of either one moves up.
+
+### Picking the 8 excerpts
+
+From the combined ranking, 8 excerpts are picked, with at most 3 from the same paper. If the best
+places are all taken by a few papers, the search looks again in the **other** papers, so one long
+paper can't crowd out the others and the AI sees several points of view.
+
+### Off-topic questions
+
+A question gets the fixed `OFF_TOPIC_ANSWER` (without asking the AI) only when **both** are true:
+- even the closest excerpt is far away in meaning (distance above `OFF_TOPIC_DISTANCE`, 0.77), and
+- no excerpt contains most of the question's important words (less than `WORD_MATCH_FOR_TOPIC`, 75%).
+
+"What is the best pizza in Rome?" is far away and "pizza" is in no paper: off-topic. "What is a
+stochastic parrot?" is also far away in meaning, but "stochastic" and "parrot" are both in the
+papers: it goes to the AI. After adding papers, restart `api.py` so the word search includes them.
 
 ## Good to know
 

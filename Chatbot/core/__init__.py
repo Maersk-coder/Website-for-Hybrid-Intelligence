@@ -6,7 +6,8 @@ ingest.py, ask.py, api.py and check.py use them.
   pdf_text.py   read a PDF, clean its text, find its title
   chunks.py     cut the text into chunks
   embeddings.py turn text into numbers for searching (Ollama: nomic-embed-text)
-  database.py   ChromaDB: store chunks and search them
+  keywords.py   the word search: excerpts with the question's rare words ("stochastic parrot")
+  database.py   ChromaDB: store chunks and search them (meaning + words combined)
   ai_model.py   talk to the AI model (Ollama)
   answers.py    answer a question: search, ask the AI, repair citations, find sources
 """

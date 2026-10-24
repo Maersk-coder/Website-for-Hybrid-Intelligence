@@ -1,18 +1,23 @@
 """
 core/database.py - the search index (ChromaDB): store chunks, and find the ones that match a question.
 
-Each chunk is stored with its "embedding" (a list of numbers that captures what the text is
-about, made by core/embeddings.py). A question gets an embedding too, and the chunks whose
-numbers are closest to the question's are the best matches.
+Two searches work together:
+  - the MEANING search: each chunk is stored with its "embedding" (a list of numbers that
+    captures what the text is about, made by core/embeddings.py). A question gets an embedding
+    too, and the chunks whose numbers are closest to the question's are the best matches.
+  - the WORD search (core/keywords.py): chunks that contain the question's rare words.
+Their two rankings are combined, so a chunk that does well in either one moves up.
 
 Look here when: the search finds the wrong excerpts (check with  python ask.py --show-chunks).
 """
 
 import chromadb
+import numpy as np
 from chromadb.config import Settings
 
 from core.embeddings import embed_question
 from core.errors import ChatbotError
+from core.keywords import WordIndex
 from settings import (
     COLLECTION_NAME, DATABASE_FOLDER, EMBEDDING_MODEL, MAX_CHUNKS_PER_PAPER, NUMBER_OF_CHUNKS, SEARCH_CANDIDATES,
 )
@@ -74,6 +79,21 @@ def get_collection():
     return _collection
 
 
+_word_index = None  # the word search's counts, made once (from the chunks in the index), then reused
+
+
+def get_word_index():
+    """The word search (core/keywords.py) for the chunks in the index.
+
+    Made the first time it's needed. After adding papers with ingest.py, restart api.py
+    so it's made again with the new chunks.
+    """
+    global _word_index
+    if _word_index is None:
+        _word_index = WordIndex(get_collection())
+    return _word_index
+
+
 def page_label(chunk):
     """'3' for a chunk on one page, '3-4' for a chunk that runs over two pages."""
     if chunk["page"] == chunk["page_end"]:
@@ -93,20 +113,48 @@ def retrieve(question, number=NUMBER_OF_CHUNKS, avoid=None):
     """
     collection = get_collection()
     question_numbers = embed_question(question)
+    # Ask for more than we need (but not more than the index has), so there's enough to choose from.
+    size = min(max(SEARCH_CANDIDATES, number), collection.count())
+
+    def make_chunk(chunk_id, text, info, distance):
+        return {"id": chunk_id, "text": text, "title": info["title"], "file_name": info["file_name"],
+                "page": info["page"], "page_end": info["page_end"], "distance": distance}
 
     def search(exclude_papers=()):
-        """The best-matching chunks, best first (optionally leaving out some papers)."""
-        # Ask for more than we need (but not more than the index has), so there's enough to choose from.
-        size = min(max(SEARCH_CANDIDATES, number), collection.count())
+        """The best-matching chunks by MEANING, best first (optionally leaving out some papers)."""
         where = {"file_name": {"$nin": list(exclude_papers)}} if exclude_papers else None
         result = collection.query(query_embeddings=[question_numbers], n_results=size, where=where)
         # Chroma returns lists inside lists (one list per question). We asked one question, so [0].
-        return [
-            {"id": chunk_id, "text": text, "title": info["title"], "file_name": info["file_name"],
-             "page": info["page"], "page_end": info["page_end"], "distance": distance}
-            for chunk_id, text, info, distance in zip(
-                result["ids"][0], result["documents"][0], result["metadatas"][0], result["distances"][0])
-        ]
+        return [make_chunk(*row) for row in zip(
+            result["ids"][0], result["documents"][0], result["metadatas"][0], result["distances"][0])]
+
+    def search_both():
+        """The best-matching chunks by MEANING and by WORDS together, best first.
+
+        The two rankings are combined with "reciprocal rank fusion": a chunk scores 1/(60 + its place)
+        in each ranking it appears in, and the scores are added up. So a chunk near the top of
+        either ranking moves up, and one near the top of both moves up most.
+        """
+        by_meaning = search()
+        by_words = get_word_index().search(question, size)
+
+        # Chunks found only by the word search: fetch their text, and work out their distance
+        # (so every chunk has one, for the off-topic check and --show-chunks).
+        missing = [chunk_id for chunk_id in by_words if chunk_id not in {c["id"] for c in by_meaning}]
+        extra = []
+        if missing:
+            got = collection.get(ids=missing, include=["documents", "metadatas", "embeddings"])
+            for chunk_id, text, info, numbers in zip(got["ids"], got["documents"], got["metadatas"], got["embeddings"]):
+                # The same distance ChromaDB uses: the sum of the squared differences of the numbers.
+                distance = float(np.sum((np.array(numbers) - np.array(question_numbers)) ** 2))
+                extra.append(make_chunk(chunk_id, text, info, distance))
+
+        score = {}
+        for place, chunk in enumerate(by_meaning):
+            score[chunk["id"]] = score.get(chunk["id"], 0) + 1 / (60 + place)
+        for place, chunk_id in enumerate(by_words):
+            score[chunk_id] = score.get(chunk_id, 0) + 1 / (60 + place)
+        return sorted(by_meaning + extra, key=lambda chunk: score[chunk["id"]], reverse=True)
 
     avoid = avoid or set()
     chosen = []
@@ -128,7 +176,7 @@ def retrieve(question, number=NUMBER_OF_CHUNKS, avoid=None):
             chosen.append(chunk)
             per_paper[chunk["file_name"]] = per_paper.get(chunk["file_name"], 0) + 1
 
-    choose_from(search())
+    choose_from(search_both())
 
     # Not enough yet, because some papers filled all the best places? Then search again in the
     # OTHER papers only, so the AI also sees what they say (other points of view).

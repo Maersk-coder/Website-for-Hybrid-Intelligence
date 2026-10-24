@@ -115,6 +115,13 @@ NUMBER_OF_CHUNKS = 8
 MAX_CHUNKS_PER_PAPER = 3
 SEARCH_CANDIDATES = 25
 
+# The word search (core/keywords.py) also helps decide what is off-topic: a question is only
+# off-topic when, besides the distance above, the best excerpt contains less than this share of
+# the question's important words (rare words weigh more). Measured on 2026-10-24: off-topic
+# questions 0.00-0.51; questions with special terms ("stochastic parrot", "AMIE",
+# "Moravec paradox", "jagged frontier") 1.00, even though their distance is 0.78-1.00.
+WORD_MATCH_FOR_TOPIC = 0.75
+
 # The Ollama model that makes the embeddings (the numbers the search compares).
 # Download it once with:  ollama pull nomic-embed-text
 # After changing it, rebuild the index:  python ingest.py --rebuild
