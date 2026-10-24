@@ -5,3 +5,4 @@
 # Only the file name, without its folder. After changing this file: python ingest.py --rebuild
 
 The simple macroecnoomics of AI.pdf = The Simple Macroeconomics of AI
+On the Dangers of Stochastic ParrotsCan Language Models Be Too Big.pdf = On the Dangers of Stochastic Parrots: Can Language Models Be Too Big?

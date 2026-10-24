@@ -375,9 +375,9 @@ free Cloudflare tunnel.
 | Setting | What it does |
 |---|---|
 | `SYSTEM_PROMPT` | The instructions the AI follows for every answer. |
-| `ANSWER_RULES` | Short extra rules sent next to each question: everyday words, 3–5 sentences (1–2 for facts), only relevant excerpts, how to cite, and a 1–2 sentence reply when the papers don't cover the question. |
+| `ANSWER_RULES` | Short extra rules sent next to each question: everyday words, 4–6 sentences (1–2 for facts), only relevant excerpts, how to cite, and a 1–2 sentence reply when the papers don't cover the question. |
 | `NUMBER_OF_CHUNKS` | How many excerpts are sent with each question (8). |
-| `MAX_CHUNKS_PER_PAPER`, `SEARCH_CANDIDATES` | At most 4 of those excerpts come from the same paper, so long papers can't crowd out the others (the search picks them from the best 25 matches). |
+| `MAX_CHUNKS_PER_PAPER`, `SEARCH_CANDIDATES` | At most 3 of those excerpts come from the same paper, so long papers can't crowd out the others (the search picks them from the best 25 matches). |
 | `EMBEDDING_MODEL` | The Ollama model that makes the embeddings for searching (`nomic-embed-text`). Rebuild the index after changing it. |
 | `OFF_TOPIC_DISTANCE`, `OFF_TOPIC_ANSWER` | Questions that have nothing to do with the papers (pizza, weather, ...) get `OFF_TOPIC_ANSWER` straight away, without asking the AI. A question counts as off-topic when even the best excerpt has a distance above 1.6. |
 | `CHUNK_MIN_WORDS`, `CHUNK_MAX_WORDS`, `OVERLAP_WORDS` | The size of the chunks (250–400 words, 50 words overlap). Rebuild the index after changing them. |
@@ -442,7 +442,7 @@ The embeddings are made by **`nomic-embed-text`**, a model that runs in Ollama (
 It reads the whole chunk. (Until October 2026 the chatbot used ChromaDB's standard model, which only
 read the first ~190 words of each chunk, so most of each chunk was invisible to the search.)
 
-Then, from the best 25 matches, 8 are picked, with at most 4 from the same paper, so one long paper
+Then, from the best 25 matches, 8 are picked, with at most 3 from the same paper, so one long paper
 can't crowd out the others and the AI sees several points of view.
 
 ## Good to know

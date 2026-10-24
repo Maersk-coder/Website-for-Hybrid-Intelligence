@@ -35,7 +35,9 @@ RESULTS_FOLDER = HERE / "results"
 SAYS_NOT_COVERED = re.compile(
     r"(do not|don't|does not|doesn't|did not|didn't) (cover|contain|mention|address|discuss|include|provide)"
     r"|not covered|no information|cannot be answered|can't be answered|not (addressed|discussed|mentioned) in"
-    r"|not something I can help with|search engine|Google",   # the off-topic answer (OFF_TOPIC_ANSWER in settings.py)
+    # The off-topic answer (OFF_TOPIC_ANSWER in settings.py) and the AI's own "try elsewhere" replies.
+    # (Not just "Google": a real answer can mention Google, e.g. "uses more energy than a Google search".)
+    r"|not something I can help with|search(ing)? elsewhere|try (a )?search engine",
     re.IGNORECASE,
 )
 

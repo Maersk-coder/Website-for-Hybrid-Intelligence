@@ -92,37 +92,52 @@ def retrieve(question, number=NUMBER_OF_CHUNKS, avoid=None):
     "distance" says how far the chunk is from the question: lower = better match.
     """
     collection = get_collection()
-    # Ask for more than we need (but not more than the index has), so there's enough to choose from.
-    candidates = min(max(SEARCH_CANDIDATES, number), collection.count())
-    result = collection.query(query_embeddings=[embed_question(question)], n_results=candidates)
+    question_numbers = embed_question(question)
 
-    found = []
-    # Chroma returns lists inside lists (one list per question). We asked one question, so [0].
-    for text, info, distance in zip(result["documents"][0], result["metadatas"][0], result["distances"][0]):
-        found.append({
-            "text": text,
-            "title": info["title"],
-            "file_name": info["file_name"],
-            "page": info["page"],
-            "page_end": info["page_end"],
-            "distance": distance,
-        })
+    def search(exclude_papers=()):
+        """The best-matching chunks, best first (optionally leaving out some papers)."""
+        # Ask for more than we need (but not more than the index has), so there's enough to choose from.
+        size = min(max(SEARCH_CANDIDATES, number), collection.count())
+        where = {"file_name": {"$nin": list(exclude_papers)}} if exclude_papers else None
+        result = collection.query(query_embeddings=[question_numbers], n_results=size, where=where)
+        # Chroma returns lists inside lists (one list per question). We asked one question, so [0].
+        return [
+            {"id": chunk_id, "text": text, "title": info["title"], "file_name": info["file_name"],
+             "page": info["page"], "page_end": info["page_end"], "distance": distance}
+            for chunk_id, text, info, distance in zip(
+                result["ids"][0], result["documents"][0], result["metadatas"][0], result["distances"][0])
+        ]
 
-    # Go down the list, best match first, and skip a chunk if its paper already has its maximum,
-    # or if it is one to avoid.
     avoid = avoid or set()
     chosen = []
     per_paper = {}   # file name -> how many of its chunks are chosen so far
-    for chunk in found:
-        if (chunk["title"].lower(), page_label(chunk)) in avoid:
-            continue
-        if per_paper.get(chunk["file_name"], 0) < MAX_CHUNKS_PER_PAPER:
+    skipped = []     # chunks left out (paper full, or to avoid), in case we need them after all
+
+    def choose_from(found):
+        """Go down the list, best match first, and take a chunk unless its paper already has its
+        maximum, it's one to avoid, or it's already chosen."""
+        for chunk in found:
+            if len(chosen) == number:
+                return
+            if any(chunk["id"] == c["id"] for c in chosen + skipped):
+                continue
+            if (chunk["title"].lower(), page_label(chunk)) in avoid \
+                    or per_paper.get(chunk["file_name"], 0) >= MAX_CHUNKS_PER_PAPER:
+                skipped.append(chunk)
+                continue
             chosen.append(chunk)
             per_paper[chunk["file_name"]] = per_paper.get(chunk["file_name"], 0) + 1
-        if len(chosen) == number:
-            return chosen
 
-    # Not enough different papers among the candidates (e.g. only 1 or 2 papers in the index), or
-    # too many to avoid: then fill up with the best of the skipped ones after all.
-    chosen += [chunk for chunk in found if chunk not in chosen][: number - len(chosen)]
+    choose_from(search())
+
+    # Not enough yet, because some papers filled all the best places? Then search again in the
+    # OTHER papers only, so the AI also sees what they say (other points of view).
+    full_papers = [name for name, count in per_paper.items() if count >= MAX_CHUNKS_PER_PAPER]
+    if len(chosen) < number and full_papers:
+        choose_from(search(exclude_papers=full_papers))
+
+    # Still not enough (e.g. only 1 or 2 papers in the index, or many to avoid):
+    # then fill up with the best of the skipped ones after all.
+    skipped.sort(key=lambda chunk: chunk["distance"])
+    chosen += skipped[: number - len(chosen)]
     return sorted(chosen, key=lambda chunk: chunk["distance"])

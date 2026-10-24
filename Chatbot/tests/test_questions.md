@@ -22,8 +22,8 @@ Each question starts with `## Q` + a number + the question. Under it, these line
 An empty question (`## Q16 (empty)`) is skipped. To add questions for new papers, copy one of
 the questions below, give it the next number (Q16, Q17, ...) and change the text.
 
-Papers: Q1–Q10 are about the papers in `papers/Hybrid Intelligence/`, Q11–Q15 about those in
-`papers/Pro AI/` (Q15 asks across several papers).
+Papers: Q1–Q10 are about the papers in `papers/Hybrid Intelligence/`, Q11–Q16 about those in
+`papers/Pro AI/` (Q15 asks across several papers), Q17–Q20 about those in `papers/Anti AI/`.
 
 ---
 
@@ -215,3 +215,48 @@ Papers: Q1–Q10 are about the papers in `papers/Hybrid Intelligence/`, Q11–Q1
     match a one-year-old's perception (Hybrid Intelligence, p. 4); "system 1" (fast, intuitive) vs
     "system 2" (slow, logical) thinking (p. 4); humans handle unusual "broken-leg" cases (p. 4);
     or AlphaGo, which learned from humans and then taught them new moves (p. 6).
+
+## Q17 What is a "stochastic parrot"?
+
+- **Kind:** definition
+- **Expected papers:** On the Dangers of Stochastic ParrotsCan Language Models Be Too Big.pdf
+- **Not covered:** no
+- **A good answer:** (On the Dangers of Stochastic Parrots, p. 8)
+  - A language model that stitches together words and phrases it has seen in its training data,
+    based on how likely they are to go together, but without understanding what they mean.
+  - Possibly: its output can look meaningful to us, even though the model has no idea of meaning.
+
+## Q18 What are the environmental costs of large language models?
+
+- **Kind:** risks, specific facts
+- **Expected papers:** On the Dangers of Stochastic ParrotsCan Language Models Be Too Big.pdf
+- **Not covered:** no
+- **A good answer:** (On the Dangers of Stochastic Parrots, p. 1, 3-4)
+  - Training them uses a lot of energy and causes CO2 emissions; e.g. training one BERT model was
+    estimated to take as much energy as a flight across America (p. 3).
+  - Most cloud computing energy doesn't come from renewable sources (p. 3).
+  - The costs fall mostly on marginalized people, who benefit least (p. 4).
+  - Recommendation: weigh environmental and financial costs first, and report energy use (p. 1, 3).
+
+## Q19 Does relying on AI tools affect people's critical thinking?
+
+- **Kind:** risks
+- **Expected papers:** AI Tools in Society Impacts on Cognitive Offloading and the Future of Critical Thinking.pdf
+- **Not covered:** no
+- **A good answer:** (AI Tools in Society, p. 1)
+  - Yes: in a study of 666 people, frequent AI use went together with weaker critical thinking.
+  - The link runs through "cognitive offloading": letting the tool do the thinking.
+  - Younger people relied more on AI and scored lower; more education went with better critical thinking.
+  - Possibly: similar findings in Your Brain on ChatGPT (weaker memory and engagement).
+
+## Q20 What are the main risks of large language models like ChatGPT?
+
+- **Kind:** balanced answer across several papers
+- **Expected papers:** On the Dangers of Stochastic ParrotsCan Language Models Be Too Big.pdf, AI Tools in Society Impacts on Cognitive Offloading and the Future of Critical Thinking.pdf
+- **Not covered:** no
+- **A good answer:**
+  - Biased and harmful output, because they learn from internet text that overrepresents dominant
+    views (Stochastic Parrots, p. 4-5); high environmental costs (p. 3).
+  - Weaker critical thinking and memory for people who rely on them (AI Tools in Society, p. 1;
+    Your Brain on ChatGPT, p. 2).
+  - Balanced: also benefits, e.g. productivity gains (Generative AI at Work, p. 1-2).

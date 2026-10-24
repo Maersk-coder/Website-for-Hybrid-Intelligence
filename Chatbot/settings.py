@@ -88,9 +88,13 @@ ANSWER_RULES = """Rules for your answer:
   (no "You asked...", "Based on the provided research...").
 - Write for people who know nothing about this topic: use everyday words and short sentences.
   Avoid technical terms, or explain them in a few words.
-- Keep it short: 3 to 5 sentences. A question about a fact (how many, when, who) gets 1 or 2 sentences.
-  The visitor can always ask for more.
+- Keep it fairly short: 4 to 6 sentences. A question about a fact (how many, when, who) gets
+  1 or 2 sentences. The visitor can always ask for more.
 - When it helps, give one concrete example from the excerpts (a study, a number, a real case).
+- When the question is about an effect of AI (good or bad, helpful or harmful, does it affect...):
+  never start with "Yes" or "No", and never claim one side is simply true. Start with what a
+  study found ("A study of 666 people found that..."), explain why, then say what other excerpts
+  show, especially if they point the other way.
 - If the visitor asks for more about your previous answer ("elaborate", "tell me more", "why"),
   do NOT repeat what you already said: add new details, examples or explanations from the excerpts.
 - Explain in your own words. Do not copy long passages from the excerpts.
@@ -108,7 +112,7 @@ NUMBER_OF_CHUNKS = 8
 # At most this many of those chunks may come from the same paper, so one long paper can't fill all
 # the places and the AI sees several papers' points of view. To find enough, the search looks at the
 # best SEARCH_CANDIDATES chunks. (MAX_CHUNKS_PER_PAPER = NUMBER_OF_CHUNKS switches the limit off.)
-MAX_CHUNKS_PER_PAPER = 4
+MAX_CHUNKS_PER_PAPER = 3
 SEARCH_CANDIDATES = 25
 
 # The Ollama model that makes the embeddings (the numbers the search compares).

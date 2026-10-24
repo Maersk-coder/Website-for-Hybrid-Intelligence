@@ -30,3 +30,10 @@ The details are taken from the papers themselves (their first page).
 | 5 | Navigating the Jagged Technological Frontier: Field Experimental Evidence of the Effects of Artificial Intelligence on Knowledge Worker Productivity and Quality | Fabrizio Dell'Acqua, Edward McFowland III, Ethan Mollick, Hila Lifshitz, Katherine C. Kellogg, Saran Rajendran, Lisa Krayer, François Candelon, Karim R. Lakhani | 2026 | *Organization Science*, published online 11 March 2026. [doi:10.1287/orsc.2025.21838](https://doi.org/10.1287/orsc.2025.21838) | `Navigating the Jagged Technological Frontier.pdf` |
 | 6 | The Simple Macroeconomics of AI | Daron Acemoglu | 2024 | NBER Working Paper 32487, May 2024. [nber.org/papers/w32487](https://www.nber.org/papers/w32487) | `The simple macroecnoomics of AI.pdf` |
 | 7 | Your Brain on ChatGPT: Accumulation of Cognitive Debt when Using an AI Assistant for Essay Writing Task | Nataliya Kosmyna, Eugene Hauptmann, Ye Tong Yuan, Jessica Situ, Xian-Hao Liao, Ashly Vivian Beresnitzky, Iris Braunstein, Pattie Maes | 2025 *(not in the PDF: please check)* | Preprint, under review. [brainonllm.com](https://www.brainonllm.com) | `Your Brain on ChatGPT.pdf` |
+
+### Anti AI/
+
+| # | Title | Authors | Year | Published in / Link | File name |
+|---|---|---|---|---|---|
+| 8 | AI Tools in Society: Impacts on Cognitive Offloading and the Future of Critical Thinking | Michael Gerlich | 2025 | *Societies* 15, 6 (corrected September 2025). [doi:10.3390/soc15010006](https://doi.org/10.3390/soc15010006) | `AI Tools in Society Impacts on Cognitive Offloading and the Future of Critical Thinking.pdf` |
+| 9 | On the Dangers of Stochastic Parrots: Can Language Models Be Too Big? | Emily M. Bender, Timnit Gebru, Angelina McMillan-Major, Shmargaret Shmitchell | 2021 | *FAccT '21: Conference on Fairness, Accountability, and Transparency*, ACM. [doi:10.1145/3442188.3445922](https://doi.org/10.1145/3442188.3445922) | `On the Dangers of Stochastic ParrotsCan Language Models Be Too Big.pdf` |
