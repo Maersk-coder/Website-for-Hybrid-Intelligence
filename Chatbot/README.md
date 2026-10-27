@@ -10,6 +10,9 @@ free AI model (**Ollama**) running on your own computer.
 > Built in 6 stages: **1** setup, **2** reading the papers, **3** answering questions in the terminal,
 > **4** the web API, **5** the chat panel, **6** test questions and going online
 > (see [Testing answer quality](#testing-answer-quality) and [DEPLOYMENT.md](DEPLOYMENT.md)).
+>
+> How the chat panel (client) and the Python server talk to each other, and why the server uses
+> FastAPI and not Django: see [SERVER_AND_CLIENT.md](SERVER_AND_CLIENT.md).
 
 ## How it works (RAG)
 
@@ -17,9 +20,9 @@ RAG means *retrieval-augmented generation*:
 
 1. **Ingest (once):** the text of every paper is cut into pieces ("chunks") and saved in a
    *vector database*. Each chunk is stored with an embedding (numbers that describe its meaning).
-2. **Retrieve (every question):** the question is compared with all chunks, and the 6 closest
+2. **Retrieve (every question):** the question is compared with all chunks, and the 8 closest
    in meaning are picked.
-3. **Generate:** the question and those 6 chunks are sent to the AI model, which writes an
+3. **Generate:** the question and those 8 chunks are sent to the AI model, which writes an
    answer using only those chunks, with sources.
 
 ## Important: the research papers are not in this repository
@@ -82,7 +85,8 @@ Ollama, the model and the server, and says what to fix.
 | "The index was built with another embedding model" | `EMBEDDING_MODEL` in `settings.py` was changed: run `python ingest.py --rebuild` |
 | Answers are too long, copy the papers, or ignore the rules | `SYSTEM_PROMPT` and `ANSWER_RULES` in `settings.py` |
 | A real question gets "That's not something I can help with..." | `OFF_TOPIC_DISTANCE` in `settings.py` is too low for that question. Check its distance with `python ask.py --show-chunks` |
-| Citations or the Sources list look wrong | `core/answers.py` (`fix_citations`, `find_sources`) |
+| Citations or the Sources list look wrong | `core/answers.py` (`fix_citations`, `find_sources`, `add_missing_citations`) |
+| "What are the sources?" gets the wrong kind of reply | `core/answers.py` (`asks_for_sources`, `sources_of_previous_answer`) |
 | Something went wrong while the server was running | `logs/server.log`: each problem with the date and time |
 | The chat panel looks or behaves wrong | `widget/chat-widget.js` / `widget/chat-widget.css` |
 
@@ -221,7 +225,8 @@ Type `new` to start a fresh conversation.
 
 ## The web API (api.py)
 
-The website can't run Python, so it talks to the chatbot through a small web server.
+The website can't run Python, so it talks to the chatbot through a small web server, built with
+FastAPI (why FastAPI and how the two sides talk: [SERVER_AND_CLIENT.md](SERVER_AND_CLIENT.md)).
 
 ```powershell
 python api.py
@@ -456,6 +461,21 @@ rankings are combined: an excerpt near the top of either one moves up.
 From the combined ranking, 8 excerpts are picked, with at most 3 from the same paper. If the best
 places are all taken by a few papers, the search looks again in the **other** papers, so one long
 paper can't crowd out the others and the AI sees several points of view.
+
+### Citations: the safety net
+
+The AI is told to cite every claim, but a small model sometimes forgets. When an answer cites
+nothing at all, `add_missing_citations` (in `core/answers.py`) does it: for each sentence it finds
+the excerpt the sentence is closest to in meaning, and adds that excerpt's citation. A sentence
+that isn't clearly close to any excerpt (distance above `CITE_DISTANCE`, 0.45) gets none, rather
+than a wrong one. Answers saying the papers don't cover the question are left alone.
+
+### "What are the sources for this claim?"
+
+A short question about the previous answer's sources ("What are the sources for this claim?",
+"Where does that come from?", "Which study found that?", "Sources?") gets a direct reply listing
+the papers and pages the previous answer cited, without a new search. A new question that just
+contains the word "sources" ("What are the sources of bias in AI?") is treated as a normal question.
 
 ### Off-topic questions
 

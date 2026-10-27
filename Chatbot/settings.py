@@ -82,14 +82,18 @@ than guessing. Write clearly for a general audience."""
 # Small models follow short, concrete rules best when they come next to the question.
 # {example} is replaced with a real citation from the excerpts, e.g. [Hybrid Intelligence, p. 5].
 # (Based on the scores in tests/results/2026-10-22_1824.md: answers were too long and too academic,
-#  and "not covered" answers went off on a tangent.)
+#  and "not covered" answers went off on a tangent. From tests/results/2026-10-24_1751.md:
+#  "What is...?" answers (Q12, Q17) should start short and direct, and only go longer when asked.)
 ANSWER_RULES = """Rules for your answer:
 - Start directly with the answer. Never talk about the question or about yourself
   (no "You asked...", "Based on the provided research...").
 - Write for people who know nothing about this topic: use everyday words and short sentences.
   Avoid technical terms, or explain them in a few words.
 - Keep it fairly short: 4 to 6 sentences. A question about a fact (how many, when, who) gets
-  1 or 2 sentences. The visitor can always ask for more.
+  1 or 2 sentences. A question about what a word or term means ("What is...?") gets a short,
+  direct explanation of 2 or 3 sentences, with at most one example. The visitor can always ask for more.
+- If the visitor asks for more ("elaborate", "explain more", "tell me more"), you may write a
+  longer answer: up to 8 sentences.
 - When it helps, give one concrete example from the excerpts (a study, a number, a real case).
 - When the question is about an effect of AI (good or bad, helpful or harmful, does it affect...):
   never start with "Yes" or "No", and never claim one side is simply true. Start with what a
@@ -121,6 +125,11 @@ SEARCH_CANDIDATES = 25
 # questions 0.00-0.51; questions with special terms ("stochastic parrot", "AMIE",
 # "Moravec paradox", "jagged frontier") 1.00, even though their distance is 0.78-1.00.
 WORD_MATCH_FOR_TOPIC = 0.75
+
+# Safety net for answers without any citation (the AI sometimes forgets): each sentence gets the
+# citation of the excerpt it is closest to, if that distance is at most CITE_DISTANCE.
+# Measured on 2026-10-25: sentences with real content 0.18-0.40, "not covered" sentences 0.50-0.73.
+CITE_DISTANCE = 0.45
 
 # The Ollama model that makes the embeddings (the numbers the search compares).
 # Download it once with:  ollama pull nomic-embed-text

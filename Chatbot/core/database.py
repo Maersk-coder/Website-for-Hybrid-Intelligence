@@ -94,6 +94,12 @@ def get_word_index():
     return _word_index
 
 
+def stored_embeddings(chunk_ids):
+    """The embeddings stored in the index for these chunks: a dictionary chunk id -> numbers."""
+    got = get_collection().get(ids=list(chunk_ids), include=["embeddings"])
+    return {chunk_id: np.array(numbers) for chunk_id, numbers in zip(got["ids"], got["embeddings"])}
+
+
 def page_label(chunk):
     """'3' for a chunk on one page, '3-4' for a chunk that runs over two pages."""
     if chunk["page"] == chunk["page_end"]:

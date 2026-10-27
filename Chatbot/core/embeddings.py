@@ -43,6 +43,12 @@ def embed_question(question):
     return _embed([QUESTION_LABEL + question])[0]
 
 
+def embed_sentences(sentences):
+    """The embeddings of a few sentences from an answer, to compare with the excerpts
+    (used to add citations the AI forgot, see core/answers.py)."""
+    return _embed([QUESTION_LABEL + sentence for sentence in sentences])
+
+
 def embed_documents(texts):
     """The embeddings of many chunks (used when building the index), BATCH_SIZE at a time."""
     embeddings = []

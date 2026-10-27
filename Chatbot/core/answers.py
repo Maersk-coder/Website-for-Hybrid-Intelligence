@@ -11,11 +11,37 @@ Look here when: citations or the Sources list look wrong, or follow-up questions
 
 import re
 
+import numpy as np
+
 from core.ai_model import stream_answer
-from core.database import get_word_index, page_label, retrieve
+from core.database import get_collection, get_word_index, page_label, retrieve, stored_embeddings
+from core.embeddings import embed_sentences
 from settings import (
-    ANSWER_RULES, MAX_HISTORY_CHARS, MAX_HISTORY_MESSAGES, OFF_TOPIC_ANSWER, OFF_TOPIC_DISTANCE, WORD_MATCH_FOR_TOPIC,
+    ANSWER_RULES, CITE_DISTANCE, MAX_HISTORY_CHARS, MAX_HISTORY_MESSAGES, OFF_TOPIC_ANSWER, OFF_TOPIC_DISTANCE,
+    WORD_MATCH_FOR_TOPIC,
 )
+
+# Words that show an answer says "the papers don't cover this" (then no citations are added).
+SAYS_NOT_COVERED = re.compile(
+    r"(do|does|did) not (cover|contain|mention|include)|don't (cover|contain|mention)|not covered"
+    r"|search(ing)? elsewhere|try (a )?search engine|not something I can help with",
+    re.IGNORECASE,
+)
+
+# A short question asking where the previous answer came from: "What are the sources for this claim?",
+# "Where does that come from?", or just "Sources?". It must refer back to the previous answer
+# ("this", "that", "your answer"...), so a new question like "What are the sources of bias in AI?"
+# is not mistaken for it.
+SOURCE_WORD = re.compile(r"\b(sources?|references?|citations?|cite|evidence|which (papers?|stud(y|ies)))\b", re.IGNORECASE)
+REFERS_BACK = re.compile(r"\b(this|that|these|those|it|your|you|claim|claims|answer|above|said)\b", re.IGNORECASE)
+WHERE_FROM = re.compile(r"\bwhere (does|did|do|is) (this|that|it|these)\b.*\b(from|found)\b", re.IGNORECASE)
+ONLY_SOURCES = re.compile(r"^\W*(sources?|references?)\W*$", re.IGNORECASE)
+
+
+def asks_for_sources(question):
+    """True for a question about the previous answer's sources (see the patterns above)."""
+    return bool((SOURCE_WORD.search(question) and REFERS_BACK.search(question))
+                or WHERE_FROM.search(question) or ONLY_SOURCES.search(question))
 
 
 # ---------------------------------------------------------------------------
@@ -162,6 +188,73 @@ def cited_in(answer):
     return cited
 
 
+def add_missing_citations(answer, chunks):
+    """Safety net: the AI sometimes forgets to cite anything. Then cite for it.
+
+    For each sentence of the answer, find the excerpt it is closest to in meaning (with the same
+    numbers the search uses), and put that excerpt's citation at the end of the sentence. A sentence
+    that isn't close to any excerpt (distance above CITE_DISTANCE) gets no citation, rather than a
+    wrong one. Answers that cite something already, or say the papers don't cover the question,
+    are left as they are.
+    """
+    if cited_in(answer) or SAYS_NOT_COVERED.search(answer):
+        return answer
+
+    sentences = re.split(r"(?<=[.!?])\s+", answer.strip())
+    to_check = [s for s in sentences if len(s.split()) >= 6]   # skip very short sentences
+    if not to_check:
+        return answer
+    chunk_numbers = stored_embeddings(chunk["id"] for chunk in chunks)
+    names = citation_names(chunks)
+
+    cited_sentences = {}
+    for sentence, numbers in zip(to_check, embed_sentences(to_check)):
+        # The closest excerpt: the smallest sum of squared differences (the search's distance).
+        distance, chunk = min(
+            ((float(np.sum((chunk_numbers[c["id"]] - np.array(numbers)) ** 2)), c) for c in chunks),
+            key=lambda pair: pair[0],
+        )
+        if distance <= CITE_DISTANCE:
+            citation = f" [{names[chunk['title']]}, p. {page_label(chunk)}]"
+            # Put the citation before the sentence's full stop: "...alone [Title, p. 5]."
+            if sentence[-1] in ".!?":
+                cited_sentences[sentence] = sentence[:-1] + citation + sentence[-1]
+            else:
+                cited_sentences[sentence] = sentence + citation
+
+    return " ".join(cited_sentences.get(sentence, sentence) for sentence in sentences)
+
+
+def sources_of_previous_answer(question, history):
+    """For "What are the sources for this claim?": the sources of the previous answer.
+
+    Returns a reply (answer + sources) without asking the AI, or None when this doesn't apply
+    (not a short question about sources, or the previous answer cites nothing).
+    """
+    earlier_answers = [message["content"] for message in history if message["role"] == "assistant"]
+    if not earlier_answers or len(question.split()) > 12 or not asks_for_sources(question):
+        return None
+
+    # The citations in the previous answer, e.g. "[AI Tools in Society: ..., p. 15]", in order.
+    citations = []
+    for bracket in re.findall(r"\[([^\[\]]+)\]", earlier_answers[-1]):
+        for part in bracket.split(";"):
+            if re.search(r",\s*pp?\.", part) and part.strip() not in citations:
+                citations.append(part.strip())
+    if not citations:
+        return None
+
+    # The papers' file names, from the index, so the Sources list can show them.
+    papers = []
+    for citation in citations:
+        title = re.match(r"(.+?),\s*pp?\.", citation).group(1).strip()
+        found = get_collection().get(where={"title": title}, limit=1, include=["metadatas"])
+        if found["ids"] and all(p["title"] != title for p in papers):
+            papers.append({"title": title, "file_name": found["metadatas"][0]["file_name"]})
+    answer = "My previous answer is based on these research papers: " + "; ".join(f"[{c}]" for c in citations) + "."
+    return answer, find_sources(answer, papers)
+
+
 def find_sources(answer, chunks):
     """Find which papers the answer actually cites, and which pages.
 
@@ -213,6 +306,15 @@ def answer_question_stream(question, history=None):
           chunks  - the excerpts that were retrieved (for checking with --show-chunks)
     """
     history = clean_history(history)
+
+    # "What are the sources for this claim?": answer straight from the previous answer's citations.
+    previous_sources = sources_of_previous_answer(question, history)
+    if previous_sources:
+        answer, sources = previous_sources
+        yield "text", answer
+        yield "done", {"answer": answer, "sources": sources, "chunks": []}
+        return
+
     # In a follow-up, avoid the excerpts the previous answer already used (see cited_in).
     earlier_answers = [message["content"] for message in history if message["role"] == "assistant"]
     already_used = cited_in(earlier_answers[-1]) if earlier_answers else set()
@@ -247,6 +349,8 @@ def answer_question_stream(question, history=None):
     # Lines with nothing but citations on them (a list of citations at the end) are removed:
     # the Sources list under the answer already shows them.
     answer = re.sub(r"^[ \t]*(\[[^\[\]]+\][ \t.]*)+$\n?", "", answer, flags=re.MULTILINE).strip()
+    # The AI forgot to cite anything? Then add the citations for it (see add_missing_citations).
+    answer = fix_citations(add_missing_citations(answer, chunks), chunks)
     yield "done", {"answer": answer, "sources": find_sources(answer, chunks), "chunks": chunks}
 
 
