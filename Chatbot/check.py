@@ -70,9 +70,13 @@ def check_env():
         ok(f"Allowed websites: {', '.join(ALLOWED_ORIGINS)}")
     else:
         fail("No allowed websites (ALLOWED_ORIGINS is empty), so the website can't use the chatbot",
-             "Add ALLOWED_ORIGINS=http://127.0.0.1:5500 to .env")
+             "Add ALLOWED_ORIGINS=http://127.0.0.1:8001,http://localhost:8001 to .env")
+    if ALLOWED_ORIGINS and "http://127.0.0.1:8001" not in ALLOWED_ORIGINS:
+        note("The Django website (http://127.0.0.1:8001) is not in ALLOWED_ORIGINS, so its chat panel can't "
+             "use the chatbot. Add it to .env if you test the website on this computer.")
     if "null" in ALLOWED_ORIGINS:
-        note("ALLOWED_ORIGINS includes 'null' (for double-clicking Front_Page.html). Remove it before going online.")
+        note("ALLOWED_ORIGINS includes 'null' (was for double-clicking the HTML file, not needed with Django). "
+             "Remove it, at the latest before going online.")
     note(f"AI model in use: {OLLAMA_MODEL}")
 
 

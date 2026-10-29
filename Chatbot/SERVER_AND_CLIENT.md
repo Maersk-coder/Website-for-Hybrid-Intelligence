@@ -4,18 +4,26 @@ This page explains how the chatbot is split into a **client** (the chat panel on
 a **server** (a Python program), how the two talk to each other, and which **web framework** the
 server is built with: **FastAPI**, not Django, and why.
 
-How to install and run everything is in [README.md](README.md). How to put it online is in [DEPLOYMENT.md](DEPLOYMENT.md).
+The project has **two servers**: the website is sent by **Django** (`hi_website/`, port 8001), and the
+chatbot answers through **FastAPI** (`Chatbot/api.py`, port 8000). This page is mostly about the
+chatbot. The Django side is explained in [hi_website/README.md](../hi_website/README.md).
+
+How to start everything is in [the main README](../README.md#starting-everything). How to install the
+chatbot is in [README.md](README.md). How to put it online is in [DEPLOYMENT.md](DEPLOYMENT.md).
 
 ## The short version
 
 ```
    VISITOR'S BROWSER (client)                         YOUR COMPUTER (server side)
- ┌──────────────────────────────┐                 ┌───────────────────────────────────────────┐
- │ Front_Page.html              │                 │ api.py   (FastAPI, run by Uvicorn)        │
- │  + widget/chat-widget.js     │  1. question    │   │                                       │
- │    (the chat panel)          │ ──────────────► │   ├─► core/database.py ─► ChromaDB        │
- │                              │   HTTP + JSON   │   │     (finds 8 excerpts in data/chroma) │
- │                              │                 │   │                                       │
+ ┌──────────────────────────────┐  0. the page    ┌───────────────────────────────────────────┐
+ │ Front_Page.html              │ ◄────────────── │ Django (hi_website/, port 8001)           │
+ │  + chat-widget.js            │  (HTML, CSS,    │   sends the website and saves its forms   │
+ │    (the chat panel)          │   JS, images)   └───────────────────────────────────────────┘
+ │                              │
+ │                              │  1. question    ┌───────────────────────────────────────────┐
+ │                              │ ──────────────► │ api.py (FastAPI, port 8000)               │
+ │                              │   HTTP + JSON   │   ├─► core/database.py ─► ChromaDB        │
+ │                              │                 │   │     (finds 8 excerpts in data/chroma) │
  │                              │  2. answer,     │   └─► core/ai_model.py ─► Ollama          │
  │                              │ ◄────────────── │         (qwen3.5:4b writes the answer)    │
  │                              │  piece by piece │                                           │
@@ -25,12 +33,13 @@ How to install and run everything is in [README.md](README.md). How to put it on
 - The **client** is everything that runs in the visitor's browser: the web page and the chat
   panel (`widget/chat-widget.js` and `widget/chat-widget.css`). It shows the conversation, but it
   knows nothing about the papers and can't answer anything by itself.
-- The **server** is `api.py`, a Python program that waits for questions. It searches the papers,
-  asks the AI model, and sends back the answer with its sources.
+- **Django** sends the page first (step 0). It doesn't take part in the chat.
+- The **chatbot server** is `api.py`, a Python program that waits for questions. It searches the
+  papers, asks the AI model, and sends back the answer with its sources.
 
 ## Why a server is needed at all
 
-The website is plain HTML, CSS and JavaScript. A browser can't run the chatbot itself, because:
+In the browser, the website is HTML, CSS and JavaScript. A browser can't run the chatbot itself, because:
 
 1. **The browser can't run Python.** The chatbot (reading PDFs, the search, the citations) is
    written in Python.
@@ -76,8 +85,8 @@ clicks), and the server does the computing.
 - **ChromaDB** is *not* a separate server here. It runs inside `api.py` and simply reads its
   files in `data/chroma`.
 
-When the website is online there is one more server: **GitHub Pages**, which only sends out the
-website's files (HTML, CSS, JS, images). It can't run Python, which is why the chatbot needs its own server.
+And the page itself comes from a third server, **Django** (`hi_website/`, port 8001). The chat panel
+is loaded as part of that page, but its questions go straight to `api.py`, not through Django.
 
 ### Security between client and server
 
@@ -121,7 +130,7 @@ The chatbot server needs **none** of these:
 
 | Django gives you | Does the chatbot need it? |
 |---|---|
-| HTML pages built on the server | No. The website is already finished HTML, and the chat panel draws itself with JavaScript. The server only sends data (JSON). |
+| HTML pages built on the server | No. The page comes from the website (Django), and the chat panel draws itself with JavaScript. The chatbot server only sends data (JSON). |
 | An SQL database and the ORM | No. The chatbot's data is a *vector database* (ChromaDB), which Django's ORM can't use. |
 | Admin site, user accounts, forms | No. Visitors don't log in, and nothing is saved per visitor. |
 
@@ -141,18 +150,21 @@ APIs that other programs talk to.** The chatbot server is the second kind.
 (**Flask** is another small Python framework that would also work. FastAPI was chosen because it
 checks the data and makes the `/docs` page automatically. With Flask you'd write both yourself.)
 
-## And if the website uses Django later?
+## The website does use Django
 
-Django is a good choice for the *website* itself, for example to save "Sign the Manifesto"
-signatures in a database and edit content in the Django admin. That fits well with the chatbot:
+Django *is* the right choice for the **website** itself: it sends the pages (templates), and saves
+the "Sign the Manifesto" signatures and newsletter sign-ups in a database (models, forms, the admin
+site). That's exactly the kind of job it's made for. See [hi_website/README.md](../hi_website/README.md).
 
-- **Keep them separate (recommended).** Django runs the website and FastAPI runs the chatbot,
-  each as its own server. This is very common: the chat panel simply keeps calling the chatbot's
-  address. A slow AI answer then never slows down the rest of the website either.
-- **Or move the chatbot into Django.** This is possible because **only `api.py` uses FastAPI**.
+So the project uses each framework for what it's good at, **as two separate servers**:
+
+- **Django runs the website, FastAPI runs the chatbot.** This is very common: the chat panel simply
+  calls the chatbot's address. A slow AI answer (up to a minute) then never slows down the rest of
+  the website, and either server can be restarted without the other.
+- **Moving the chatbot into Django would also be possible**, because **only `api.py` uses FastAPI**.
   Everything in `core/` (the search, the AI, the citations) is plain Python and knows nothing
   about the web. A Django view would call the same `answer_question_stream(...)` and return
-  a `StreamingHttpResponse` instead.
+  a `StreamingHttpResponse` instead. That's not needed, so they stay separate.
 
 This split is on purpose: the chatbot's "brain" (`core/`) is kept apart from how it is reached
 (`api.py` for the website, `ask.py` for the terminal, `tests/run_tests.py` for the tests). All

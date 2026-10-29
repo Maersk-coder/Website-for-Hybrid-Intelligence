@@ -7,6 +7,10 @@ of research papers, and says which paper and page each claim comes from.
 It is shown as a chat panel in the middle of Page 3 of the website. The answers are written by a
 free AI model (**Ollama**) running on your own computer.
 
+The chatbot is its own server (`api.py`, FastAPI, port 8000). The website itself is run by a second
+server, Django, in [`../hi_website/`](../hi_website/README.md) (port 8001). How to start both:
+[Starting everything](../README.md#starting-everything) in the main README.
+
 > Built in 6 stages: **1** setup, **2** reading the papers, **3** answering questions in the terminal,
 > **4** the web API, **5** the chat panel, **6** test questions and going online
 > (see [Testing answer quality](#testing-answer-quality) and [DEPLOYMENT.md](DEPLOYMENT.md)).
@@ -65,6 +69,7 @@ Chatbot/
 ├── logs/              made automatically: server.log, the problems api.py ran into
 │
 ├── DEPLOYMENT.md      how to put the website and the chatbot online
+├── SERVER_AND_CLIENT.md  how the chat panel and the servers talk to each other, and why FastAPI
 ├── .env               your own settings (made from .env.example)
 ├── .env.example       an example of .env
 ├── requirements.txt   the Python packages needed
@@ -284,7 +289,7 @@ about 10 seconds (about 25 seconds for the first question, while Ollama loads th
 |---|---|
 | `MAX_MESSAGE_CHARS` | Questions longer than 1000 characters are refused. |
 | `RATE_LIMIT`, `RATE_WINDOW_SECONDS` | Each visitor (IP address) can ask at most 10 questions per minute. |
-| `ALLOWED_ORIGINS` (in `.env`) | Only these websites may use the server from a browser. Now: the VS Code Live Server addresses for testing. Later: your real domain. Note: this stops *other websites*, not people calling the server directly. The rate limit protects against that. |
+| `ALLOWED_ORIGINS` (in `.env`) | Only these websites may use the server from a browser. Now: the Django website on your own computer (`http://127.0.0.1:8001`). Later: the website's real address. Note: this stops *other websites*, not people calling the server directly. The rate limit protects against that. |
 
 Errors come back as `{"detail": "a friendly message"}`, with these codes: 400 (empty or too long),
 422 (wrong format), 429 (too many questions), 503 (the AI or index isn't ready, e.g. Ollama not running), 500 (unexpected).
@@ -296,16 +301,21 @@ unexpected error. The file stays small: at 1 MB a new one is started (the 3 newe
 ## The chat panel (widget/)
 
 A chat panel that can be put on any website with **one** `<script>` tag. On the Hybrid Intelligence
-site it sits in the middle of Page 3.
+site it sits in the middle of Page 3 (in `hi_website/front_page/templates/Front_Page.html`).
 
 ```html
 <div id="hi-chat" style="width: 720px; height: 600px"></div>
-<script src="../Chatbot/widget/chat-widget.js" data-api="http://127.0.0.1:8000" data-target="#hi-chat"></script>
+<script src="{% static 'chat-widget.js' %}" data-api="http://127.0.0.1:8000" data-target="#hi-chat"></script>
 ```
+
+The files stay here in `widget/`, and Django sends them to the browser together with the website's
+other files: `STATICFILES_DIRS` in `hi_website/config/settings.py` points at this folder, and
+`{% static 'chat-widget.js' %}` becomes its address. On a plain HTML page (without Django), `src` is
+simply the path to the file, e.g. `src="widget/chat-widget.js"`.
 
 | Attribute | What it is |
 |---|---|
-| `src` | Where `chat-widget.js` is. `chat-widget.css` must be in the same folder. |
+| `src` | Where `chat-widget.js` is. `chat-widget.css` must be in the same folder (the panel loads it from there). |
 | `data-api` | The address of the chatbot server (`api.py`). Change it when the server moves online. |
 | `data-target` | The box the panel goes in. The panel takes the box's width and height. |
 
@@ -320,27 +330,31 @@ What it does:
 - **Errors** (server not running, too many questions, ...) are shown as a message in the chat.
 - **Phones:** the panel fills the screen width and gets more compact.
 - **Mouse wheel:** over the panel it scrolls the chat; next to the panel it jumps between pages
-  (see `Front Pages/General/JS/section_jump.js`).
+  (see `hi_website/front_page/static/General/JS/section_jump.js`).
 
 Texts (headline, example questions, ...) are in `TEXTS` and `EXAMPLE_QUESTIONS` at the top of
 `chat-widget.js`. Colors are at the top of `chat-widget.css`.
 
 ### Trying it on the website
 
-Three things must run at the same time:
+Three things must run at the same time: **Ollama**, **the chatbot server** (`python api.py`) and
+**the website** (Django: `python manage.py runserver 8001`). The exact steps are in
+[Starting everything](../README.md#starting-everything) in the main README. Then open
+**http://127.0.0.1:8001**, scroll to Page 3 and ask a question.
 
-1. **Ollama** (it runs in the background after installing; check for the llama icon near the clock).
-2. **The chatbot server**, in a terminal in the Chatbot folder: `python api.py` (leave it open).
-3. **The website** with VS Code's **Live Server**: right-click `Front Pages/Front_Page.html` →
-   *Open with Live Server*. Scroll to Page 3 and ask a question.
+The website's address must be in `ALLOWED_ORIGINS` in `.env`:
 
-The website's address must be in `ALLOWED_ORIGINS` in `.env` (Live Server's
-`http://127.0.0.1:5500` already is). Otherwise the browser blocks the chat and it says it can't reach the chatbot.
+```
+ALLOWED_ORIGINS=http://127.0.0.1:8001,http://localhost:8001
+```
+
+Otherwise the browser blocks the chat and it says it can't reach the chatbot.
 (In the `api.py` terminal you then see `OPTIONS /chat/stream ... 400 Bad Request`.)
+After changing `.env`, restart `api.py` (Ctrl+C, then `python api.py`).
 
-Opening `Front_Page.html` by double-clicking also works if `ALLOWED_ORIGINS` ends with `,null`
-(a double-clicked file introduces itself as "null"). Only use that on your own computer, and remove
-it before the website goes online. After changing `.env`, restart `api.py` (Ctrl+C, then `python api.py`).
+The website can't be opened by double-clicking `Front_Page.html` any more: it is a Django template
+now, so it only works when Django sends it. So `,null` (which allowed a double-clicked file) is no
+longer needed in `ALLOWED_ORIGINS`: remove it.
 
 ## Testing answer quality
 
@@ -370,9 +384,9 @@ change (the prompt in `settings.py`, the chunk sizes, the model) to see whether 
 
 ## Going online
 
-See **[DEPLOYMENT.md](DEPLOYMENT.md)**: the website on GitHub Pages (free), and three routes for
-the chatbot server, with step-by-step instructions for running it from your own laptop through a
-free Cloudflare tunnel.
+See **[DEPLOYMENT.md](DEPLOYMENT.md)**: three routes for the chatbot server, and step-by-step
+instructions for running the website (Django) and the chatbot from your own laptop through free
+Cloudflare tunnels.
 
 ## Settings
 

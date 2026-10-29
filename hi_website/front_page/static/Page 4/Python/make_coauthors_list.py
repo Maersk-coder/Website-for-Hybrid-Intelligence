@@ -9,7 +9,7 @@
 #        - In VS Code: keep the ";" between the three parts.
 #        - In Excel: save as "CSV UTF-8", or letters like æ, ø, å, ö can get scrambled.
 #   2. Run this script. In the VS Code terminal, from the "Hybrid Intelligence" folder:
-#        python "Front Pages/Page 4/Python/make_coauthors_list.py"
+#        python "hi_website/front_page/static/Page 4/Python/make_coauthors_list.py"
 #      It prints e.g. "Done: 62 co-authors written to coauthors_list.js".
 #      (Tip: the up arrow key in the terminal brings back the last command.)
 #   3. Refresh the page with Ctrl + F5 and open the Co-authors pop-up.

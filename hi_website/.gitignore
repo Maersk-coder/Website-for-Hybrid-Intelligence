@@ -1,0 +1,8 @@
+# Files Git should ignore in the Django project (not upload to GitHub)
+
+# The database: it will hold the visitors' names and email addresses (personal data),
+# so it must not be public. It is made with: python manage.py migrate
+db.sqlite3
+
+# Files Python makes by itself to start faster
+__pycache__/

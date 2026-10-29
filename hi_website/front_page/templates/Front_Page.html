@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,24 +9,24 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
   <!-- Styles, split into parts. General first (used by the whole page), then the animation section (Page 1), then Page 2. -->
-  <link rel="stylesheet" href="General/CSS/base.css">
-  <link rel="stylesheet" href="General/CSS/buttons.css">
-  <link rel="stylesheet" href="General/CSS/header.css">
-  <link rel="stylesheet" href="General/CSS/section_lines.css">
-  <link rel="stylesheet" href="Page 1 (main)/CSS/animation_section.css">
-  <link rel="stylesheet" href="Page 1 (main)/CSS/animation_grid.css">
-  <link rel="stylesheet" href="Page 1 (main)/CSS/animation_labels.css">
-  <link rel="stylesheet" href="Page 1 (main)/CSS/animation_text.css">
-  <link rel="stylesheet" href="Page 1 (main)/CSS/animation_card.css">
+  <link rel="stylesheet" href="{% static 'General/CSS/base.css' %}">
+  <link rel="stylesheet" href="{% static 'General/CSS/buttons.css' %}">
+  <link rel="stylesheet" href="{% static 'General/CSS/header.css' %}">
+  <link rel="stylesheet" href="{% static 'General/CSS/section_lines.css' %}">
+  <link rel="stylesheet" href="{% static 'Page 1 (main)/CSS/animation_section.css' %}">
+  <link rel="stylesheet" href="{% static 'Page 1 (main)/CSS/animation_grid.css' %}">
+  <link rel="stylesheet" href="{% static 'Page 1 (main)/CSS/animation_labels.css' %}">
+  <link rel="stylesheet" href="{% static 'Page 1 (main)/CSS/animation_text.css' %}">
+  <link rel="stylesheet" href="{% static 'Page 1 (main)/CSS/animation_card.css' %}">
   <!-- Page 2: the four levels (section first, then the staircase, then the panel) -->
-  <link rel="stylesheet" href="Page 2/CSS/levels_section.css">
-  <link rel="stylesheet" href="Page 2/CSS/levels_stairs.css">
-  <link rel="stylesheet" href="Page 2/CSS/levels_panel.css">
+  <link rel="stylesheet" href="{% static 'Page 2/CSS/levels_section.css' %}">
+  <link rel="stylesheet" href="{% static 'Page 2/CSS/levels_stairs.css' %}">
+  <link rel="stylesheet" href="{% static 'Page 2/CSS/levels_panel.css' %}">
   <!-- Page 3 -->
-  <link rel="stylesheet" href="Page 3/CSS/page_3_section.css">
+  <link rel="stylesheet" href="{% static 'Page 3/CSS/page_3_section.css' %}">
   <!-- Page 4 -->
-  <link rel="stylesheet" href="Page 4/CSS/final_section.css">
-  <link rel="stylesheet" href="Page 4/CSS/coauthors_popup.css">
+  <link rel="stylesheet" href="{% static 'Page 4/CSS/final_section.css' %}">
+  <link rel="stylesheet" href="{% static 'Page 4/CSS/coauthors_popup.css' %}">
 </head>
 <body>
 
@@ -251,7 +252,7 @@
         </div>
         <!-- The logo of the Center for Hybrid Intelligence.
              "alt" is what screen readers read out, and what shows if the image can't load. -->
-        <img class="final-logo" src="Page 4/Images/hi_logo.png" alt="Center for Hybrid Intelligence logo">
+        <img class="final-logo" src="{% static 'Page 4/Images/hi_logo.png' %}" alt="Center for Hybrid Intelligence logo">
       </div>
 
       <!-- Right column: the HI centres, and contact details -->
@@ -304,37 +305,37 @@
        Grouped like the styles at the top: General first, then each page in order (Page 1, Page 2, ...). -->
 
   <!-- General: used by the whole page -->
-  <script src="General/JS/header_transparent.js"></script>
-  <script src="General/JS/header_hide.js"></script>
-  <script src="General/JS/section_jump.js"></script>
-  <script src="General/JS/section_lines.js"></script>  <!-- the faint rippling lines on Pages 2 and 3 (uses Page 1's line drawing) -->
+  <script src="{% static 'General/JS/header_transparent.js' %}"></script>
+  <script src="{% static 'General/JS/header_hide.js' %}"></script>
+  <script src="{% static 'General/JS/section_jump.js' %}"></script>
+  <script src="{% static 'General/JS/section_lines.js' %}"></script>  <!-- the faint rippling lines on Pages 2 and 3 (uses Page 1's line drawing) -->
 
   <!-- Page 1: the animation section. The order matters:
        Three.js first (it draws the 3D cloud of dots), then settings, then the parts,
        and animation.js (which connects them) last. -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <script src="Page 1 (main)/JS - Animations/settings.js"></script>
-  <script src="Page 1 (main)/JS - Animations/layout.js"></script>
-  <script src="Page 1 (main)/JS - Animations/shapes.js"></script>
-  <script src="Page 1 (main)/JS - Animations/dot_cloud.js"></script>
-  <script src="Page 1 (main)/JS - Animations/shape_timeline.js"></script>
-  <script src="Page 1 (main)/JS - Animations/changing_word.js"></script>
-  <script src="Page 1 (main)/JS - Animations/labels.js"></script>
-  <script src="Page 1 (main)/JS - Animations/background_lines.js"></script>
-  <script src="Page 1 (main)/JS - Animations/animation.js"></script>
+  <script src="{% static 'Page 1 (main)/JS - Animations/settings.js' %}"></script>
+  <script src="{% static 'Page 1 (main)/JS - Animations/layout.js' %}"></script>
+  <script src="{% static 'Page 1 (main)/JS - Animations/shapes.js' %}"></script>
+  <script src="{% static 'Page 1 (main)/JS - Animations/dot_cloud.js' %}"></script>
+  <script src="{% static 'Page 1 (main)/JS - Animations/shape_timeline.js' %}"></script>
+  <script src="{% static 'Page 1 (main)/JS - Animations/changing_word.js' %}"></script>
+  <script src="{% static 'Page 1 (main)/JS - Animations/labels.js' %}"></script>
+  <script src="{% static 'Page 1 (main)/JS - Animations/background_lines.js' %}"></script>
+  <script src="{% static 'Page 1 (main)/JS - Animations/animation.js' %}"></script>
 
   <!-- Page 2: the four levels -->
-  <script src="Page 2/JS/levels_panel.js"></script>
-  <script src="Page 2/JS/levels_build.js"></script>
+  <script src="{% static 'Page 2/JS/levels_panel.js' %}"></script>
+  <script src="{% static 'Page 2/JS/levels_build.js' %}"></script>
 
 
   <!-- Page 3: the chat panel. It lives in the Chatbot folder, so it can be used on other websites too.
        data-api = the address of the chatbot server (api.py), data-target = the box on Page 3 it goes in. -->
-  <script src="../Chatbot/widget/chat-widget.js" data-api="http://127.0.0.1:8000" data-target="#hi-chat"></script>
+  <script src="{% static 'chat-widget.js' %}" data-api="http://127.0.0.1:8000" data-target="#hi-chat"></script>
 
   <!-- Page 4: the co-authors pop-up. The list first, because the pop-up script uses it. -->
-  <script src="Page 4/JS/coauthors_list.js"></script>
-  <script src="Page 4/JS/coauthors_popup.js"></script>
+  <script src="{% static 'Page 4/JS/coauthors_list.js' %}"></script>
+  <script src="{% static 'Page 4/JS/coauthors_popup.js' %}"></script>
 
 
 
