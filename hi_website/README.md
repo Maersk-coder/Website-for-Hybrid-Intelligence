@@ -34,6 +34,7 @@ Two servers can't share one port, so Django gets 8001.
 hi_website/
 ├── manage.py              Django's tool. You use it by typing: python manage.py <command>
 ├── db.sqlite3             The database. Not on GitHub: it holds people's names and emails.
+├── How_Django_works.docx  A simple explanation: what Django is, GET and POST, and every file
 ├── config/                The settings for the whole project ("config" = configuration)
 │   ├── settings.py        All settings, e.g. the list of apps (INSTALLED_APPS)
 │   ├── urls.py            Which address goes to which app
