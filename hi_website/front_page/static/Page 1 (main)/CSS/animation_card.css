@@ -45,6 +45,14 @@
   .animation-card { position: relative; right: auto; bottom: auto; margin: auto 16px 88px; } /* "auto" on top pushes it to the bottom */
 }
 
+
+/* On phones (800px or less) the card sits low, in the empty space under the dot cloud */
+@media (max-width: 800px) {
+  .animation-card { margin-bottom: 24px; padding: 11px 14px; gap: 2px 12px; }
+}
+
+
+
 /* People who turn off motion: the card is simply there */
 @media (prefers-reduced-motion: reduce) {
   .animation-card { opacity: 1; transform: none; animation: none; }

@@ -88,3 +88,9 @@
 @media (prefers-reduced-motion: reduce) {
   .animation-text > *, .cycle-letter { opacity: 1; transform: none; animation: none; }
 }
+
+/* On small screens (800px or less) the buttons are hidden: "Sign the Manifesto" is in the ☰ menu there */
+@media (max-width: 800px) {
+  .animation-buttons { display: none; }
+}
+
