@@ -65,7 +65,7 @@ Wait until it says `Starting development server at http://127.0.0.1:8001/`.
 
 | Section | What it is |
 |---|---|
-| **Header** | Logo and the main menu (Manifesto, Tools & Frameworks, Research, Use Cases, Press, FAQ). It turns see-through over the animation and hides on the last page. |
+| **Header** | Logo and the main menu (Manifesto, Tools & Frameworks, Research, Use Cases, Press, FAQ). It turns see-through over the animation and hides on the last page. On phones, a ☰ button opens a full-screen menu instead. |
 | **Page 1 – Animation section** | The opening screen: a 3D cloud of dots that changes shape, flowing background lines, and labels for the four levels: Individual, Workflow, Organization, Society & Economy. |
 | **Page 2 – What is Hybrid Intelligence?** | The four levels as a staircase. Pointing at a level shows what it is about. |
 | **Page 3 – Chatbot** | A chat panel in the middle of the page: ask questions about AI and Hybrid Intelligence, answered from research papers with sources. The mouse wheel scrolls the chat while the pointer is over it. |

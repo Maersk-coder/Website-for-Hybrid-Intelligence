@@ -1,0 +1,101 @@
+/* PHONE MENU: the ☰ button and the full-screen menu, for small screens.
+   On big screens none of this is visible: the normal menu bar is used. */
+
+/* The ☰ button: hidden on big screens */
+.menu-btn {
+  display: none;
+  position: relative;      /* so the three lines can be placed inside it */
+  width: 44px;             /* 44px is big enough to tap with a finger */
+  height: 44px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--navy);
+  cursor: pointer;
+}
+
+/* The three lines of the ☰: each <span> is drawn as one short, thick line */
+.menu-btn span {
+  position: absolute;
+  left: 12px;
+  width: 20px;
+  height: 2px;
+  border-radius: 2px;
+  background: currentColor;   /* the same colour as the button's text: navy */
+}
+.menu-btn span:nth-child(1) { top: 15px; }   /* nth-child(1) = the first span, the top line */
+.menu-btn span:nth-child(2) { top: 21px; }
+.menu-btn span:nth-child(3) { top: 27px; }
+
+/* On small screens (800px wide or less): hide the normal menu bar, show ☰ instead */
+@media (max-width: 800px) {
+  .main-nav { display: none; }
+  .menu-btn { display: block; }
+}
+
+/* The menu: a white page that covers the whole screen */
+.phone-menu {
+  width: 100%;
+  height: 100%;
+  max-width: none;          /* a <dialog> normally has a maximum size and sits in the middle. Not this one */
+  max-height: none;
+  margin: 0;
+  padding: 0 16px 32px;     /* 16px at the sides, the same as the header */
+  border: 0;
+  background: var(--white);
+  color: var(--navy);
+}
+
+/* Only while it is open: the parts in a column, top to bottom */
+.phone-menu[open] {
+  display: flex;
+  flex-direction: column;
+}
+
+/* The top row: the logo on the left, ✕ on the right, as tall as the header */
+.phone-menu-top {
+  height: var(--header-h);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* The ✕ button */
+.menu-close {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--navy);
+  font-size: 32px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+/* The links: big, one per line, with a thin line between them */
+.phone-menu-links {
+  display: flex;
+  flex-direction: column;
+  margin-top: 16px;
+}
+.phone-menu-links a {
+  display: flex;
+  justify-content: space-between;   /* the ⌄ goes to the right end */
+  align-items: center;
+  padding: 14px 0;
+  font-size: 22px;
+  font-weight: 400;
+  border-bottom: 1px solid var(--lavender);
+}
+
+/* The "Sign the Manifesto" button: at the bottom, full width */
+.phone-menu .btn {
+  margin-top: auto;      /* "auto" takes all the empty space above it, which pushes the button to the bottom */
+  text-align: center;
+  padding: 16px 24px;
+  font-size: 13px;
+}
+
+/* While the menu is open, the page behind it can't scroll */
+html:has(.phone-menu[open]) { overflow: hidden; }

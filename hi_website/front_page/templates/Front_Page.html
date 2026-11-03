@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="{% static 'General/CSS/base.css' %}">
   <link rel="stylesheet" href="{% static 'General/CSS/buttons.css' %}">
   <link rel="stylesheet" href="{% static 'General/CSS/header.css' %}">
+  <link rel="stylesheet" href="{% static 'General/CSS/phone_menu.css' %}">
   <link rel="stylesheet" href="{% static 'General/CSS/section_lines.css' %}">
   <link rel="stylesheet" href="{% static 'Page 1 (main)/CSS/animation_section.css' %}">
   <link rel="stylesheet" href="{% static 'Page 1 (main)/CSS/animation_grid.css' %}">
@@ -43,8 +44,30 @@
         <a href="#">FAQ</a>
         <a href="#" class="btn btn-dark">Sign the Manifesto</a>
       </nav>
+      <!-- The ☰ button: only shown on small screens (see phone_menu.css). It opens the phone menu. -->
+      <button type="button" class="menu-btn" id="menu-open" aria-label="Open the menu">
+        <span></span><span></span><span></span>
+      </button>
     </div>
   </header>
+
+  <!-- The phone menu: a pop-up (<dialog>) that covers the whole screen.
+       It's opened by the ☰ button above, and closed by ✕, a link, or Esc (see phone_menu.js). -->
+  <dialog class="phone-menu" id="phone-menu" aria-label="Menu">
+    <div class="phone-menu-top">
+      <a href="#" class="logo">Hybrid Intelligence</a>
+      <button type="button" class="menu-close" id="menu-close" aria-label="Close the menu">&times;</button>
+    </div>
+    <nav class="phone-menu-links" aria-label="Main">
+      <a href="#">Manifesto <span class="chevron">⌄</span></a>
+      <a href="#">Tools &amp; Frameworks <span class="chevron">⌄</span></a>
+      <a href="#">Research</a>
+      <a href="#">Use Cases</a>
+      <a href="#">Press</a>
+      <a href="#">FAQ</a>
+    </nav>
+    <a href="#" class="btn btn-dark">Sign the Manifesto</a>
+  </dialog>
 
   <!-- BOX 2: Animation section -->
   <section class="animation-section">
@@ -308,6 +331,7 @@
   <script src="{% static 'General/JS/header_transparent.js' %}"></script>
   <script src="{% static 'General/JS/header_hide.js' %}"></script>
   <script src="{% static 'General/JS/section_jump.js' %}"></script>
+  <script src="{% static 'General/JS/phone_menu.js' %}"></script>
   <script src="{% static 'General/JS/section_lines.js' %}"></script>  <!-- the faint rippling lines on Pages 2 and 3 (uses Page 1's line drawing) -->
 
   <!-- Page 1: the animation section. The order matters:
