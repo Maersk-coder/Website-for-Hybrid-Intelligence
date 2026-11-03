@@ -42,17 +42,20 @@ hi_website/
 │   └── __init__.py        Tells Python this folder is a package. Leave it empty.
 └── front_page/            The app: the front page and what its buttons do
     ├── templates/
-    │   └── Front_Page.html    The website's HTML (all sections in one page)
+    │   ├── Front_Page.html          The website's HTML (all sections in one page)
+    │   ├── Sign_The_Manifesto.html  The page with the "Sign the Manifesto" form (/sign/)
+    │   └── Thank_You.html           Shown after a form is sent (/thanks/)
     ├── static/                The website's CSS, JavaScript and images
     │   ├── General/           Used by the whole page (base styles, buttons, header, scrolling)
     │   ├── Page 1 (main)/     The animation section
     │   ├── Page 2/            "What is Hybrid Intelligence?" (the four levels)
     │   ├── Page 3/            The chatbot section
     │   └── Page 4/            The last section (newsletter, co-authors, contact)
-    ├── views.py           The functions that answer a visit, e.g. "send the front page"
-    ├── urls.py            Which address goes to which function in views.py (made in stage 2)
-    ├── models.py          The database tables, written as Python classes (stage 3)
-    ├── admin.py           Which tables can be seen and edited at /admin (stage 3)
+    ├── views.py           The functions that answer a visit: home, sign (GET shows the form, POST saves it), thanks
+    ├── urls.py            Which address goes to which function in views.py: /, /sign/, /thanks/
+    ├── forms.py           The forms visitors fill in, built from the tables (SignatureForm, SubscriberForm)
+    ├── models.py          The database tables, written as Python classes: Signature and Subscriber
+    ├── admin.py           Which tables can be seen and edited at /admin
     ├── migrations/        Made by Django: the steps that build the tables in the database
     ├── apps.py            The app's name. Made by Django
     └── tests.py           For automatic tests. Not used yet
@@ -119,4 +122,4 @@ in the Anaconda Prompt, then `python manage.py migrate` in this folder to make a
 
 A login (slides 06) is not planned for now.
 
-**Status:** stages 1 and 2 are done; next is stage 3.
+**Status:** stages 1–3 are done. Stage 4: "Sign the Manifesto" works (/sign/); the newsletter form is next.

@@ -8,4 +8,6 @@ urlpatterns = [
     # '' = the start page (http://127.0.0.1:8001/) -> runs home() in views.py.
     # name='home' is a label, so templates can link to it with {% url 'home' %}.
     path('', views.home, name='home'),
+    path('sign/', views.sign, name='sign'),        # the "Sign the Manifesto" page
+    path('thanks/', views.thanks, name='thanks'),  # the "Thank you" page
 ]

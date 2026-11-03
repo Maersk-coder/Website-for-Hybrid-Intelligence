@@ -1,0 +1,26 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign the Manifesto · Hybrid Intelligence</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'General/CSS/base.css' %}">
+  <link rel="stylesheet" href="{% static 'General/CSS/buttons.css' %}">
+  <link rel="stylesheet" href="{% static 'General/CSS/form_page.css' %}">
+</head>
+<body class="form-page">
+  <main class="form-box">
+    <a href="{% url 'home' %}" class="form-back">← Back to the front page</a>
+    <h1>Sign the Manifesto</h1>
+    <p class="form-intro">Add your name to show that you support the Hybrid Intelligence Manifesto.</p>
+
+    <form action="{% url 'sign' %}" method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit" class="btn btn-dark">Sign the Manifesto</button>
+    </form>
+  </main>
+</body>
+</html>

@@ -42,7 +42,7 @@
         <a href="#">Use Cases</a>
         <a href="#">Press</a>
         <a href="#">FAQ</a>
-        <a href="#" class="btn btn-dark">Sign the Manifesto</a>
+        <a href="{% url 'sign' %}" class="btn btn-dark">Sign the Manifesto</a>
       </nav>
       <!-- The ☰ button: only shown on small screens (see phone_menu.css). It opens the phone menu. -->
       <button type="button" class="menu-btn" id="menu-open" aria-label="Open the menu">
@@ -66,7 +66,7 @@
       <a href="#">Press</a>
       <a href="#">FAQ</a>
     </nav>
-    <a href="#" class="btn btn-dark">Sign the Manifesto</a>
+    <a href="{% url 'sign' %}" class="btn btn-dark">Sign the Manifesto</a>
   </dialog>
 
   <!-- BOX 2: Animation section -->
@@ -104,8 +104,8 @@
         <p class="animation-cycle" aria-hidden="true"><span class="cycle-word">Human creativity.</span></p>
         <p class="animation-lead">Hybrid Intelligence combines human creativity, ethics, and contextual understanding with AI's scalability and efficiency. This collaboration enables solutions that neither could achieve alone.</p>
         <div class="animation-buttons">
-          <a href="#" class="btn btn-dark">Sign the Manifesto</a>
-          <a href="#" class="btn-arrow" aria-label="Sign the Manifesto">→</a>
+          <a href="{% url 'sign' %}" class="btn btn-dark">Sign the Manifesto</a>
+          <a href="{% url 'sign' %}" class="btn-arrow" aria-label="Sign the Manifesto">→</a>
         </div>
       </div>
     </div>

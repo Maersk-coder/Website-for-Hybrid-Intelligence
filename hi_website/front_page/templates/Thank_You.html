@@ -1,0 +1,20 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thank you · Hybrid Intelligence</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'General/CSS/base.css' %}">
+  <link rel="stylesheet" href="{% static 'General/CSS/buttons.css' %}">
+  <link rel="stylesheet" href="{% static 'General/CSS/form_page.css' %}">
+</head>
+<body class="form-page">
+  <main class="form-box">
+    <h1>Thank you!</h1>
+    <p class="form-intro">We have received your details.</p>
+    <a href="{% url 'home' %}" class="btn btn-dark">Back to the front page</a>
+  </main>
+</body>
+</html>
