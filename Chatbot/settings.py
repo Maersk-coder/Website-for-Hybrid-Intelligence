@@ -158,9 +158,21 @@ MAX_HISTORY_CHARS = 3000
 # ---------------------------------------------------------------------------
 
 # How much text the model can read at once, in tokens (1 token is about 3/4 of a word).
-# The 6 excerpts + instructions are about 5,000 tokens. Ollama's normal limit is
+# The 8 excerpts + instructions are about 5,000 tokens. Ollama's normal limit is
 # smaller, and it would then silently cut off part of the excerpts.
 OLLAMA_CONTEXT_SIZE = 8192
+
+# How long Ollama keeps the models in memory after the last question. Loading them again takes
+# about 1-2 minutes on this laptop, so the first question after a pause is slow. Was 5 minutes
+# (Ollama's normal); "30m" = 30 minutes. They use memory while loaded, so not much longer.
+OLLAMA_KEEP_ALIVE = "30m"
+
+# Run the search model (EMBEDDING_MODEL) on the processor instead of the graphics card.
+# The graphics card has 4 GB, and both models don't fit on it together: Ollama then throws one
+# out and loads the other for EVERY question (measured on 2026-11-09: about 1.5 minutes extra).
+# The search model is small and fast enough on the processor, so the answer model keeps the card.
+# False = let Ollama decide (the old behaviour).
+EMBEDDING_ON_CPU = True
 
 
 # ---------------------------------------------------------------------------

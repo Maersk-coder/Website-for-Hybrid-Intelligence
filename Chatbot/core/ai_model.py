@@ -9,7 +9,7 @@ import httpx  # the package Ollama uses to connect (installed together with olla
 import ollama
 
 from core.errors import ChatbotError
-from settings import OLLAMA_CONTEXT_SIZE, OLLAMA_MODEL, OLLAMA_THINK, OLLAMA_URL, SYSTEM_PROMPT
+from settings import OLLAMA_CONTEXT_SIZE, OLLAMA_KEEP_ALIVE, OLLAMA_MODEL, OLLAMA_THINK, OLLAMA_URL, SYSTEM_PROMPT
 
 
 def model_description():
@@ -39,6 +39,7 @@ def stream_answer(message, history):
                      + [{"role": "user", "content": message}],
             think=OLLAMA_THINK,
             options={"num_ctx": OLLAMA_CONTEXT_SIZE},
+            keep_alive=OLLAMA_KEEP_ALIVE,  # keep the model loaded this long after the answer (see settings.py)
             stream=True,  # get the answer in pieces while it's being written
         )
         for piece in pieces:

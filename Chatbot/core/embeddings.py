@@ -15,7 +15,7 @@ import httpx
 import ollama
 
 from core.errors import ChatbotError
-from settings import EMBEDDING_MODEL, OLLAMA_URL
+from settings import EMBEDDING_MODEL, EMBEDDING_ON_CPU, OLLAMA_KEEP_ALIVE, OLLAMA_URL
 
 # nomic-embed-text was trained with a label in front of each text, saying what kind of text it is.
 # It matches a question to the right chunks best when we use the same labels.
@@ -29,7 +29,12 @@ BATCH_SIZE = 16
 def _embed(texts):
     """Ask Ollama for the embeddings of a list of texts. Returns a list of number lists."""
     try:
-        return ollama.Client(host=OLLAMA_URL).embed(model=EMBEDDING_MODEL, input=texts).embeddings
+        # num_gpu = how many parts of the model go on the graphics card; 0 = none, so it runs on the processor
+        # (see EMBEDDING_ON_CPU in settings.py). keep_alive = how long Ollama keeps it loaded afterwards.
+        options = {"num_gpu": 0} if EMBEDDING_ON_CPU else None
+        return ollama.Client(host=OLLAMA_URL).embed(
+            model=EMBEDDING_MODEL, input=texts, options=options, keep_alive=OLLAMA_KEEP_ALIVE,
+        ).embeddings
     except (ConnectionError, httpx.ConnectError):
         raise ChatbotError("Could not reach Ollama. Is the Ollama app running? (see README)")
     except ollama.ResponseError as error:

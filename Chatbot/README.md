@@ -402,6 +402,8 @@ Cloudflare tunnels.
 | `OFF_TOPIC_DISTANCE`, `WORD_MATCH_FOR_TOPIC`, `OFF_TOPIC_ANSWER` | Questions that have nothing to do with the papers (pizza, weather, ...) get `OFF_TOPIC_ANSWER` straight away, without asking the AI. A question counts as off-topic when even the best excerpt has a distance above 0.77 **and** no excerpt contains at least 75% of the question's important words (see [How the search works](#how-the-search-works)). |
 | `CHUNK_MIN_WORDS`, `CHUNK_MAX_WORDS`, `OVERLAP_WORDS` | The size of the chunks (250–400 words, 50 words overlap). Rebuild the index after changing them. |
 | `OLLAMA_CONTEXT_SIZE` | How much text the model can read at once. Must fit the excerpts and the conversation. |
+| `OLLAMA_KEEP_ALIVE` | How long the models stay loaded after the last question (now 30 minutes). Loading them again takes 1-2 minutes, so the first question after a longer pause is slow. |
+| `EMBEDDING_ON_CPU` | Runs the search model on the processor, so the answer model has the graphics card to itself. Otherwise the two models don't fit together on a 4 GB card and Ollama swaps them for every question (about 1.5 minutes extra). |
 | `MAX_HISTORY_MESSAGES` | How many earlier messages the AI sees (6 = the last 3 questions and answers). |
 
 **`.env`** holds the settings that differ per computer:
