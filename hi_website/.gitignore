@@ -6,3 +6,15 @@ db.sqlite3
 
 # Files Python makes by itself to start faster
 __pycache__/
+
+# The documents the website sends by email (e.g. the manifesto PDF) are shared on request only,
+# so they are not uploaded. Only the README that lists them is.
+front_page/files/*
+!front_page/files/README.md
+
+# While testing, emails are saved as files here instead of being sent (see MAILERS in
+# config/settings.py). They contain people's names and emails, so they are not uploaded.
+sent_emails/
+
+# The private settings (the email account and its password). .env.example shows what goes in it.
+.env

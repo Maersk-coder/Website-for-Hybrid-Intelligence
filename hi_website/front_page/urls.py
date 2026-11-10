@@ -9,5 +9,6 @@ urlpatterns = [
     # name='home' is a label, so templates can link to it with {% url 'home' %}.
     path('', views.home, name='home'),
     path('sign/', views.sign, name='sign'),        # the "Sign the Manifesto" page
+    path('newsletter/', views.newsletter, name='newsletter'),  # the "Sign up for newsletter" page
     path('thanks/', views.thanks, name='thanks'),  # the "Thank you" page
 ]

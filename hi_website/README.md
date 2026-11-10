@@ -34,6 +34,9 @@ Two servers can't share one port, so Django gets 8001.
 hi_website/
 ├── manage.py              Django's tool. You use it by typing: python manage.py <command>
 ├── db.sqlite3             The database. Not on GitHub: it holds people's names and emails.
+├── .env                   Your private settings: the email account and its App password. Not on GitHub
+├── .env.example           Shows what goes in .env (copy it to .env on a new computer)
+├── sent_emails/          When .env has no email account, emails are saved here as .log files instead of being sent. Not on GitHub
 ├── How_Django_works.docx  A simple explanation: Model, View, Controller, and how Django works
 ├── config/                The settings for the whole project ("config" = configuration)
 │   ├── settings.py        All settings, e.g. the list of apps (INSTALLED_APPS)
@@ -44,6 +47,7 @@ hi_website/
     ├── templates/
     │   ├── Front_Page.html          The website's HTML (all sections in one page)
     │   ├── Sign_The_Manifesto.html  The page with the "Sign the Manifesto" form (/sign/)
+    │   ├── Newsletter.html          The page with the "Sign up for newsletter" form (/newsletter/)
     │   └── Thank_You.html           Shown after a form is sent (/thanks/)
     ├── static/                The website's CSS, JavaScript and images
     │   ├── General/           Used by the whole page (base styles, buttons, header, scrolling)
@@ -51,9 +55,11 @@ hi_website/
     │   ├── Page 2/            "What is Hybrid Intelligence?" (the four levels)
     │   ├── Page 3/            The chatbot section
     │   └── Page 4/            The last section (newsletter, co-authors, contact)
-    ├── views.py           The functions that answer a visit: home, sign (GET shows the form, POST saves it), thanks
-    ├── urls.py            Which address goes to which function in views.py: /, /sign/, /thanks/
+    ├── views.py           The functions that answer a visit: home, sign and newsletter (GET shows the form, POST saves it), thanks
+    ├── urls.py            Which address goes to which function in views.py: /, /sign/, /newsletter/, /thanks/
     ├── forms.py           The forms visitors fill in, built from the tables (SignatureForm, SubscriberForm)
+    ├── emails.py          The emails: "Thank you for signing" (with the manifesto PDF) and the newsletter welcome
+    ├── files/             The documents the emails send (the manifesto PDF). Not on GitHub: see files/README.md
     ├── models.py          The database tables, written as Python classes: Signature and Subscriber
     ├── admin.py           Which tables can be seen and edited at /admin
     ├── migrations/        Made by Django: the steps that build the tables in the database
@@ -122,4 +128,4 @@ in the Anaconda Prompt, then `python manage.py migrate` in this folder to make a
 
 A login (slides 06) is not planned for now.
 
-**Status:** stages 1–3 are done. Stage 4: "Sign the Manifesto" works (/sign/); the newsletter form is next.
+**Status:** stages 1–3 are done. Stage 4: "Sign the Manifesto" works (/sign/): one signature per email, and a thank-you email with the manifesto attached (saved as a file while testing). The newsletter form works too (/newsletter/, the button on Page 4), with a welcome email. Emails are really sent when .env has an email account (see .env.example), otherwise saved as files.

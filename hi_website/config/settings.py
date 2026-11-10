@@ -10,10 +10,17 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.1/ref/settings/
 """
 
+import os
 from pathlib import Path
+
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Read the private settings from hi_website/.env (e.g. the email password). .env is NOT on GitHub.
+# load_dotenv copies its lines into the "environment"; os.getenv('NAME') then reads one.
+load_dotenv(BASE_DIR / '.env')
 
 
 # Quick-start development settings - unsuitable for production
@@ -121,11 +128,35 @@ STATIC_URL = 'static/'
 # Email
 # https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
 
-MAILERS = {
-    'default': {
-        'BACKEND': 'django.core.mail.backends.console.EmailBackend',
-    },
-}
+# Email. (Django 6.1 writes email settings this way, in MAILERS. Older Django used EMAIL_BACKEND.)
+# The account and its password come from .env (see .env.example):
+#   - filled in: emails are REALLY sent, from that account;
+#   - empty (e.g. on another computer): emails are saved as files in sent_emails/ instead,
+#     one .log file per email. Rename one to .eml and double-click it to see it as the person would.
+EMAIL_ADDRESS = os.getenv('EMAIL_ADDRESS', '')
+EMAIL_APP_PASSWORD = os.getenv('EMAIL_APP_PASSWORD', '')
+
+if EMAIL_ADDRESS and EMAIL_APP_PASSWORD:
+    MAILERS = {
+        'default': {
+            'BACKEND': 'django.core.mail.backends.smtp.EmailBackend',    # "really send"
+            'OPTIONS': {
+                'host': os.getenv('EMAIL_HOST', 'smtp.gmail.com'),       # the mail server (Gmail's)
+                'port': int(os.getenv('EMAIL_PORT', '587')),             # its door number for sending
+                'username': EMAIL_ADDRESS,
+                'password': EMAIL_APP_PASSWORD,
+                'use_tls': True,                                         # an encrypted connection
+                'timeout': 20,                                           # give up after 20 seconds
+            },
+        },
+    }
+else:
+    MAILERS = {
+        'default': {
+            'BACKEND': 'django.core.mail.backends.filebased.EmailBackend',   # "save as a file"
+            'OPTIONS': {'file_path': BASE_DIR / 'sent_emails'},             # in which folder
+        },
+    }
 
 # Extra folders with static files, besides each app's own static/ folder.
 # The chat panel's files (chat-widget.js and chat-widget.css) stay in the Chatbot folder,
@@ -133,3 +164,8 @@ MAILERS = {
 STATICFILES_DIRS = [
     BASE_DIR.parent / 'Chatbot' / 'widget',
 ]
+
+
+# The sender shown in the emails (the email settings themselves are in MAILERS, above).
+# Gmail always sends from the account's own address, so that address is used here.
+DEFAULT_FROM_EMAIL = f'Hybrid Intelligence <{EMAIL_ADDRESS or "noreply@hybridintelligence.example"}>'
