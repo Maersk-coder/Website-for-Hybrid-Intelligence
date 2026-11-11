@@ -74,9 +74,7 @@ def send_newsletter_welcome_email(subscriber):
     send_safely(email)
 
 
-# ---------------------------------------------------------------------------
 # The monthly newsletter
-# ---------------------------------------------------------------------------
 
 def unsubscribe_link(email_address):
     """ The personal link that takes this person off the newsletter list.
