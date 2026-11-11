@@ -166,6 +166,10 @@ STATICFILES_DIRS = [
 ]
 
 
+# The website's own address, used for links inside emails (e.g. the "unsubscribe" link).
+# On your own computer it's 127.0.0.1:8001. When the site is online, set SITE_URL in .env to its real address.
+SITE_URL = os.getenv('SITE_URL', 'http://127.0.0.1:8001')
+
 # The sender shown in the emails (the email settings themselves are in MAILERS, above).
 # Gmail always sends from the account's own address, so that address is used here.
 DEFAULT_FROM_EMAIL = f'Hybrid Intelligence <{EMAIL_ADDRESS or "noreply@hybridintelligence.example"}>'

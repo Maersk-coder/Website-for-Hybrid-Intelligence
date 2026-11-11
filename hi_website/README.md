@@ -48,6 +48,7 @@ hi_website/
     │   ├── Front_Page.html          The website's HTML (all sections in one page)
     │   ├── Sign_The_Manifesto.html  The page with the "Sign the Manifesto" form (/sign/)
     │   ├── Newsletter.html          The page with the "Sign up for newsletter" form (/newsletter/)
+    │   ├── Unsubscribe.html         The page behind the "Unsubscribe" link in every newsletter
     │   └── Thank_You.html           Shown after a form is sent (/thanks/)
     ├── static/                The website's CSS, JavaScript and images
     │   ├── General/           Used by the whole page (base styles, buttons, header, scrolling)
@@ -58,9 +59,10 @@ hi_website/
     ├── views.py           The functions that answer a visit: home, sign and newsletter (GET shows the form, POST saves it), thanks
     ├── urls.py            Which address goes to which function in views.py: /, /sign/, /newsletter/, /thanks/
     ├── forms.py           The forms visitors fill in, built from the tables (SignatureForm, SubscriberForm)
-    ├── emails.py          The emails: "Thank you for signing" (with the manifesto PDF) and the newsletter welcome
+    ├── emails.py          The emails: "Thank you for signing" (with the PDF), the newsletter welcome, the monthly issues
+    ├── management/commands/send_newsletter.py   The monthly command: python manage.py send_newsletter
     ├── files/             The documents the emails send (the manifesto PDF). Not on GitHub: see files/README.md
-    ├── models.py          The database tables, written as Python classes: Signature and Subscriber
+    ├── models.py          The database tables, written as Python classes: Signature, Subscriber and Newsletter
     ├── admin.py           Which tables can be seen and edited at /admin
     ├── migrations/        Made by Django: the steps that build the tables in the database
     ├── apps.py            The app's name. Made by Django
@@ -92,6 +94,42 @@ Browser asks for http://127.0.0.1:8001/
 
 Django calls this **M**odel (`models.py`), **T**emplate (`templates/`), **V**iew (`views.py`).
 
+## The monthly newsletter
+
+**Writing an issue:** http://127.0.0.1:8001/admin/ → **Newsletters** → **+ Add**. Write a subject and the
+text (what is going on in Hybrid Intelligence this month) and click **Save**. It is not sent yet: the
+**Sent at** column stays empty.
+
+**Sending it:**
+- **Right away (for testing):** in the Newsletters list, tick the issue, choose **"Send to all
+  subscribers now"** in the Action menu and click **Go**.
+- **Every month (automatic):** the command `python manage.py send_newsletter` sends the next issue that
+  hasn't been sent yet, to everyone on the list. Running it twice never sends twice.
+
+**What subscribers get:**
+- When they sign up (on Page 4, or with the box when signing the manifesto): a welcome email, and in a
+  separate email the newest issue that has been sent.
+- Every newsletter has a personal **Unsubscribe** link at the bottom (EU rules). It opens a page with a
+  button that takes them off the list.
+
+**Real emails:** when `.env` has an email account, these are really sent, to everyone on the list. To
+test safely, make sure only your own test addresses are on the list (admin → Subscribers).
+
+### Running it every month on Windows (Task Scheduler)
+
+Django only reacts when someone visits a page, so it can't do something "every month" by itself.
+Windows can run the command for it:
+
+1. Start menu → **Task Scheduler** ("Opgaveplanlægning") → **Create Basic Task**.
+2. Name: `Hybrid Intelligence newsletter`. Trigger: **Monthly**, e.g. day 1 at 10:00.
+3. Action: **Start a program**:
+   - Program: `C:\Users\Thoma\miniconda3\python.exe`
+   - Arguments: `manage.py send_newsletter`
+   - Start in: `C:\Users\Thoma\OneDrive\Desktop\Hybrid Intelligence\hi_website`
+4. **Finish**. The computer has to be on at that time.
+
+When the website is online, the server does this instead (with its own timer, e.g. "cron").
+
 ## Commands
 
 All typed in the Anaconda Prompt, inside this folder:
@@ -102,6 +140,7 @@ All typed in the Anaconda Prompt, inside this folder:
 | `python manage.py makemigrations` | After changing `models.py`: prepares the change for the database |
 | `python manage.py migrate` | Carries the prepared changes out in the database (`db.sqlite3`) |
 | `python manage.py createsuperuser` | Makes an admin account for http://127.0.0.1:8001/admin |
+| `python manage.py send_newsletter` | Sends the next unsent newsletter issue to all subscribers |
 | `python manage.py shell` | A Python prompt with access to the database, to try things out |
 
 ## How Django was installed

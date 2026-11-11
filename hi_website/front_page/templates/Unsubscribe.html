@@ -1,0 +1,35 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unsubscribe · Hybrid Intelligence</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'General/CSS/base.css' %}">
+  <link rel="stylesheet" href="{% static 'General/CSS/buttons.css' %}">
+  <link rel="stylesheet" href="{% static 'General/CSS/form_page.css' %}">
+</head>
+<body class="form-page">
+  <main class="form-box">
+    <!-- "state" comes from the unsubscribe() function in views.py: ask, done or bad_link -->
+    {% if state == 'ask' %}
+      <h1>Unsubscribe</h1>
+      <p class="form-intro">Stop sending the Hybrid Intelligence newsletter to <strong>{{ email }}</strong>?</p>
+      <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-dark">Yes, unsubscribe me</button>
+      </form>
+      <p class="form-intro"><a href="{% url 'home' %}" class="form-back">No, keep me on the list</a></p>
+    {% elif state == 'done' %}
+      <h1>You have been unsubscribed</h1>
+      <p class="form-intro"><strong>{{ email }}</strong> will not get the newsletter any more. You can sign up again any time.</p>
+      <a href="{% url 'home' %}" class="btn btn-dark">Back to the front page</a>
+    {% else %}
+      <h1>This link doesn't work</h1>
+      <p class="form-intro">The unsubscribe link is broken or incomplete. Please use the full link from the newsletter email.</p>
+      <a href="{% url 'home' %}" class="btn btn-dark">Back to the front page</a>
+    {% endif %}
+  </main>
+</body>
+</html>

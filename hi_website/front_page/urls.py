@@ -11,4 +11,6 @@ urlpatterns = [
     path('sign/', views.sign, name='sign'),        # the "Sign the Manifesto" page
     path('newsletter/', views.newsletter, name='newsletter'),  # the "Sign up for newsletter" page
     path('thanks/', views.thanks, name='thanks'),  # the "Thank you" page
+    # <str:code> = the rest of the address is handed to the view as "code" (the stamped email address)
+    path('unsubscribe/<str:code>/', views.unsubscribe, name='unsubscribe'),  # the link in every newsletter
 ]
