@@ -1,0 +1,110 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Press · Hybrid Intelligence</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'General/CSS/base.css' %}">
+  <link rel="stylesheet" href="{% static 'General/CSS/buttons.css' %}">
+  <link rel="stylesheet" href="{% static 'General/CSS/header.css' %}">
+  <link rel="stylesheet" href="{% static 'General/CSS/phone_menu.css' %}">
+  <link rel="stylesheet" href="{% static 'General/CSS/section_lines.css' %}">
+  <link rel="stylesheet" href="{% static 'General/CSS/button_page.css' %}">
+  <link rel="stylesheet" href="{% static 'Page 4/CSS/final_section.css' %}">
+  <link rel="stylesheet" href="{% static 'Page 4/CSS/coauthors_popup.css' %}">
+  <link rel="stylesheet" href="{% static 'Press button/CSS/press.css' %}">
+</head>
+<body class="press-page button-page">
+
+  <!-- Background (decoration only): Page 1's faint rippling lines, the same as on the FAQ page
+       (see General/CSS/button_page.css and General/JS/section_lines.js) -->
+  <section class="page-background" aria-hidden="true">
+    <canvas class="section-lines" data-around=".page-lines-center" data-ring-size="0.9"></canvas>
+    <div class="page-lines-center"></div>
+  </section>
+
+  <!-- The menu bar and the phone menu, shared with the other pages -->
+  {% include 'header.html' %}
+
+  <main>
+    <!-- The heading (shared look for button pages: General/CSS/button_page.css).
+         The numbers and the outlets come from press() in views.py, counted in the database. -->
+    <header class="page-intro">
+      <div class="intro-frame" aria-hidden="true">
+        <span class="intro-line across top"></span><span class="intro-line across bottom"></span>
+        <span class="intro-line down left"></span><span class="intro-line down right"></span>
+        <span class="intro-node tl"></span><span class="intro-node tr"></span>
+        <span class="intro-node bl"></span><span class="intro-node br"></span>
+      </div>
+      <div class="container intro-inner">
+        <p class="intro-eyebrow">Press · News coverage and media mentions</p>
+        <h1>Hybrid Intelligence <span class="intro-highlight">in the news</span></h1>
+        <p class="intro-lead">How the Center for Hybrid Intelligence and its research on human-AI collaboration is covered by
+          newspapers, broadcasters and magazines.</p>
+        <dl class="intro-facts">
+          <!-- data-count: count_up.js counts from 0 up to this number when the page opens -->
+          <div><dt>Stories</dt><dd data-count="{{ article_count }}">{{ article_count }}</dd></div>
+          <div><dt>Outlets</dt><dd data-count="{{ outlets|length }}">{{ outlets|length }}</dd></div>
+          {% if first_year %}<div><dt>Years</dt><dd>{{ first_year }}–{{ last_year }}</dd></div>{% endif %}
+        </dl>
+        <ul class="intro-tags" aria-label="Featured in">
+          <li class="intro-tags-label">Featured in</li>
+          {% for outlet in outlets %}<li><span class="intro-tag">{{ outlet }}</span></li>{% endfor %}
+        </ul>
+      </div>
+    </header>
+
+    <!-- The stories, three per row. "articles" comes from press() in views.py (newest first). -->
+    <ul class="container press-list" id="press-list">
+      {% for article in articles %}
+        <li class="press-card">
+          {% if article.image %}
+            <!-- article.image.url = the picture's address in media/press/ -->
+            <a href="{{ article.url }}" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true">
+              <img src="{{ article.image.url }}" alt="" loading="lazy">
+            </a>
+          {% endif %}
+          <!-- |date:"F j, Y" writes the date like "August 19, 2026" -->
+          <p class="press-date"><time datetime="{{ article.date|date:'Y-m-d' }}">{{ article.date|date:"F j, Y" }}</time></p>
+          {% if article.outlet %}<p class="press-outlet">{{ article.outlet }}</p>{% endif %}
+          <h2><a href="{{ article.url }}" target="_blank" rel="noopener">{{ article.title }}</a></h2>
+          <p class="press-excerpt">{{ article.excerpt }}</p>
+          <a href="{{ article.url }}" target="_blank" rel="noopener" class="press-more">Read More<span class="visually-hidden">: {{ article.title }}</span></a>
+        </li>
+      {% empty %}
+        <li>No press stories yet. Load them with:  python manage.py import_press</li>
+      {% endfor %}
+    </ul>
+
+    <!-- Who journalists can contact -->
+    <div class="container press-inquiries">
+      <h2>Press Inquiries</h2>
+      <p>For interviews, comment, or more information, contact <a href="mailto:CHIKom@mgmt.au.dk">CHIKom@mgmt.au.dk</a>.</p>
+      <p><strong>About the Center for Hybrid Intelligence</strong><br>
+        The Center for Hybrid Intelligence (CHI) is a research center at Aarhus University dedicated to ensuring human
+        expertise remains central as artificial intelligence transforms work, organizations, and society. Combining
+        research across education, organizational design, and public policy, CHI develops frameworks — including the
+        FERC Framework and the 4P Framework — that help individuals, companies, and institutions use AI in ways that
+        strengthen rather than erode human judgment.</p>
+    </div>
+  </main>
+
+  <!-- Page 4: the end of every page (contact, newsletter, co-authors), shared with the other pages -->
+  {% include 'footer.html' %}
+
+  <script src="{% static 'General/JS/header_transparent.js' %}"></script>
+  <script src="{% static 'General/JS/header_hide.js' %}"></script>
+  <script src="{% static 'General/JS/phone_menu.js' %}"></script>
+  <script src="{% static 'Page 4/JS/coauthors_list.js' %}"></script>
+  <script src="{% static 'Page 4/JS/coauthors_popup.js' %}"></script>
+  <!-- The background lines: Page 1's settings and line drawing, then the script that puts them in the background -->
+  <script src="{% static 'Page 1 (main)/JS - Animations/settings.js' %}"></script>
+  <script src="{% static 'Page 1 (main)/JS - Animations/background_lines.js' %}"></script>
+  <script src="{% static 'General/JS/section_lines.js' %}"></script>
+  <script src="{% static 'General/JS/count_up.js' %}"></script>
+</body>
+</html>

@@ -1,29 +1,7 @@
 /* FAQ PAGE: "Contents" on the left, the categories with their questions on the right.
    The questions are <details> elements: click one and its answer opens, + becomes ×. */
 
-.faq-page { background: var(--grey-bg); }
-
-/* The front page jumps one whole page at a time when scrolling (scroll-snap in base.css).
-   The FAQ is one long page, so it scrolls normally. */
-html:has(.faq-page) { scroll-snap-type: none; }
-
-/* The background lines: fixed = they stay in place on the screen while the questions scroll over them */
-.faq-background {
-  position: fixed;
-  inset: 0;              /* the whole screen */
-  z-index: 0;
-  pointer-events: none;  /* clicks go straight through to the questions */
-}
-/* The invisible box the loops go around: a bit right of the middle, behind the questions */
-.faq-lines-center {
-  position: absolute;
-  left: 30%;
-  top: 25%;
-  width: 55%;
-  height: 50%;
-}
-/* The questions sit above the background lines */
-.faq-layout { position: relative; z-index: 1; }
+/* The background with the faint lines, and normal scrolling: General/CSS/button_page.css (shared with Press) */
 
 /* The two columns: Contents (240px) and the questions (the rest) */
 .faq-layout {
@@ -31,7 +9,7 @@ html:has(.faq-page) { scroll-snap-type: none; }
   grid-template-columns: 240px 1fr;
   gap: 56px;
   max-width: 1240px;
-  padding: calc(var(--header-h) + 48px) 0 120px;   /* room for the fixed menu bar at the top */
+  padding: 72px 0 120px;
 }
 
 /* Left: Contents. "sticky" = it scrolls along until it reaches the top, then stays in place */
@@ -46,7 +24,6 @@ html:has(.faq-page) { scroll-snap-type: none; }
 .faq-contents a:hover { text-decoration: underline; }
 
 /* Right: the questions */
-.faq-content h1 { margin: 0 0 8px; font-size: clamp(40px, 5vw, 64px); font-weight: 400; line-height: 1.1; }
 
 /* Each category: a thin line above it, then its heading */
 .faq-category {
@@ -55,6 +32,7 @@ html:has(.faq-page) { scroll-snap-type: none; }
   border-top: 1px solid var(--navy);
   scroll-margin-top: calc(var(--header-h) + 16px);  /* when jumped to, stop below the menu bar instead of under it */
 }
+.faq-category:first-child { margin-top: 0; }
 .faq-category h2 { margin: 0 0 8px; font-size: clamp(28px, 3vw, 40px); font-weight: 400; line-height: 1.2; }
 
 /* One question: <summary> is the clickable line, with + (closed) or × (open) on the right */
@@ -102,8 +80,8 @@ html:has(.faq-page) { scroll-snap-type: none; }
 
 /* Phones and small screens: one column, with Contents above the questions */
 @media (max-width: 800px) {
-  .faq-layout { grid-template-columns: 1fr; gap: 32px; padding-top: calc(var(--header-h) + 24px); }
-  .faq-contents { position: static; }
+  .faq-layout { grid-template-columns: 1fr; gap: 32px; padding-top: 48px; }
+  .faq-contents { display: none; }      /* on phones, the "Jump to" buttons in the heading do this job */
   .faq-item summary { font-size: 16px; padding: 14px 0; }
   .faq-answer { padding-right: 0; }
   .faq-answer p { font-size: 15px; }

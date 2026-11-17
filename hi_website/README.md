@@ -36,6 +36,7 @@ hi_website/
 ├── db.sqlite3             The database. Not on GitHub: it holds people's names and emails.
 ├── .env                   Your private settings: the email account and its App password. Not on GitHub
 ├── .env.example           Shows what goes in .env (copy it to .env on a new computer)
+├── media/                 Uploaded pictures (the press stories'). Not on GitHub
 ├── sent_emails/          When .env has no email account, emails are saved here as .log files instead of being sent. Not on GitHub
 ├── How_Django_works.docx  A simple explanation: Model, View, Controller, and how Django works
 ├── config/                The settings for the whole project ("config" = configuration)
@@ -47,7 +48,10 @@ hi_website/
     ├── templates/
     │   ├── Front_Page.html          The website's HTML (all sections in one page)
     │   ├── header.html              The menu bar and phone menu, shared by all pages ({% include 'header.html' %})
-    │   ├── FAQ.html                 The FAQ page (/faq/): 80 questions in 8 categories, from the database
+    │   ├── footer.html              Page 4, the end of every page (contact, newsletter, co-authors) ({% include 'footer.html' %})
+    │   ├── buttons/                 The pages opened from a menu button ("_bt" = button page):
+    │   │   ├── FAQ_bt.html          The FAQ page (/faq/): 80 questions in 8 categories, from the database
+    │   │   └── Press_bt.html        The Press page (/press/): the news stories as cards, from the database
     │   ├── Sign_The_Manifesto.html  The page with the "Sign the Manifesto" form (/sign/)
     │   ├── Newsletter.html          The page with the "Sign up for newsletter" form (/newsletter/)
     │   ├── Unsubscribe.html         The page behind the "Unsubscribe" link in every newsletter
@@ -58,15 +62,17 @@ hi_website/
     │   ├── Page 2/            "What is Hybrid Intelligence?" (the four levels)
     │   ├── Page 3/            The chatbot section
     │   ├── Page 4/            The last section (newsletter, co-authors, contact)
-    │   └── FAQ/               The FAQ page's CSS
+    │   ├── FAQ button/        The FAQ page's CSS
+    │   └── Press button/      The Press page's CSS
     ├── views.py           The functions that answer a visit: home, sign and newsletter (GET shows the form, POST saves it), thanks
     ├── urls.py            Which address goes to which function in views.py: /, /sign/, /newsletter/, /thanks/
     ├── forms.py           The forms visitors fill in, built from the tables (SignatureForm, SubscriberForm)
     ├── emails.py          The emails: "Thank you for signing" (with the PDF), the newsletter welcome, the monthly issues
     ├── management/commands/send_newsletter.py   The monthly command: python manage.py send_newsletter
     ├── management/commands/import_faq.py        Loads the FAQ from files/faq.json: python manage.py import_faq
+    ├── management/commands/import_press.py      Loads the press stories and pictures: python manage.py import_press
     ├── files/             The documents the emails send (the manifesto PDF). Not on GitHub: see files/README.md
-    ├── models.py          The database tables, written as Python classes: Signature, Subscriber, Newsletter, FaqCategory and FaqQuestion
+    ├── models.py          The database tables, written as Python classes: Signature, Subscriber, Newsletter, FaqCategory, FaqQuestion and PressArticle
     ├── admin.py           Which tables can be seen and edited at /admin
     ├── migrations/        Made by Django: the steps that build the tables in the database
     ├── apps.py            The app's name. Made by Django
@@ -97,6 +103,23 @@ Browser asks for http://127.0.0.1:8001/
 ```
 
 Django calls this **M**odel (`models.py`), **T**emplate (`templates/`), **V**iew (`views.py`).
+
+## The Press page
+
+**http://127.0.0.1:8001/press/** (the "Press" link in the menu). The news stories about Hybrid
+Intelligence (from hi-infinity.ai/press) are in the table `PressArticle`: title, outlet, date, summary,
+link to the article, and a picture. "Read More" opens the article on the newspaper's own website.
+
+- **First time on a computer:** put `press.json` and the folder `press_images/` in `front_page/files/` and
+  run `python manage.py import_press`. It copies the pictures into `media/press/`.
+- **A new story:** admin site → **Press articles** → **+ Add**: fill in the fields and upload a picture.
+- The pictures belong to the newspapers, so `media/` and `front_page/files/` are not on GitHub.
+- Uploading pictures needs Pillow: `conda install -c anaconda pillow` (installed).
+
+All button pages (FAQ, Press, ...) share the background with the faint lines and the page heading
+(small indigo line, big title with a highlighted part, numbers from the database that count up, a row of
+small buttons, and thin blueprint lines): `General/CSS/button_page.css` and `General/JS/count_up.js`.
+They end with Page 4 (`footer.html`). The numbers are counted in `faq()` and `press()` in `views.py`.
 
 ## The FAQ page
 
@@ -155,6 +178,7 @@ All typed in the Anaconda Prompt, inside this folder:
 | `python manage.py makemigrations` | After changing `models.py`: prepares the change for the database |
 | `python manage.py migrate` | Carries the prepared changes out in the database (`db.sqlite3`) |
 | `python manage.py createsuperuser` | Makes an admin account for http://127.0.0.1:8001/admin |
+| `python manage.py import_press` | Loads the press stories and pictures from `front_page/files/` (replaces the current ones) |
 | `python manage.py import_faq` | Loads the FAQ questions from `front_page/files/faq.json` (replaces the current FAQ) |
 | `python manage.py send_newsletter` | Sends the next unsent newsletter issue to all subscribers |
 | `python manage.py shell` | A Python prompt with access to the database, to try things out |

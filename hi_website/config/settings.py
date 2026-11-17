@@ -166,6 +166,11 @@ STATICFILES_DIRS = [
 ]
 
 
+# Uploaded files, e.g. the pictures of the press stories (added in the admin site).
+# They are saved in hi_website/media/ (not on GitHub: they belong to the newspapers) and shown at /media/...
+MEDIA_URL = 'media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
 # The website's own address, used for links inside emails (e.g. the "unsubscribe" link).
 # On your own computer it's 127.0.0.1:8001. When the site is online, set SITE_URL in .env to its real address.
 SITE_URL = os.getenv('SITE_URL', 'http://127.0.0.1:8001')

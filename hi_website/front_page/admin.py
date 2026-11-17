@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from .emails import send_issue_to_everyone
-from .models import FaqCategory, FaqQuestion, Newsletter, Signature, Subscriber
+from .models import FaqCategory, FaqQuestion, Newsletter, PressArticle, Signature, Subscriber
 
 # @admin.register(...) puts a table on the admin site (the same as admin.site.register(...)),
 # and the class below it says how the list looks: which columns, a search box, etc.
@@ -54,3 +54,12 @@ class FaqQuestionAdmin(admin.ModelAdmin):
     list_display = ['number', 'question', 'category']
     list_filter = ['category']
     search_fields = ['question', 'answer']
+
+
+@admin.register(PressArticle)
+class PressArticleAdmin(admin.ModelAdmin):
+    """ The press stories. "+ Add" lets you upload a picture for a new story. """
+    list_display = ['date', 'title', 'outlet']
+    list_display_links = ['title']
+    search_fields = ['title', 'outlet', 'excerpt']
+    date_hierarchy = 'date'                # click through years and months above the list

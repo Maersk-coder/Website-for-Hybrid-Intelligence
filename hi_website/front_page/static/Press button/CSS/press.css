@@ -1,0 +1,52 @@
+/* PRESS PAGE: the heading (shared, button_page.css), then the stories as cards (three per row),
+   then "Press Inquiries". The background with the faint lines: General/CSS/button_page.css. */
+
+/* The heading at the top: shared with the other button pages (General/CSS/button_page.css) */
+
+/* ----- The stories: three cards per row ----- */
+.press-list {
+  list-style: none;
+  margin-inline: auto;
+  padding: 72px 0 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));   /* three equal columns */
+  gap: 64px 24px;                                      /* 64px between rows, 24px between columns */
+  scroll-margin-top: var(--header-h);                  /* the ↓ arrow stops below the menu bar */
+}
+.press-card img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;              /* every picture the same shape */
+  object-fit: cover;                /* fill that shape, cutting off the edges if needed */
+}
+.press-date { margin: 24px 0 8px; font-size: 13px; font-weight: 400; text-transform: uppercase; }
+.press-outlet { margin: 0 0 16px; font-size: 17px; color: var(--navy-mid); }
+.press-card h2 { margin: 0 0 24px; font-size: clamp(26px, 2.4vw, 36px); font-weight: 300; line-height: 1.2; }
+.press-card h2 a:hover { text-decoration: underline; }
+.press-excerpt { margin: 0 0 16px; font-size: 17px; font-weight: 300; line-height: 1.6; color: var(--indigo); }
+.press-more { font-size: 17px; text-decoration: underline; }
+
+/* Text only for screen readers (blind visitors): which story "Read More" is for */
+.visually-hidden {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip-path: inset(50%); white-space: nowrap;
+}
+
+/* ----- Press Inquiries ----- */
+.press-inquiries {
+  margin-top: 120px;
+  padding: 80px 0 120px;
+  border-top: 1px solid rgba(10, 0, 51, 0.15);
+}
+.press-inquiries h2 { margin: 0 0 24px; font-size: clamp(32px, 3vw, 40px); font-weight: 400; }
+.press-inquiries p { margin: 0 0 24px; max-width: 110ch; font-size: 18px; font-weight: 300; line-height: 1.6; }
+.press-inquiries a { text-decoration: underline; }
+.press-inquiries strong { font-weight: 500; }
+
+/* ----- Smaller screens: two cards per row, then one ----- */
+@media (max-width: 1000px) {
+  .press-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 640px) {
+  .press-list { grid-template-columns: 1fr; gap: 48px; padding-top: 48px; }
+}

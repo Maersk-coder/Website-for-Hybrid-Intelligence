@@ -1,7 +1,8 @@
 from django.core import signing
+from django.db.models import Max, Min
 from django.shortcuts import render, redirect
 from .forms import SignatureForm, SubscriberForm
-from .models import FaqCategory, Subscriber
+from .models import FaqCategory, FaqQuestion, PressArticle, Subscriber
 from .emails import send_signed_email, send_newsletter_welcome_email, send_latest_issue
 
 
@@ -59,8 +60,37 @@ def faq(request):
         prefetch_related('questions') fetches all the questions in ONE extra database query,
         instead of one query per category. """
     categories = FaqCategory.objects.prefetch_related('questions')
-    context = {'categories': categories}
-    return render(request, 'FAQ.html', context)
+    context = {
+        'categories': categories,
+        # The numbers at the top of the page ("80 questions", "8 themes"), counted in the database
+        'question_count': FaqQuestion.objects.count(),
+        'category_count': categories.count(),
+    }
+    return render(request, 'buttons/FAQ_bt.html', context)
+
+
+def press(request):
+    """ The Press page: all the stories about Hybrid Intelligence in the news, newest first. """
+    articles = PressArticle.objects.all()
+
+    # The outlets the stories appeared in, each once, newest first ("DR (Danish ...)" -> "DR")
+    outlets = []
+    for article in articles:
+        name = article.outlet.split(' (')[0].strip()
+        if name and name not in outlets:
+            outlets.append(name)
+
+    # The first and last year: aggregate asks the database for the smallest and biggest date
+    years = articles.aggregate(first=Min('date'), last=Max('date'))
+
+    context = {
+        'articles': articles,
+        'article_count': articles.count(),
+        'outlets': outlets,
+        'first_year': years['first'].year if years['first'] else None,
+        'last_year': years['last'].year if years['last'] else None,
+    }
+    return render(request, 'buttons/Press_bt.html', context)
 
 
 def unsubscribe(request, code):

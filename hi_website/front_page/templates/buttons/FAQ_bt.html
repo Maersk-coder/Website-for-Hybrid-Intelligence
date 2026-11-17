@@ -13,20 +13,49 @@
   <link rel="stylesheet" href="{% static 'General/CSS/header.css' %}">
   <link rel="stylesheet" href="{% static 'General/CSS/phone_menu.css' %}">
   <link rel="stylesheet" href="{% static 'General/CSS/section_lines.css' %}">
-  <link rel="stylesheet" href="{% static 'FAQ/CSS/faq.css' %}">
+  <link rel="stylesheet" href="{% static 'General/CSS/button_page.css' %}">
+  <link rel="stylesheet" href="{% static 'Page 4/CSS/final_section.css' %}">
+  <link rel="stylesheet" href="{% static 'Page 4/CSS/coauthors_popup.css' %}">
+  <link rel="stylesheet" href="{% static 'FAQ button/CSS/faq.css' %}">
 </head>
-<body class="faq-page">
+<body class="faq-page button-page">
 
   <!-- Background (decoration only): Page 1's rippling lines, faint, like on Pages 2 and 3.
-       It stays in place while the questions scroll over it (see faq.css). The loops go around
-       the invisible .faq-lines-center box (see General/JS/section_lines.js). -->
-  <section class="faq-background" aria-hidden="true">
-    <canvas class="section-lines" data-around=".faq-lines-center" data-ring-size="0.9"></canvas>
-    <div class="faq-lines-center"></div>
+       It stays in place while the questions scroll over it (see General/CSS/button_page.css). The loops go around
+       the invisible .page-lines-center box (see General/JS/section_lines.js). -->
+  <section class="page-background" aria-hidden="true">
+    <canvas class="section-lines" data-around=".page-lines-center" data-ring-size="0.9"></canvas>
+    <div class="page-lines-center"></div>
   </section>
 
   <!-- The menu bar and the phone menu, shared with the front page -->
   {% include 'header.html' %}
+
+  <!-- The heading (shared look for button pages: General/CSS/button_page.css).
+       The numbers come from faq() in views.py, counted in the database. -->
+  <header class="page-intro">
+    <div class="intro-frame" aria-hidden="true">
+      <span class="intro-line across top"></span><span class="intro-line across bottom"></span>
+      <span class="intro-line down left"></span><span class="intro-line down right"></span>
+      <span class="intro-node tl"></span><span class="intro-node tr"></span>
+      <span class="intro-node bl"></span><span class="intro-node br"></span>
+    </div>
+    <div class="container intro-inner">
+      <p class="intro-eyebrow">FAQ · Frequently asked questions</p>
+      <h1>Questions about <span class="intro-highlight">Hybrid Intelligence</span></h1>
+      <p class="intro-lead">What Hybrid Intelligence is, how to design for it, and what it means for people, organizations
+        and education. Pick a theme, or open any question below.</p>
+      <dl class="intro-facts">
+        <!-- data-count: count_up.js counts from 0 up to this number when the page opens -->
+        <div><dt>Questions</dt><dd data-count="{{ question_count }}">{{ question_count }}</dd></div>
+        <div><dt>Themes</dt><dd data-count="{{ category_count }}">{{ category_count }}</dd></div>
+      </dl>
+      <ul class="intro-tags" aria-label="Themes">
+        <li class="intro-tags-label">Jump to</li>
+        {% for category in categories %}<li><a class="intro-tag" href="#{{ category.anchor }}">{{ category.title }}</a></li>{% endfor %}
+      </ul>
+    </div>
+  </header>
 
   <main class="container faq-layout">
 
@@ -42,7 +71,6 @@
 
     <!-- Right: every category with its questions. "categories" comes from faq() in views.py. -->
     <div class="faq-content">
-      <h1>FAQ</h1>
       {% for category in categories %}
         <div class="faq-category" id="{{ category.anchor }}">
           <h2>{{ category.title }}</h2>
@@ -63,11 +91,19 @@
 
   </main>
 
+  <!-- Page 4: the end of every page (contact, newsletter, co-authors), shared with the front page -->
+  {% include 'footer.html' %}
+
   <script src="{% static 'General/JS/header_transparent.js' %}"></script>
+  <script src="{% static 'General/JS/header_hide.js' %}"></script>
   <script src="{% static 'General/JS/phone_menu.js' %}"></script>
+  <!-- Page 4's co-authors pop-up: the list of names, then the script that opens and fills it -->
+  <script src="{% static 'Page 4/JS/coauthors_list.js' %}"></script>
+  <script src="{% static 'Page 4/JS/coauthors_popup.js' %}"></script>
   <!-- The background lines: Page 1's settings and line drawing, then the script that puts them in the background -->
   <script src="{% static 'Page 1 (main)/JS - Animations/settings.js' %}"></script>
   <script src="{% static 'Page 1 (main)/JS - Animations/background_lines.js' %}"></script>
   <script src="{% static 'General/JS/section_lines.js' %}"></script>
+  <script src="{% static 'General/JS/count_up.js' %}"></script>
 </body>
 </html>

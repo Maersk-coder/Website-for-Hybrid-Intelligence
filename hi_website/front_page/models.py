@@ -64,3 +64,20 @@ class FaqQuestion(models.Model):
 
     def __str__(self):
         return f"{self.number}. {self.question}"
+
+
+class PressArticle(models.Model):
+    """ One story about Hybrid Intelligence in the news (the Press page). The link goes to the
+        article on the newspaper's own website. Added and edited in the admin site. """
+    title = models.CharField(max_length=300)
+    outlet = models.CharField(max_length=200, blank=True)       # the newspaper or site, e.g. "DR"
+    date = models.DateField()
+    excerpt = models.TextField(blank=True)                      # the short summary on the card
+    url = models.URLField(max_length=500)                       # the link to the article
+    image = models.ImageField(upload_to='press/', blank=True)   # saved in media/press/ (needs Pillow)
+
+    class Meta:
+        ordering = ['-date']                                    # newest first
+
+    def __str__(self):
+        return self.title

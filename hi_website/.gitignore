@@ -18,3 +18,6 @@ sent_emails/
 
 # The private settings (the email account and its password). .env.example shows what goes in it.
 .env
+
+# Uploaded files (e.g. the press stories' pictures): they belong to the newspapers, so they are not uploaded.
+media/
