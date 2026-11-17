@@ -178,3 +178,7 @@ SITE_URL = os.getenv('SITE_URL', 'http://127.0.0.1:8001')
 # The sender shown in the emails (the email settings themselves are in MAILERS, above).
 # Gmail always sends from the account's own address, so that address is used here.
 DEFAULT_FROM_EMAIL = f'Hybrid Intelligence <{EMAIL_ADDRESS or "noreply@hybridintelligence.example"}>'
+
+# The website's contact address: shown on the Research page ("Share your own research"), and where
+# shared research is sent. The site's own Gmail account (the one the emails are sent from).
+CONTACT_EMAIL = os.getenv('CONTACT_EMAIL') or EMAIL_ADDRESS or 'hybridintelligence.site@gmail.com'

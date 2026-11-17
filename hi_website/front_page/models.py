@@ -81,3 +81,46 @@ class PressArticle(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class Publication(models.Model):
+    """ One research publication on the Research page. "Read more" links to the full text. """
+    title = models.CharField(max_length=300)
+    date = models.CharField(max_length=50)          # as written, e.g. "1 May 2026" or "October 2026" (not always a full date)
+    excerpt = models.TextField(blank=True)
+    authors = models.TextField(blank=True)          # the names, separated by commas
+    url = models.URLField(max_length=500)
+    order = models.PositiveIntegerField(default=0)  # the place on the page: 1 = first (shown as "Latest")
+
+    class Meta:
+        ordering = ['order']
+
+    def __str__(self):
+        return self.title
+
+    def author_names(self):
+        """ The authors as a list of names (the text is split at the commas) """
+        return [name.strip() for name in self.authors.split(',') if name.strip()]
+
+    def first_authors(self):
+        """ The first 8 names, for the page; the rest are behind "+ N more" """
+        return self.author_names()[:8]
+
+    def other_authors(self):
+        return self.author_names()[8:]
+
+
+class ResearchSubmission(models.Model):
+    """ Research that a visitor shares with us through the "Share your research" form. """
+    name = models.CharField(max_length=100)
+    email = models.EmailField()
+    title = models.CharField(max_length=300)                 # the publication's title
+    link = models.URLField(max_length=500, blank=True)       # where it can be read (optional)
+    description = models.TextField()                         # a short description of the work
+    submitted_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-submitted_at']
+
+    def __str__(self):
+        return f"{self.title} ({self.name})"

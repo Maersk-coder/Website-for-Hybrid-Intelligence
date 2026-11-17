@@ -51,7 +51,10 @@ hi_website/
     │   ├── footer.html              Page 4, the end of every page (contact, newsletter, co-authors) ({% include 'footer.html' %})
     │   ├── buttons/                 The pages opened from a menu button ("_bt" = button page):
     │   │   ├── FAQ_bt.html          The FAQ page (/faq/): 80 questions in 8 categories, from the database
-    │   │   └── Press_bt.html        The Press page (/press/): the news stories as cards, from the database
+    │   │   ├── Press_bt.html        The Press page (/press/): the news stories as cards, from the database
+    │   │   ├── Research_bt.html     The Research page (/research/): the publications, from the database
+    │   │   └── publication_authors.html   The authors of one publication ("+ N more"), used by Research_bt.html
+    │   ├── Share_Research.html      The "Share your research" form (/research/share/)
     │   ├── Sign_The_Manifesto.html  The page with the "Sign the Manifesto" form (/sign/)
     │   ├── Newsletter.html          The page with the "Sign up for newsletter" form (/newsletter/)
     │   ├── Unsubscribe.html         The page behind the "Unsubscribe" link in every newsletter
@@ -63,7 +66,7 @@ hi_website/
     │   ├── Page 3/            The chatbot section
     │   ├── Page 4/            The last section (newsletter, co-authors, contact)
     │   └── Buttons/           The pages opened from a menu button (FAQ, Press):
-    │       ├── CSS/               faq.css, press.css
+    │       ├── CSS/               faq.css, press.css, research.css
     │       └── JS/                faq_contents.js (marks the current theme in the FAQ guide)
     ├── views.py           The functions that answer a visit: home, sign and newsletter (GET shows the form, POST saves it), thanks
     ├── urls.py            Which address goes to which function in views.py: /, /sign/, /newsletter/, /thanks/
@@ -72,8 +75,9 @@ hi_website/
     ├── management/commands/send_newsletter.py   The monthly command: python manage.py send_newsletter
     ├── management/commands/import_faq.py        Loads the FAQ from files/faq.json: python manage.py import_faq
     ├── management/commands/import_press.py      Loads the press stories and pictures: python manage.py import_press
+    ├── management/commands/import_research.py   Loads the publications from files/research.json: python manage.py import_research
     ├── files/             The documents the emails send (the manifesto PDF). Not on GitHub: see files/README.md
-    ├── models.py          The database tables, written as Python classes: Signature, Subscriber, Newsletter, FaqCategory, FaqQuestion and PressArticle
+    ├── models.py          The database tables, written as Python classes: Signature, Subscriber, Newsletter, FaqCategory, FaqQuestion, PressArticle, Publication and ResearchSubmission
     ├── admin.py           Which tables can be seen and edited at /admin
     ├── migrations/        Made by Django: the steps that build the tables in the database
     ├── apps.py            The app's name. Made by Django
@@ -104,6 +108,20 @@ Browser asks for http://127.0.0.1:8001/
 ```
 
 Django calls this **M**odel (`models.py`), **T**emplate (`templates/`), **V**iew (`views.py`).
+
+## The Research page
+
+**http://127.0.0.1:8001/research/** (the "Research" link in the menu). The 16 publications from
+hi-infinity.ai/research are in the table `Publication`: title, date (as text, e.g. "October 2026"),
+summary, authors and a link. `order` sets the place: number 1 is shown first, as "Latest".
+
+- **First time on a computer:** put `research.json` in `front_page/files/` and run `python manage.py import_research`.
+- **A new publication:** admin site → **Publications** → **+ Add**. Give it order 1 (and move the others down
+  in the list, where the order can be changed directly) to show it as "Latest".
+- **"Share your research"** opens our own form (`/research/share/`). Each submission is saved in the admin site
+  under **Research submissions**, and emailed to the contact address (`CONTACT_EMAIL` in settings, the site's
+  Gmail). "Reply" in the mail program answers the person who shared it.
+- "Read more" opens the publication on hi-infinity.ai (this site has no pages for single publications yet).
 
 ## The Press page
 
@@ -179,6 +197,7 @@ All typed in the Anaconda Prompt, inside this folder:
 | `python manage.py makemigrations` | After changing `models.py`: prepares the change for the database |
 | `python manage.py migrate` | Carries the prepared changes out in the database (`db.sqlite3`) |
 | `python manage.py createsuperuser` | Makes an admin account for http://127.0.0.1:8001/admin |
+| `python manage.py import_research` | Loads the research publications from `front_page/files/research.json` (replaces the current ones) |
 | `python manage.py import_press` | Loads the press stories and pictures from `front_page/files/` (replaces the current ones) |
 | `python manage.py import_faq` | Loads the FAQ questions from `front_page/files/faq.json` (replaces the current FAQ) |
 | `python manage.py send_newsletter` | Sends the next unsent newsletter issue to all subscribers |

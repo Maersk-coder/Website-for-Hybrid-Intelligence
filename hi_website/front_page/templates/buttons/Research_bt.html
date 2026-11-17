@@ -1,0 +1,114 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Research · Hybrid Intelligence</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'General/CSS/base.css' %}">
+  <link rel="stylesheet" href="{% static 'General/CSS/buttons.css' %}">
+  <link rel="stylesheet" href="{% static 'General/CSS/header.css' %}">
+  <link rel="stylesheet" href="{% static 'General/CSS/phone_menu.css' %}">
+  <link rel="stylesheet" href="{% static 'General/CSS/section_lines.css' %}">
+  <link rel="stylesheet" href="{% static 'General/CSS/button_page.css' %}">
+  <link rel="stylesheet" href="{% static 'Page 4/CSS/final_section.css' %}">
+  <link rel="stylesheet" href="{% static 'Page 4/CSS/coauthors_popup.css' %}">
+  <link rel="stylesheet" href="{% static 'Buttons/CSS/research.css' %}">
+</head>
+<body class="research-page button-page">
+
+  <!-- Background (decoration only): Page 1's faint rippling lines, the same as on the other button pages -->
+  <section class="page-background" aria-hidden="true">
+    <canvas class="section-lines" data-around=".page-lines-center" data-ring-size="0.9"></canvas>
+    <div class="page-lines-center"></div>
+  </section>
+
+  {% include 'header.html' %}
+
+  <main>
+    <!-- The heading (shared look for button pages). The numbers come from research() in views.py. -->
+    <header class="page-intro">
+      <div class="intro-frame" aria-hidden="true">
+        <span class="intro-line across top"></span><span class="intro-line across bottom"></span>
+        <span class="intro-line down left"></span><span class="intro-line down right"></span>
+        <span class="intro-node tl"></span><span class="intro-node tr"></span>
+        <span class="intro-node bl"></span><span class="intro-node br"></span>
+      </div>
+      <div class="container intro-inner">
+        <p class="intro-eyebrow">Research · Publications</p>
+        <h1>The latest <span class="intro-highlight">Hybrid Intelligence</span> research</h1>
+        <p class="intro-lead">Research from the Center for Hybrid Intelligence at Aarhus University on how people and AI can
+          work together without losing human agency, judgment or authorship: the Manifesto, the Design Playbook,
+          frameworks such as 4P and FERC, and papers and working papers on related topics.</p>
+        <dl class="intro-facts">
+          <div><dt>Publications</dt><dd data-count="{{ publication_count }}">{{ publication_count }}</dd></div>
+          <div><dt>Authors</dt><dd data-count="{{ author_count }}">{{ author_count }}</dd></div>
+        </dl>
+      </div>
+    </header>
+
+    <div class="container research-content">
+
+      <!-- The newest publication, shown bigger -->
+      {% if latest %}
+        <article class="publication publication-latest">
+          <p class="publication-meta"><span class="latest-tag">Latest</span> {{ latest.date }}</p>
+          <h2><a href="{{ latest.url }}" target="_blank" rel="noopener">{{ latest.title }}</a></h2>
+          <p class="publication-excerpt">{{ latest.excerpt }}… <a href="{{ latest.url }}" target="_blank" rel="noopener">Read more</a></p>
+          {% include 'buttons/publication_authors.html' with publication=latest %}
+        </article>
+      {% endif %}
+
+      <!-- Share your research: in the site's style (light, with the blueprint corners). The button opens our own form. -->
+      <aside class="share-box">
+        <span class="share-node tl" aria-hidden="true"></span><span class="share-node tr" aria-hidden="true"></span>
+        <span class="share-node bl" aria-hidden="true"></span><span class="share-node br" aria-hidden="true"></span>
+        <div class="share-left">
+          <p class="intro-eyebrow">For researchers</p>
+          <h2>Share your own <span class="share-highlight">Hybrid Intelligence</span> research with us</h2>
+          <!-- The same pair of buttons as "Sign the Manifesto →" on Page 1 -->
+          <div class="share-buttons">
+            <a href="{% url 'share_research' %}" class="btn btn-dark">Share your research</a>
+            <a href="{% url 'share_research' %}" class="btn-arrow" aria-label="Share your research">&rarr;</a>
+          </div>
+        </div>
+        <div class="share-right">
+          <p>We invite researchers to share their publications and a short description of their work. Submissions help us
+            highlight research on hybrid intelligence and grow our shared knowledge base.</p>
+          <p class="share-contact">Questions? <a href="mailto:{{ contact_email }}">{{ contact_email }}</a></p>
+        </div>
+      </aside>
+
+      <!-- All the other publications -->
+      <h2 class="research-list-title">All publications</h2>
+      {% for publication in publications %}
+        <article class="publication">
+          <p class="publication-meta">{{ publication.date }}</p>
+          <h3><a href="{{ publication.url }}" target="_blank" rel="noopener">{{ publication.title }}</a></h3>
+          {% if publication.excerpt %}
+            <p class="publication-excerpt">{{ publication.excerpt }}… <a href="{{ publication.url }}" target="_blank" rel="noopener">Read more</a></p>
+          {% endif %}
+          {% include 'buttons/publication_authors.html' %}
+        </article>
+      {% empty %}
+        <p>No publications yet. Load them with:  python manage.py import_research</p>
+      {% endfor %}
+    </div>
+  </main>
+
+  {% include 'footer.html' %}
+
+  <script src="{% static 'General/JS/header_transparent.js' %}"></script>
+  <script src="{% static 'General/JS/header_hide.js' %}"></script>
+  <script src="{% static 'General/JS/phone_menu.js' %}"></script>
+  <script src="{% static 'Page 4/JS/coauthors_list.js' %}"></script>
+  <script src="{% static 'Page 4/JS/coauthors_popup.js' %}"></script>
+  <script src="{% static 'Page 1 (main)/JS - Animations/settings.js' %}"></script>
+  <script src="{% static 'Page 1 (main)/JS - Animations/background_lines.js' %}"></script>
+  <script src="{% static 'General/JS/section_lines.js' %}"></script>
+  <script src="{% static 'General/JS/count_up.js' %}"></script>
+</body>
+</html>

@@ -1,5 +1,5 @@
 from django import forms
-from .models import Signature, Subscriber
+from .models import ResearchSubmission, Signature, Subscriber
 
 
 class SignatureForm(forms.ModelForm):
@@ -37,3 +37,18 @@ class SubscriberForm(forms.ModelForm):
             raise forms.ValidationError("This email has already signed up for the newsletter.")
         return email
 
+
+
+class ResearchSubmissionForm(forms.ModelForm):
+    """ The 'Share your research' form """
+
+    class Meta:
+        model = ResearchSubmission
+        fields = ['name', 'email', 'title', 'link', 'description']
+        labels = {'name': 'Your name', 'email': 'Email', 'title': 'Title of the publication',
+                  'link': 'Link to the publication (optional)', 'description': 'A short description of the work'}
+        widgets = {'description': forms.Textarea(attrs={'rows': 5})}
+
+    def clean_email(self):
+        """ Store the email in small letters, like the other forms """
+        return self.cleaned_data['email'].lower()

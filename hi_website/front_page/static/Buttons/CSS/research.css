@@ -1,0 +1,92 @@
+/* RESEARCH PAGE: the heading (shared, button_page.css), the latest publication, the "Share your research"
+   box, then all publications. The background with the faint lines: General/CSS/button_page.css. */
+
+.research-content { padding: 72px 0 120px; }
+
+/* ----- One publication: a thin line above it, the date, the title, a summary and the authors ----- */
+.publication {
+  padding: 32px 0 48px;
+  border-top: 1px solid rgba(10, 0, 51, 0.6);
+}
+.publication-meta { margin: 0 0 20px; font-size: 14px; color: rgba(10, 0, 51, 0.7); }
+.publication h2,
+.publication h3 { margin: 0 0 20px; max-width: 30ch; font-weight: 300; line-height: 1.2; text-wrap: balance; }
+.publication h3 { font-size: clamp(26px, 2.6vw, 38px); }
+.publication h2 a:hover,
+.publication h3 a:hover { text-decoration: underline; }
+.publication-excerpt { margin: 0 0 24px; max-width: 80ch; font-size: 17px; font-weight: 300; line-height: 1.6; }
+.publication-excerpt a { text-decoration: underline; }
+
+/* The authors: small, with "+ N more" to open the rest */
+.publication-authors p { margin: 0; max-width: 120ch; font-size: 13px; line-height: 1.6; }
+.publication-authors .authors-label { margin-bottom: 2px; font-weight: 500; }
+.more-authors summary {
+  display: inline-block;
+  margin-top: 6px;
+  font-size: 13px; font-weight: 500; color: var(--indigo);
+  cursor: pointer;
+  list-style: none;
+}
+.more-authors summary::-webkit-details-marker { display: none; }
+.more-authors[open] summary { display: none; }                   /* once opened, the button is no longer needed */
+.more-authors summary:hover { text-decoration: underline; }
+
+/* The newest publication: bigger, with a "Latest" label */
+.publication-latest { border-top: none; padding-top: 0; }
+.publication-latest h2 { font-size: clamp(32px, 3.8vw, 52px); max-width: 26ch; }
+.latest-tag {
+  display: inline-block;
+  margin-right: 10px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: var(--navy);
+  color: var(--white);
+  font-size: 12px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase;
+}
+
+/* ----- "Share your research": Page 1's soft blue gradient, the blueprint squares on the corners,
+   the title and buttons on the left, a short text and the email on the right ----- */
+.share-box {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 64px;
+  margin: 24px 0 96px;
+  padding: 56px;
+  border: 1px solid rgba(10, 0, 51, 0.12);
+  background: linear-gradient(135deg, #f8f9fd 0%, #eef1fa 60%, #e6ebf8 100%);   /* like Page 1 */
+}
+/* The small squares on the corners */
+.share-node {
+  position: absolute; width: 7px; height: 7px;
+  border: 1px solid rgba(10, 0, 51, 0.35); background: var(--grey-bg);
+  transform: translate(-50%, -50%);
+}
+.share-node.tl { left: 0; top: 0; }
+.share-node.tr { left: 100%; top: 0; }
+.share-node.bl { left: 0; top: 100%; }
+.share-node.br { left: 100%; top: 100%; }
+
+.share-box h2 { margin: 0 0 32px; font-size: clamp(30px, 3vw, 44px); font-weight: 300; line-height: 1.15; text-wrap: balance; }
+.share-highlight { color: var(--indigo); }
+.share-buttons { display: flex; align-items: center; gap: 10px; }
+.share-right { align-self: center; }
+.share-right p { margin: 0 0 20px; font-size: 17px; font-weight: 300; line-height: 1.6; }
+.share-contact { font-size: 15px; color: rgba(10, 0, 51, 0.7); }
+.share-contact a { margin-left: 4px; font-weight: 500; color: var(--indigo); text-decoration: underline; }
+
+/* The heading above the list */
+.research-list-title {
+  margin: 0 0 16px;
+  font-size: 13px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--indigo);
+}
+
+/* ----- Smaller screens ----- */
+@media (max-width: 900px) {
+  .share-box { grid-template-columns: 1fr; gap: 24px; padding: 40px 28px; }
+}
+@media (max-width: 640px) {
+  .research-content { padding-top: 48px; }
+  .publication-excerpt { font-size: 15px; }
+}

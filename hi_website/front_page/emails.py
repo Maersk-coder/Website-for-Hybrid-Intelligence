@@ -126,3 +126,24 @@ def send_issue_to_everyone(issue):
     issue.sent_at = timezone.now()
     issue.save()
     return sent
+
+
+def send_research_submission_email(submission):
+    """ Tell the site's own inbox that someone shared their research (the 'Share your research' form). """
+    text = (
+        "Someone shared their research through the website.\n\n"
+        f"Name: {submission.name}\n"
+        f"Email: {submission.email}\n"
+        f"Title: {submission.title}\n"
+        f"Link: {submission.link or '(none)'}\n\n"
+        f"Description:\n{submission.description}\n\n"
+        "It is also saved in the admin site, under Research submissions."
+    )
+    email = EmailMessage(
+        subject=f"Research shared: {submission.title}",
+        body=text,
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        to=[settings.CONTACT_EMAIL],
+        reply_to=[submission.email],          # "Reply" in the mail program answers the person who shared it
+    )
+    send_safely(email)

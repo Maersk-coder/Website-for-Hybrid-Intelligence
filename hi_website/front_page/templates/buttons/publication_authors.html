@@ -1,0 +1,16 @@
+{% comment %}
+  The authors of one publication (used by Research_bt.html for every publication).
+  Long lists show the first 8 names; the rest open with "+ N more" (a <details>, like the FAQ answers).
+{% endcomment %}
+{% if publication.authors %}
+  <div class="publication-authors">
+    <p class="authors-label">Authors</p>
+    <p>{{ publication.first_authors|join:", " }}{% if publication.other_authors %},{% endif %}</p>
+    {% if publication.other_authors %}
+      <details class="more-authors">
+        <summary>+ {{ publication.other_authors|length }} more</summary>
+        <p>{{ publication.other_authors|join:", " }}</p>
+      </details>
+    {% endif %}
+  </div>
+{% endif %}

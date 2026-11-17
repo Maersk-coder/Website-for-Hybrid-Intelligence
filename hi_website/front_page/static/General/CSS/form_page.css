@@ -29,7 +29,9 @@
 
 /* The boxes you type in */
 .form-box input[type="text"],
-.form-box input[type="email"] {
+.form-box input[type="email"],
+.form-box input[type="url"],
+.form-box textarea {
   width: 100%;
   padding: 12px 14px;
   border: 1px solid var(--lavender);
@@ -37,7 +39,8 @@
   font: inherit;                /* the same font as the page (Poppins); input boxes don't do that by themselves */
   color: var(--navy);
 }
-.form-box input:focus { outline: 2px solid var(--indigo); outline-offset: 1px; }  /* a blue edge on the box you're typing in */
+.form-box textarea { resize: vertical; line-height: 1.5; }   /* the big text box: can be made taller, not wider */
+.form-box input:focus, .form-box textarea:focus { outline: 2px solid var(--indigo); outline-offset: 1px; }  /* a blue edge on the box you're typing in */
 
 /* The newsletter tick box: the box first, then its text, on one line */
 .form-box p:has(input[type="checkbox"]) {

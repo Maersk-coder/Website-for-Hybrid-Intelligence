@@ -1,7 +1,8 @@
 from django.contrib import admin
 
 from .emails import send_issue_to_everyone
-from .models import FaqCategory, FaqQuestion, Newsletter, PressArticle, Signature, Subscriber
+from .models import (FaqCategory, FaqQuestion, Newsletter, PressArticle, Publication, ResearchSubmission,
+                     Signature, Subscriber)
 
 # @admin.register(...) puts a table on the admin site (the same as admin.site.register(...)),
 # and the class below it says how the list looks: which columns, a search box, etc.
@@ -63,3 +64,21 @@ class PressArticleAdmin(admin.ModelAdmin):
     list_display_links = ['title']
     search_fields = ['title', 'outlet', 'excerpt']
     date_hierarchy = 'date'                # click through years and months above the list
+
+
+@admin.register(Publication)
+class PublicationAdmin(admin.ModelAdmin):
+    """ The publications on the Research page. "order" sets the place: 1 is shown first, as "Latest". """
+    list_display = ['order', 'title', 'date']
+    list_display_links = ['title']
+    list_editable = ['order']              # change the order straight in the list
+    search_fields = ['title', 'authors', 'excerpt']
+
+
+@admin.register(ResearchSubmission)
+class ResearchSubmissionAdmin(admin.ModelAdmin):
+    """ Research that visitors shared through the "Share your research" form. """
+    list_display = ['submitted_at', 'title', 'name', 'email']
+    list_display_links = ['title']
+    search_fields = ['title', 'name', 'email', 'description']
+    readonly_fields = ['submitted_at']

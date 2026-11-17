@@ -1,0 +1,28 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Share your research · Hybrid Intelligence</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'General/CSS/base.css' %}">
+  <link rel="stylesheet" href="{% static 'General/CSS/buttons.css' %}">
+  <link rel="stylesheet" href="{% static 'General/CSS/form_page.css' %}">
+</head>
+<body class="form-page">
+  <main class="form-box">
+    <a href="{% url 'research' %}" class="form-back">← Back to Research</a>
+    <h1>Share your research</h1>
+    <p class="form-intro">Tell us about your Hybrid Intelligence publication. We read every submission.
+      Questions? Contact us at {{ contact_email }}.</p>
+
+    <!-- The answers go to share_research() in views.py (POST). {{ form.as_p }} writes all the fields. -->
+    <form action="{% url 'share_research' %}" method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit" class="btn btn-dark">Share your research</button>
+    </form>
+  </main>
+</body>
+</html>

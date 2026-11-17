@@ -1,9 +1,10 @@
+from django.conf import settings
 from django.core import signing
 from django.db.models import Max, Min
 from django.shortcuts import render, redirect
-from .forms import SignatureForm, SubscriberForm
-from .models import FaqCategory, FaqQuestion, PressArticle, Subscriber
-from .emails import send_signed_email, send_newsletter_welcome_email, send_latest_issue
+from .forms import ResearchSubmissionForm, SignatureForm, SubscriberForm
+from .models import FaqCategory, FaqQuestion, PressArticle, Publication, Subscriber
+from .emails import send_signed_email, send_newsletter_welcome_email, send_latest_issue, send_research_submission_email
 
 
 
@@ -67,6 +68,42 @@ def faq(request):
         'category_count': categories.count(),
     }
     return render(request, 'buttons/FAQ_bt.html', context)
+
+
+def research(request):
+    """ The Research page: the newest publication first ("Latest"), the "Share your research" box,
+        then all the other publications. """
+    publications = list(Publication.objects.all())       # list() = fetch them all now, so we can split them
+
+    # Everyone who wrote at least one of the publications, each name counted once
+    authors = set()                                      # a set keeps each name only once
+    for publication in publications:
+        authors.update(name.strip() for name in publication.authors.split(',') if name.strip())
+
+    context = {
+        'latest': publications[0] if publications else None,
+        'publications': publications[1:],                # all but the first
+        'publication_count': len(publications),
+        'author_count': len(authors),
+        'contact_email': settings.CONTACT_EMAIL,
+    }
+    return render(request, 'buttons/Research_bt.html', context)
+
+
+def share_research(request):
+    """ The "Share your research" page: GET shows an empty form, POST saves it and emails the site's inbox.
+        Works the same way as sign() and newsletter(). """
+    if request.method == 'POST':
+        form = ResearchSubmissionForm(data=request.POST)
+        if form.is_valid():
+            submission = form.save()                     # store it in the database (admin: Research submissions)
+            send_research_submission_email(submission)   # and tell the site's inbox
+            return redirect('thanks')
+    else:
+        form = ResearchSubmissionForm()
+
+    context = {'form': form, 'contact_email': settings.CONTACT_EMAIL}
+    return render(request, 'Share_Research.html', context)
 
 
 def press(request):
