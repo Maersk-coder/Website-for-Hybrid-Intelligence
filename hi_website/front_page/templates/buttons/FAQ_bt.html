@@ -59,12 +59,17 @@
 
   <main class="container faq-layout">
 
-    <!-- Left: the list of categories. Each link jumps to its category below (#anchor). -->
-    <nav class="faq-contents" aria-label="Contents">
-      <h2>Contents</h2>
+    <!-- Left: the Themes guide. Each link jumps to its theme below (#anchor); faq_contents.js marks
+         the theme you are reading. forloop.counter is the loop's count (1, 2, 3 ...); |stringformat:"02d"
+         writes it with two digits (01, 02 ...). -->
+    <nav class="faq-contents" aria-label="Themes">
+      <h2>Themes</h2>
       <ul>
         {% for category in categories %}
-          <li><a href="#{{ category.anchor }}">{{ category.title }}</a></li>
+          <li><a href="#{{ category.anchor }}">
+            <span class="contents-number">{{ forloop.counter|stringformat:"02d" }}</span>
+            <span>{{ category.title }}</span>
+          </a></li>
         {% endfor %}
       </ul>
     </nav>
@@ -105,5 +110,6 @@
   <script src="{% static 'Page 1 (main)/JS - Animations/background_lines.js' %}"></script>
   <script src="{% static 'General/JS/section_lines.js' %}"></script>
   <script src="{% static 'General/JS/count_up.js' %}"></script>
+  <script src="{% static 'FAQ button/JS/faq_contents.js' %}"></script>
 </body>
 </html>

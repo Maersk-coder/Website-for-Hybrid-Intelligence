@@ -1,27 +1,51 @@
-/* FAQ PAGE: "Contents" on the left, the categories with their questions on the right.
+/* FAQ PAGE: the Themes guide on the left, the categories with their questions on the right.
    The questions are <details> elements: click one and its answer opens, + becomes ×. */
 
 /* The background with the faint lines, and normal scrolling: General/CSS/button_page.css (shared with Press) */
 
-/* The two columns: Contents (240px) and the questions (the rest) */
+/* The two columns: the Themes guide (280px) and the questions (the rest).
+   As wide as the heading above (the .container column), so their left edges line up. */
 .faq-layout {
   display: grid;
-  grid-template-columns: 240px 1fr;
-  gap: 56px;
-  max-width: 1240px;
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap: 72px;
   padding: 72px 0 120px;
 }
 
-/* Left: Contents. "sticky" = it scrolls along until it reaches the top, then stays in place */
+/* Left: the Themes guide. "sticky" = it scrolls along until it reaches the top, then stays in place.
+   A thin line runs down its left side; the theme you are reading gets a navy stripe on that line. */
 .faq-contents {
   position: sticky;
   top: calc(var(--header-h) + 32px);
   align-self: start;
 }
-.faq-contents h2 { margin: 0 0 14px; font-size: 18px; font-weight: 400; }
-.faq-contents ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
-.faq-contents a { font-size: 13px; font-weight: 300; line-height: 1.4; }
-.faq-contents a:hover { text-decoration: underline; }
+.faq-contents h2 {
+  margin: 0 0 16px;
+  font-size: 13px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--indigo);
+}
+.faq-contents ul { margin: 0; padding: 0; list-style: none; border-left: 1px solid rgba(10, 0, 51, 0.15); }
+.faq-contents a {
+  display: grid;
+  grid-template-columns: 28px 1fr;          /* number | theme */
+  gap: 8px;
+  align-items: baseline;
+  margin-left: -1px;                        /* so the stripe sits exactly on the line */
+  padding: 9px 0 9px 16px;
+  border-left: 2px solid transparent;
+  font-size: 14px; font-weight: 300; line-height: 1.35;
+  color: rgba(10, 0, 51, 0.6);
+}
+.contents-number { font-size: 12px; font-variant-numeric: tabular-nums; color: rgba(10, 0, 51, 0.4); }
+.faq-contents a:hover { color: var(--navy); }                                  /* instant, no fade */
+/* The theme you are reading (marked by faq_contents.js while you scroll) */
+.faq-contents a.is-current { border-left-color: var(--navy); color: var(--navy); font-weight: 400; }
+.faq-contents a.is-current .contents-number { color: var(--indigo); }
+
+/* The "Jump to" buttons in the heading are only for phones: on bigger screens the Themes guide does that job */
+@media (min-width: 801px) {
+  .faq-page .intro-tags { display: none; }
+}
 
 /* Right: the questions */
 
