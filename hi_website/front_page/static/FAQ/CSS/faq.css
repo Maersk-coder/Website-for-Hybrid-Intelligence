@@ -1,0 +1,110 @@
+/* FAQ PAGE: "Contents" on the left, the categories with their questions on the right.
+   The questions are <details> elements: click one and its answer opens, + becomes ×. */
+
+.faq-page { background: var(--grey-bg); }
+
+/* The front page jumps one whole page at a time when scrolling (scroll-snap in base.css).
+   The FAQ is one long page, so it scrolls normally. */
+html:has(.faq-page) { scroll-snap-type: none; }
+
+/* The background lines: fixed = they stay in place on the screen while the questions scroll over them */
+.faq-background {
+  position: fixed;
+  inset: 0;              /* the whole screen */
+  z-index: 0;
+  pointer-events: none;  /* clicks go straight through to the questions */
+}
+/* The invisible box the loops go around: a bit right of the middle, behind the questions */
+.faq-lines-center {
+  position: absolute;
+  left: 30%;
+  top: 25%;
+  width: 55%;
+  height: 50%;
+}
+/* The questions sit above the background lines */
+.faq-layout { position: relative; z-index: 1; }
+
+/* The two columns: Contents (240px) and the questions (the rest) */
+.faq-layout {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 56px;
+  max-width: 1240px;
+  padding: calc(var(--header-h) + 48px) 0 120px;   /* room for the fixed menu bar at the top */
+}
+
+/* Left: Contents. "sticky" = it scrolls along until it reaches the top, then stays in place */
+.faq-contents {
+  position: sticky;
+  top: calc(var(--header-h) + 32px);
+  align-self: start;
+}
+.faq-contents h2 { margin: 0 0 14px; font-size: 18px; font-weight: 400; }
+.faq-contents ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+.faq-contents a { font-size: 13px; font-weight: 300; line-height: 1.4; }
+.faq-contents a:hover { text-decoration: underline; }
+
+/* Right: the questions */
+.faq-content h1 { margin: 0 0 8px; font-size: clamp(40px, 5vw, 64px); font-weight: 400; line-height: 1.1; }
+
+/* Each category: a thin line above it, then its heading */
+.faq-category {
+  margin-top: 56px;
+  padding-top: 28px;
+  border-top: 1px solid var(--navy);
+  scroll-margin-top: calc(var(--header-h) + 16px);  /* when jumped to, stop below the menu bar instead of under it */
+}
+.faq-category h2 { margin: 0 0 8px; font-size: clamp(28px, 3vw, 40px); font-weight: 400; line-height: 1.2; }
+
+/* One question: <summary> is the clickable line, with + (closed) or × (open) on the right */
+.faq-item summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 24px;
+  padding: 18px 0;
+  font-size: 18px;
+  font-weight: 400;
+  cursor: pointer;
+  list-style: none;                         /* hides the browser's own little triangle */
+}
+.faq-item summary::-webkit-details-marker { display: none; }   /* the same, for Safari */
+.faq-item summary::after { content: "+"; flex-shrink: 0; }      /* ::after adds a sign after the question */
+.faq-item[open] summary::after { content: "\00D7"; }            /* \00D7 is the × sign */
+.faq-item summary:hover .faq-question { text-decoration: underline; }
+.faq-item summary:focus-visible { outline: 2px solid var(--indigo); outline-offset: 4px; }
+
+/* The answer (|linebreaks in the template turns each paragraph into a <p>) */
+.faq-answer { padding: 0 40px 12px 0; }
+.faq-answer p { margin: 0 0 16px; max-width: 72ch; font-size: 17px; font-weight: 300; line-height: 1.6; }
+
+/* Opening and closing slowly: the answer slides open (its height grows from 0) and fades in.
+   ::details-content is the part of a <details> that opens and closes (the answer).
+   interpolate-size lets the browser animate up to "auto" (the answer's natural height).
+   Browsers that don't know these yet simply open the answer at once, as before. */
+.faq-page { interpolate-size: allow-keywords; }
+.faq-item::details-content {
+  block-size: 0;                    /* closed: no height */
+  overflow: hidden;
+  opacity: 0;
+  transition: block-size 0.4s ease, opacity 0.4s ease, content-visibility 0.4s allow-discrete;
+}
+.faq-item[open]::details-content {
+  block-size: auto;                 /* open: its natural height */
+  opacity: 1;
+}
+
+/* People who turn off motion in their computer's settings: no sliding, the answer just appears */
+@media (prefers-reduced-motion: reduce) {
+  .faq-item::details-content { transition: none; }
+}
+
+/* Phones and small screens: one column, with Contents above the questions */
+@media (max-width: 800px) {
+  .faq-layout { grid-template-columns: 1fr; gap: 32px; padding-top: calc(var(--header-h) + 24px); }
+  .faq-contents { position: static; }
+  .faq-item summary { font-size: 16px; padding: 14px 0; }
+  .faq-answer { padding-right: 0; }
+  .faq-answer p { font-size: 15px; }
+}

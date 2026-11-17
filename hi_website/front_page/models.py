@@ -34,3 +34,33 @@ class Newsletter(models.Model):
 
     def __str__(self):
         return self.subject
+
+
+class FaqCategory(models.Model):
+    """ A group of FAQ questions, e.g. 'HI and Human Expertise'. Shown as a heading on the FAQ page. """
+    title = models.CharField(max_length=200)
+    anchor = models.SlugField(unique=True)          # the page address part for jumping to it, e.g. #hi-and-human-expertise
+    order = models.PositiveIntegerField(default=0)  # the place on the page: 1 first, 2 second, ...
+
+    class Meta:
+        ordering = ['order']
+        verbose_name_plural = 'FAQ categories'
+
+    def __str__(self):
+        return self.title
+
+
+class FaqQuestion(models.Model):
+    """ One question and its answer. Each question belongs to one category: that's the ForeignKey
+        (like Player -> Team in the slides). related_name='questions' lets a category find its
+        questions with category.questions.all(). """
+    category = models.ForeignKey(FaqCategory, on_delete=models.CASCADE, related_name='questions')
+    number = models.PositiveIntegerField()          # the number shown in front of the question (1-80)
+    question = models.CharField(max_length=300)
+    answer = models.TextField()                     # empty lines separate the paragraphs
+
+    class Meta:
+        ordering = ['number']
+
+    def __str__(self):
+        return f"{self.number}. {self.question}"

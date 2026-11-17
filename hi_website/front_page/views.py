@@ -1,7 +1,7 @@
 from django.core import signing
 from django.shortcuts import render, redirect
 from .forms import SignatureForm, SubscriberForm
-from .models import Subscriber
+from .models import FaqCategory, Subscriber
 from .emails import send_signed_email, send_newsletter_welcome_email, send_latest_issue
 
 
@@ -52,6 +52,15 @@ def newsletter(request):
 
     context = {'form': form}
     return render(request, 'Newsletter.html', context)
+
+
+def faq(request):
+    """ The FAQ page: all categories, each with its questions, from the database.
+        prefetch_related('questions') fetches all the questions in ONE extra database query,
+        instead of one query per category. """
+    categories = FaqCategory.objects.prefetch_related('questions')
+    context = {'categories': categories}
+    return render(request, 'FAQ.html', context)
 
 
 def unsubscribe(request, code):

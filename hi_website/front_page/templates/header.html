@@ -1,0 +1,42 @@
+{% comment %}
+  The menu bar at the top, and the phone menu (☰). Shared by every page:
+  a page puts it in with  {% include 'header.html' %}, so the menu only has to be changed here.
+  Needs: General/CSS/header.css + phone_menu.css, and General/JS/header_transparent.js + phone_menu.js.
+{% endcomment %}
+  <!-- BOX 1: Header -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="{% url 'home' %}" class="logo">Hybrid Intelligence</a>
+      <nav class="main-nav" aria-label="Main">
+        <a href="#">Manifesto <span class="chevron">⌄</span></a>
+        <a href="#">Tools &amp; Frameworks <span class="chevron">⌄</span></a>
+        <a href="#">Research</a>
+        <a href="#">Use Cases</a>
+        <a href="#">Press</a>
+        <a href="{% url 'faq' %}">FAQ</a>
+        <a href="{% url 'sign' %}" class="btn btn-dark">Sign the Manifesto</a>
+      </nav>
+      <!-- The ☰ button: only shown on small screens (see phone_menu.css). It opens the phone menu. -->
+      <button type="button" class="menu-btn" id="menu-open" aria-label="Open the menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- The phone menu: a pop-up (<dialog>) that covers the whole screen.
+       It's opened by the ☰ button above, and closed by ✕, a link, or Esc (see phone_menu.js). -->
+  <dialog class="phone-menu" id="phone-menu" aria-label="Menu">
+    <div class="phone-menu-top">
+      <a href="{% url 'home' %}" class="logo">Hybrid Intelligence</a>
+      <button type="button" class="menu-close" id="menu-close" aria-label="Close the menu">&times;</button>
+    </div>
+    <nav class="phone-menu-links" aria-label="Main">
+      <a href="#">Manifesto <span class="chevron">⌄</span></a>
+      <a href="#">Tools &amp; Frameworks <span class="chevron">⌄</span></a>
+      <a href="#">Research</a>
+      <a href="#">Use Cases</a>
+      <a href="#">Press</a>
+      <a href="{% url 'faq' %}">FAQ</a>
+    </nav>
+    <a href="{% url 'sign' %}" class="btn btn-dark">Sign the Manifesto</a>
+  </dialog>

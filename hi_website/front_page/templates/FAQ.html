@@ -1,0 +1,73 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FAQ · Hybrid Intelligence</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'General/CSS/base.css' %}">
+  <link rel="stylesheet" href="{% static 'General/CSS/buttons.css' %}">
+  <link rel="stylesheet" href="{% static 'General/CSS/header.css' %}">
+  <link rel="stylesheet" href="{% static 'General/CSS/phone_menu.css' %}">
+  <link rel="stylesheet" href="{% static 'General/CSS/section_lines.css' %}">
+  <link rel="stylesheet" href="{% static 'FAQ/CSS/faq.css' %}">
+</head>
+<body class="faq-page">
+
+  <!-- Background (decoration only): Page 1's rippling lines, faint, like on Pages 2 and 3.
+       It stays in place while the questions scroll over it (see faq.css). The loops go around
+       the invisible .faq-lines-center box (see General/JS/section_lines.js). -->
+  <section class="faq-background" aria-hidden="true">
+    <canvas class="section-lines" data-around=".faq-lines-center" data-ring-size="0.9"></canvas>
+    <div class="faq-lines-center"></div>
+  </section>
+
+  <!-- The menu bar and the phone menu, shared with the front page -->
+  {% include 'header.html' %}
+
+  <main class="container faq-layout">
+
+    <!-- Left: the list of categories. Each link jumps to its category below (#anchor). -->
+    <nav class="faq-contents" aria-label="Contents">
+      <h2>Contents</h2>
+      <ul>
+        {% for category in categories %}
+          <li><a href="#{{ category.anchor }}">{{ category.title }}</a></li>
+        {% endfor %}
+      </ul>
+    </nav>
+
+    <!-- Right: every category with its questions. "categories" comes from faq() in views.py. -->
+    <div class="faq-content">
+      <h1>FAQ</h1>
+      {% for category in categories %}
+        <div class="faq-category" id="{{ category.anchor }}">
+          <h2>{{ category.title }}</h2>
+
+          <!-- category.questions.all = this category's questions (the ForeignKey's related_name) -->
+          {% for q in category.questions.all %}
+            <!-- <details> opens and closes by itself when its <summary> (the question) is clicked -->
+            <details class="faq-item" id="q{{ q.number }}">
+              <summary><span class="faq-question">{{ q.number }}. {{ q.question }}</span></summary>
+              <div class="faq-answer">{{ q.answer|linebreaks }}</div>
+            </details>
+          {% endfor %}
+        </div>
+      {% empty %}
+        <p>The FAQ is empty. Load it with:  python manage.py import_faq</p>
+      {% endfor %}
+    </div>
+
+  </main>
+
+  <script src="{% static 'General/JS/header_transparent.js' %}"></script>
+  <script src="{% static 'General/JS/phone_menu.js' %}"></script>
+  <!-- The background lines: Page 1's settings and line drawing, then the script that puts them in the background -->
+  <script src="{% static 'Page 1 (main)/JS - Animations/settings.js' %}"></script>
+  <script src="{% static 'Page 1 (main)/JS - Animations/background_lines.js' %}"></script>
+  <script src="{% static 'General/JS/section_lines.js' %}"></script>
+</body>
+</html>

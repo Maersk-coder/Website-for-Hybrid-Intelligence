@@ -46,6 +46,8 @@ hi_website/
 └── front_page/            The app: the front page and what its buttons do
     ├── templates/
     │   ├── Front_Page.html          The website's HTML (all sections in one page)
+    │   ├── header.html              The menu bar and phone menu, shared by all pages ({% include 'header.html' %})
+    │   ├── FAQ.html                 The FAQ page (/faq/): 80 questions in 8 categories, from the database
     │   ├── Sign_The_Manifesto.html  The page with the "Sign the Manifesto" form (/sign/)
     │   ├── Newsletter.html          The page with the "Sign up for newsletter" form (/newsletter/)
     │   ├── Unsubscribe.html         The page behind the "Unsubscribe" link in every newsletter
@@ -55,14 +57,16 @@ hi_website/
     │   ├── Page 1 (main)/     The animation section
     │   ├── Page 2/            "What is Hybrid Intelligence?" (the four levels)
     │   ├── Page 3/            The chatbot section
-    │   └── Page 4/            The last section (newsletter, co-authors, contact)
+    │   ├── Page 4/            The last section (newsletter, co-authors, contact)
+    │   └── FAQ/               The FAQ page's CSS
     ├── views.py           The functions that answer a visit: home, sign and newsletter (GET shows the form, POST saves it), thanks
     ├── urls.py            Which address goes to which function in views.py: /, /sign/, /newsletter/, /thanks/
     ├── forms.py           The forms visitors fill in, built from the tables (SignatureForm, SubscriberForm)
     ├── emails.py          The emails: "Thank you for signing" (with the PDF), the newsletter welcome, the monthly issues
     ├── management/commands/send_newsletter.py   The monthly command: python manage.py send_newsletter
+    ├── management/commands/import_faq.py        Loads the FAQ from files/faq.json: python manage.py import_faq
     ├── files/             The documents the emails send (the manifesto PDF). Not on GitHub: see files/README.md
-    ├── models.py          The database tables, written as Python classes: Signature, Subscriber and Newsletter
+    ├── models.py          The database tables, written as Python classes: Signature, Subscriber, Newsletter, FaqCategory and FaqQuestion
     ├── admin.py           Which tables can be seen and edited at /admin
     ├── migrations/        Made by Django: the steps that build the tables in the database
     ├── apps.py            The app's name. Made by Django
@@ -93,6 +97,17 @@ Browser asks for http://127.0.0.1:8001/
 ```
 
 Django calls this **M**odel (`models.py`), **T**emplate (`templates/`), **V**iew (`views.py`).
+
+## The FAQ page
+
+**http://127.0.0.1:8001/faq/** (the "FAQ" link in the menu). The 80 questions and answers come from
+hi-infinity.ai/faq and live in the database, in two linked tables: `FaqCategory` (8 categories) and
+`FaqQuestion` (each question belongs to one category through a ForeignKey).
+
+- **First time on a computer:** put `faq.json` in `front_page/files/` and run `python manage.py import_faq`.
+- **Editing:** admin site → **FAQ categories** → open a category to edit all its questions at once, or
+  **FAQ questions** for one list of all 80 with a search box.
+- Six answers link to pages on hi-infinity.ai that this site doesn't have yet; for now they are plain text.
 
 ## The monthly newsletter
 
@@ -140,6 +155,7 @@ All typed in the Anaconda Prompt, inside this folder:
 | `python manage.py makemigrations` | After changing `models.py`: prepares the change for the database |
 | `python manage.py migrate` | Carries the prepared changes out in the database (`db.sqlite3`) |
 | `python manage.py createsuperuser` | Makes an admin account for http://127.0.0.1:8001/admin |
+| `python manage.py import_faq` | Loads the FAQ questions from `front_page/files/faq.json` (replaces the current FAQ) |
 | `python manage.py send_newsletter` | Sends the next unsent newsletter issue to all subscribers |
 | `python manage.py shell` | A Python prompt with access to the database, to try things out |
 

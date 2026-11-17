@@ -31,43 +31,8 @@
 </head>
 <body>
 
-  <!-- BOX 1: Header -->
-  <header class="site-header">
-    <div class="container header-inner">
-      <a href="#" class="logo">Hybrid Intelligence</a>
-      <nav class="main-nav" aria-label="Main">
-        <a href="#">Manifesto <span class="chevron">⌄</span></a>
-        <a href="#">Tools &amp; Frameworks <span class="chevron">⌄</span></a>
-        <a href="#">Research</a>
-        <a href="#">Use Cases</a>
-        <a href="#">Press</a>
-        <a href="#">FAQ</a>
-        <a href="{% url 'sign' %}" class="btn btn-dark">Sign the Manifesto</a>
-      </nav>
-      <!-- The ☰ button: only shown on small screens (see phone_menu.css). It opens the phone menu. -->
-      <button type="button" class="menu-btn" id="menu-open" aria-label="Open the menu">
-        <span></span><span></span><span></span>
-      </button>
-    </div>
-  </header>
-
-  <!-- The phone menu: a pop-up (<dialog>) that covers the whole screen.
-       It's opened by the ☰ button above, and closed by ✕, a link, or Esc (see phone_menu.js). -->
-  <dialog class="phone-menu" id="phone-menu" aria-label="Menu">
-    <div class="phone-menu-top">
-      <a href="#" class="logo">Hybrid Intelligence</a>
-      <button type="button" class="menu-close" id="menu-close" aria-label="Close the menu">&times;</button>
-    </div>
-    <nav class="phone-menu-links" aria-label="Main">
-      <a href="#">Manifesto <span class="chevron">⌄</span></a>
-      <a href="#">Tools &amp; Frameworks <span class="chevron">⌄</span></a>
-      <a href="#">Research</a>
-      <a href="#">Use Cases</a>
-      <a href="#">Press</a>
-      <a href="#">FAQ</a>
-    </nav>
-    <a href="{% url 'sign' %}" class="btn btn-dark">Sign the Manifesto</a>
-  </dialog>
+  <!-- BOX 1: Header (the menu bar and the phone menu), shared with the other pages: templates/header.html -->
+  {% include 'header.html' %}
 
   <!-- BOX 2: Animation section -->
   <section class="animation-section">
