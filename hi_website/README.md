@@ -62,8 +62,9 @@ hi_website/
     │   ├── Page 2/            "What is Hybrid Intelligence?" (the four levels)
     │   ├── Page 3/            The chatbot section
     │   ├── Page 4/            The last section (newsletter, co-authors, contact)
-    │   ├── FAQ button/        The FAQ page's CSS
-    │   └── Press button/      The Press page's CSS
+    │   └── Buttons/           The pages opened from a menu button (FAQ, Press):
+    │       ├── CSS/               faq.css, press.css
+    │       └── JS/                faq_contents.js (marks the current theme in the FAQ guide)
     ├── views.py           The functions that answer a visit: home, sign and newsletter (GET shows the form, POST saves it), thanks
     ├── urls.py            Which address goes to which function in views.py: /, /sign/, /newsletter/, /thanks/
     ├── forms.py           The forms visitors fill in, built from the tables (SignatureForm, SubscriberForm)
