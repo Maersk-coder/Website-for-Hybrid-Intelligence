@@ -50,11 +50,18 @@ hi_website/
     │   ├── header.html              The menu bar and phone menu, shared by all pages ({% include 'header.html' %})
     │   ├── footer.html              Page 4, the end of every page (contact, newsletter, co-authors) ({% include 'footer.html' %})
     │   ├── buttons/                 The pages opened from a menu button ("_bt" = button page):
+    │   │   ├── manifesto/           The three pages in the Manifesto dropdown (one folder, to keep them together):
+    │   │   │   ├── Manifesto_bt.html            The Hybrid Intelligence Manifesto (/manifesto/), with the signature count
+    │   │   │   ├── ECON_Manifesto_bt.html       ECON Manifesto: The Economics of HI (/manifesto/economics/)
+    │   │   │   ├── Education_Manifesto_bt.html  Education Manifesto (/manifesto/education/), with the Educational use cases
+    │   │   │   └── manifesto_series.html        The three pages as cards, at the end of each of them
     │   │   ├── FAQ_bt.html          The FAQ page (/faq/): 80 questions in 8 categories, from the database
     │   │   ├── Press_bt.html        The Press page (/press/): the news stories as cards, from the database
     │   │   ├── Research_bt.html     The Research page (/research/): the publications, from the database
+    │   │   ├── Use_Cases_bt.html    The Use Cases page (/use-cases/): the use cases as cards, with filter buttons
     │   │   └── publication_authors.html   The authors of one publication ("+ N more"), used by Research_bt.html
     │   ├── Share_Research.html      The "Share your research" form (/research/share/)
+    │   ├── Share_Use_Case.html      The "Share your use case" form (/use-cases/share/)
     │   ├── Sign_The_Manifesto.html  The page with the "Sign the Manifesto" form (/sign/)
     │   ├── Newsletter.html          The page with the "Sign up for newsletter" form (/newsletter/)
     │   ├── Unsubscribe.html         The page behind the "Unsubscribe" link in every newsletter
@@ -65,9 +72,10 @@ hi_website/
     │   ├── Page 2/            "What is Hybrid Intelligence?" (the four levels)
     │   ├── Page 3/            The chatbot section
     │   ├── Page 4/            The last section (newsletter, co-authors, contact)
-    │   └── Buttons/           The pages opened from a menu button (FAQ, Press):
-    │       ├── CSS/               faq.css, press.css, research.css
-    │       └── JS/                faq_contents.js (marks the current theme in the FAQ guide)
+    │   └── Buttons/           The pages opened from a menu button (FAQ, Press, Research, Use Cases, Manifesto):
+    │       ├── CSS/               faq.css, press.css, research.css, use_cases.css
+    │       ├── JS/                faq_contents.js (marks the current theme in the FAQ guide)
+    │       └── Manifesto/         The three Manifesto pages: CSS/manifesto.css and JS/manifesto_contents.js (the Contents guide)
     ├── views.py           The functions that answer a visit: home, sign and newsletter (GET shows the form, POST saves it), thanks
     ├── urls.py            Which address goes to which function in views.py: /, /sign/, /newsletter/, /thanks/
     ├── forms.py           The forms visitors fill in, built from the tables (SignatureForm, SubscriberForm)
@@ -76,8 +84,10 @@ hi_website/
     ├── management/commands/import_faq.py        Loads the FAQ from files/faq.json: python manage.py import_faq
     ├── management/commands/import_press.py      Loads the press stories and pictures: python manage.py import_press
     ├── management/commands/import_research.py   Loads the publications from files/research.json: python manage.py import_research
+    ├── management/commands/import_use_cases.py  Loads the use cases and pictures: python manage.py import_use_cases
+    ├── management/commands/import_manifesto_images.py  Copies the Manifesto pages' pictures: python manage.py import_manifesto_images
     ├── files/             The documents the emails send (the manifesto PDF). Not on GitHub: see files/README.md
-    ├── models.py          The database tables, written as Python classes: Signature, Subscriber, Newsletter, FaqCategory, FaqQuestion, PressArticle, Publication and ResearchSubmission
+    ├── models.py          The database tables, written as Python classes: Signature, Subscriber, Newsletter, FaqCategory, FaqQuestion, PressArticle, Publication, ResearchSubmission, UseCase and UseCaseSubmission
     ├── admin.py           Which tables can be seen and edited at /admin
     ├── migrations/        Made by Django: the steps that build the tables in the database
     ├── apps.py            The app's name. Made by Django
@@ -108,6 +118,39 @@ Browser asks for http://127.0.0.1:8001/
 ```
 
 Django calls this **M**odel (`models.py`), **T**emplate (`templates/`), **V**iew (`views.py`).
+
+## The Manifesto pages (the dropdown)
+
+Point at **Manifesto** in the menu bar and a panel with three pages appears (clicking "Manifesto" opens the first).
+On phones, tap **Manifesto** in the ☰ menu and the three pages fold out under it. The dropdown is in `header.html`,
+its look at the end of `General/CSS/header.css` (and `phone_menu.css`).
+
+| Page | Address | From the database |
+|---|---|---|
+| The Hybrid Intelligence Manifesto | /manifesto/ | How many have signed (`Signature`) |
+| ECON Manifesto: The Economics of Hybrid Intelligence | /manifesto/economics/ | nothing |
+| Education Manifesto: Hybrid Intelligence in Education | /manifesto/education/ | The Educational use cases (`UseCase`) |
+
+- **The text** (from hi-infinity.ai) is written straight into the templates in `templates/buttons/manifesto/`,
+  because it is long prose that rarely changes. To change a sentence, edit the template.
+- **The pictures** (diagrams and paper front pages) are not on GitHub. Put the folder `manifesto_images/` in
+  `front_page/files/` and run `python manage.py import_manifesto_images`: it copies them into `media/manifesto/`.
+- **The full papers:** the main Manifesto PDF is emailed to people who sign; the ECON and Education papers link to
+  the PDFs on hi-infinity.ai.
+
+## The Use Cases page
+
+**http://127.0.0.1:8001/use-cases/** (the "Use Cases" link in the menu). The 29 use cases from
+hi-infinity.ai/use-cases are in the table `UseCase`: organisation, title, type (Partner, Iconic, Contributed,
+Educational), link and a picture.
+
+- **The filter buttons** (All, Partner, Iconic, ...) add `?type=iconic` to the address: a GET request with a
+  "query string". `use_cases()` in `views.py` reads it with `request.GET.get('type')` and shows only that type.
+- **First time on a computer:** put `use_cases.json` and `use_case_images/` in `front_page/files/` and run
+  `python manage.py import_use_cases`.
+- **A new use case:** admin site → **Use cases** → **+ Add**, with a picture.
+- **"Share your use case"** opens our own form (`/use-cases/share/`): saved under **Use case submissions** and
+  emailed to the contact address, like "Share your research".
 
 ## The Research page
 
@@ -197,6 +240,8 @@ All typed in the Anaconda Prompt, inside this folder:
 | `python manage.py makemigrations` | After changing `models.py`: prepares the change for the database |
 | `python manage.py migrate` | Carries the prepared changes out in the database (`db.sqlite3`) |
 | `python manage.py createsuperuser` | Makes an admin account for http://127.0.0.1:8001/admin |
+| `python manage.py import_manifesto_images` | Copies the Manifesto pages' pictures from `front_page/files/manifesto_images/` into `media/manifesto/` |
+| `python manage.py import_use_cases` | Loads the use cases and pictures from `front_page/files/` (replaces the current ones) |
 | `python manage.py import_research` | Loads the research publications from `front_page/files/research.json` (replaces the current ones) |
 | `python manage.py import_press` | Loads the press stories and pictures from `front_page/files/` (replaces the current ones) |
 | `python manage.py import_faq` | Loads the FAQ questions from `front_page/files/faq.json` (replaces the current FAQ) |

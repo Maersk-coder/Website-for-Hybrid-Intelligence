@@ -1,0 +1,183 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Hybrid Intelligence Manifesto · Hybrid Intelligence</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'General/CSS/base.css' %}">
+  <link rel="stylesheet" href="{% static 'General/CSS/buttons.css' %}">
+  <link rel="stylesheet" href="{% static 'General/CSS/header.css' %}">
+  <link rel="stylesheet" href="{% static 'General/CSS/phone_menu.css' %}">
+  <link rel="stylesheet" href="{% static 'General/CSS/section_lines.css' %}">
+  <link rel="stylesheet" href="{% static 'General/CSS/button_page.css' %}">
+  <link rel="stylesheet" href="{% static 'Page 4/CSS/final_section.css' %}">
+  <link rel="stylesheet" href="{% static 'Page 4/CSS/coauthors_popup.css' %}">
+  <link rel="stylesheet" href="{% static 'Buttons/Manifesto/CSS/manifesto.css' %}">
+</head>
+<body class="manifesto-page button-page">
+
+  <!-- Background (decoration only): Page 1's faint rippling lines, the same as on the other button pages -->
+  <section class="page-background" aria-hidden="true">
+    <canvas class="section-lines" data-around=".page-lines-center" data-ring-size="0.9"></canvas>
+    <div class="page-lines-center"></div>
+  </section>
+
+  {% include 'header.html' %}
+
+  <main>
+    <!-- The heading (shared look for button pages). signature_count comes from manifesto() in views.py. -->
+    <header class="page-intro">
+      <div class="intro-frame" aria-hidden="true">
+        <span class="intro-line across top"></span><span class="intro-line across bottom"></span>
+        <span class="intro-line down left"></span><span class="intro-line down right"></span>
+        <span class="intro-node tl"></span><span class="intro-node tr"></span>
+        <span class="intro-node bl"></span><span class="intro-node br"></span>
+      </div>
+      <div class="container intro-inner">
+        <p class="intro-eyebrow">Manifesto · The Hybrid Intelligence Manifesto series</p>
+        <h1>Keeping human judgment <span class="intro-highlight">economically indispensable</span></h1>
+        <p class="intro-lead">As AI systems move from tools to autonomous agents, societies must decide what they are
+          optimizing for. Hybrid Intelligence proposes a new path: designing human–AI systems so human capability,
+          judgment and meaning remain central.</p>
+        <dl class="intro-facts">
+          <div><dt>Signatures</dt><dd data-count="{{ signature_count }}">{{ signature_count }}</dd></div>
+          <div><dt>Levels we work on</dt><dd data-count="4">4</dd></div>
+        </dl>
+        <ul class="intro-tags">
+          <li class="intro-tags-label">Also in the series</li>
+          <li><a href="{% url 'econ_manifesto' %}" class="intro-tag">ECON Manifesto</a></li>
+          <li><a href="{% url 'education_manifesto' %}" class="intro-tag">Education Manifesto</a></li>
+        </ul>
+      </div>
+    </header>
+
+    <div class="container manifesto-content">
+
+      <section class="m-section split">
+        <div>
+          <p class="m-label">Why we wrote it</p>
+          <h2>A test nobody has actually run</h2>
+        </div>
+        <div>
+          <p>AI used to do tasks. Now it takes on whole jobs. Most people’s answer is to move humans to the edges:
+            set the goal, check the output, stay out of the way.</p>
+          <p>We think that answer is based on a test nobody has actually run.</p>
+          <p>You’ll often see a study where AI performs better than a professional using AI. But look at what “using
+            AI” meant. Almost always the same thing: the AI hands over an answer, and the person decides whether to
+            take it. That’s the thinnest version of working together there is. Researchers have spent a decade
+            building much better ways for people and AI to work together, and none of them were in the test.</p>
+        </div>
+      </section>
+
+      <!-- The paper: its front page, a button to sign (signers get the PDF by email), and the citation -->
+      <aside class="paper-box">
+        <span class="share-node tl" aria-hidden="true"></span><span class="share-node tr" aria-hidden="true"></span>
+        <span class="share-node bl" aria-hidden="true"></span><span class="share-node br" aria-hidden="true"></span>
+        <img class="paper-cover" src="{% get_media_prefix %}manifesto/manifesto_cover.png"
+             alt="Front page of the paper The Hybrid Intelligence Manifesto" loading="lazy">
+        <div>
+          <p class="m-label">The paper</p>
+          <h2>A multi-level socio-technical framework for keeping human judgement economically valuable</h2>
+          <p>Sign the Manifesto and we email you the full paper as a PDF.</p>
+          <div class="paper-buttons">
+            <a href="{% url 'sign' %}" class="btn btn-dark">Sign and get the paper</a>
+            <a href="{% url 'sign' %}" class="btn-arrow" aria-label="Sign the Manifesto">&rarr;</a>
+          </div>
+          <details class="paper-citation">
+            <summary>Suggested citation</summary>
+            <p>Sherson, J., Rafner, J., Bang, J. B., Berditchevskaia, A., Bjerring, J. C., Chompunuch, S., Daga, E.,
+              Dellermann, D., Domanti, U., Emruli, B., von Harmelen, F., Gonzalez, M., Gordon, A., Green, A., Hansen,
+              R. L., Holm, A. B., Jonker, C., Järvelä, S., Kenett, Y. N., … Molina-Abril, G. (2026). The Hybrid
+              Intelligence Manifesto: A multi-level socio-technical framework for keeping human judgment economically
+              valuable. Working paper, Center for Hybrid Intelligence, Aarhus University.</p>
+          </details>
+        </div>
+      </aside>
+
+      <section class="m-section split">
+        <div>
+          <p class="m-label">The problem</p>
+          <h2>Why better interfaces aren’t enough</h2>
+        </div>
+        <div>
+          <p>To design a good human–AI workflow, you first have to ask people a simple question: in your job, which
+            parts could a machine work out, and which parts need your experience and your read of the situation?</p>
+          <p>That’s useful information. It’s also a map of how to replace someone.</p>
+          <p>So if a company has just announced job cuts, people keep the good stuff to themselves. The human–AI
+            version then works badly, which seems to prove that automation was the right call all along. Automation
+            didn’t win. The alternative never got what it needed.</p>
+          <p>That’s why we work on four things at once:</p>
+          <ol class="m-points">
+            <li><span><strong>The tools</strong> people use day to day</span></li>
+            <li><span><strong>The skills</strong> people build while using them</span></li>
+            <li><span><strong>The companies</strong> that decide how work is organized</span></li>
+            <li><span><strong>The markets and rules</strong> that decide what gets paid for</span></li>
+          </ol>
+          <p>Each one only holds up if the one above it does. Improve just the tools, and everything else drags you
+            back to the default.</p>
+        </div>
+      </section>
+
+      <figure class="m-figure">
+        <img src="{% get_media_prefix %}manifesto/manifesto_series_diagram.png" loading="lazy"
+             alt="Diagram of the HI Manifesto series: the hub manifesto at the center, surrounded by companion papers on the FERC framework, the 4P framework, the economics of hybrid intelligence, education and the HI Design Playbook">
+        <figcaption>The HI Manifesto series: interconnected missions and companion papers.</figcaption>
+      </figure>
+
+      <section class="m-section split">
+        <div>
+          <p class="m-label">Our aim</p>
+          <h2>The question we’re trying to answer</h2>
+        </div>
+        <div>
+          <p class="m-quote">How do we make sure human judgment still earns its keep, now that AI can not only do the
+            work but plan and organize it?</p>
+          <p>This isn’t about keeping people around out of kindness, and it isn’t about making someone click
+            “approve” on everything an AI does. It’s about building work where a person’s judgment genuinely changes
+            the outcome, in most of the economy, not a small corner of it.</p>
+          <p>We want to break work into small steps with a person steering at each one, and the quality comes from
+            how the work is organized rather than from having the biggest model. If we’re right, smaller and cheaper
+            models do the job just as well. That means lower costs, less energy, and less dependence on a handful of
+            giant AI providers.</p>
+        </div>
+      </section>
+
+      {% include 'buttons/manifesto/manifesto_series.html' with here='main' %}
+
+      <!-- Sign the Manifesto: the same box as "Share your research" (General/CSS/button_page.css) -->
+      <aside class="share-box">
+        <span class="share-node tl" aria-hidden="true"></span><span class="share-node tr" aria-hidden="true"></span>
+        <span class="share-node bl" aria-hidden="true"></span><span class="share-node br" aria-hidden="true"></span>
+        <div class="share-left">
+          <p class="intro-eyebrow">Sign the Manifesto</p>
+          <h2>Add your name to <span class="share-highlight">Hybrid Intelligence</span></h2>
+          <div class="share-buttons">
+            <a href="{% url 'sign' %}" class="btn btn-dark">Sign the Manifesto</a>
+            <a href="{% url 'sign' %}" class="btn-arrow" aria-label="Sign the Manifesto">&rarr;</a>
+          </div>
+        </div>
+        <div class="share-right">
+          <p>Show that you want human judgment to stay at the centre of work as AI grows. When you sign, we email you
+            the full Manifesto as a PDF, and you can choose to get our monthly newsletter too.</p>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  {% include 'footer.html' %}
+
+  <script src="{% static 'General/JS/header_transparent.js' %}"></script>
+  <script src="{% static 'General/JS/header_hide.js' %}"></script>
+  <script src="{% static 'General/JS/phone_menu.js' %}"></script>
+  <script src="{% static 'Page 4/JS/coauthors_list.js' %}"></script>
+  <script src="{% static 'Page 4/JS/coauthors_popup.js' %}"></script>
+  <script src="{% static 'Page 1 (main)/JS - Animations/settings.js' %}"></script>
+  <script src="{% static 'Page 1 (main)/JS - Animations/background_lines.js' %}"></script>
+  <script src="{% static 'General/JS/section_lines.js' %}"></script>
+  <script src="{% static 'General/JS/count_up.js' %}"></script>
+</body>
+</html>

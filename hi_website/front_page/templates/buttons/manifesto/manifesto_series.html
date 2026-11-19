@@ -1,0 +1,44 @@
+{% load static %}
+{% comment %}
+  "The Manifesto series": the three Manifesto pages as cards. Put at the end of each Manifesto page with
+    {% include 'buttons/manifesto/manifesto_series.html' with here='econ' %}
+  "here" says which page you are on (main, econ or education): that card gets "You are here".
+  The pictures are in media/manifesto/ (copy them there with:  python manage.py import_manifesto_images).
+  get_media_prefix writes the start of the pictures' address (/media/).
+{% endcomment %}
+<section class="series" aria-labelledby="series-title">
+  <p class="m-label">Keep reading</p>
+  <h2 id="series-title">The Manifesto series</h2>
+  <ul class="series-list">
+    <li>
+      <a href="{% url 'manifesto' %}">
+        <div class="series-picture">
+          <img src="{% get_media_prefix %}manifesto/card_manifesto.jpg" alt="" loading="lazy">
+          {% if here == 'main' %}<span class="series-here">You are here</span>{% endif %}
+        </div>
+        <p class="series-name">The Hybrid Intelligence Manifesto</p>
+        <h3>Keeping human judgment economically indispensable</h3>
+      </a>
+    </li>
+    <li>
+      <a href="{% url 'econ_manifesto' %}">
+        <div class="series-picture">
+          <img src="{% get_media_prefix %}manifesto/card_econ.jpg" alt="" loading="lazy">
+          {% if here == 'econ' %}<span class="series-here">You are here</span>{% endif %}
+        </div>
+        <p class="series-name">ECON Manifesto</p>
+        <h3>The Economics of Hybrid Intelligence</h3>
+      </a>
+    </li>
+    <li>
+      <a href="{% url 'education_manifesto' %}">
+        <div class="series-picture">
+          <img src="{% get_media_prefix %}manifesto/card_education.jpg" alt="" loading="lazy">
+          {% if here == 'education' %}<span class="series-here">You are here</span>{% endif %}
+        </div>
+        <p class="series-name">Education Manifesto</p>
+        <h3>Hybrid Intelligence in Education</h3>
+      </a>
+    </li>
+  </ul>
+</section>

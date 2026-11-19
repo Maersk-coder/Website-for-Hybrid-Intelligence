@@ -147,3 +147,25 @@ def send_research_submission_email(submission):
         reply_to=[submission.email],          # "Reply" in the mail program answers the person who shared it
     )
     send_safely(email)
+
+
+def send_use_case_submission_email(submission):
+    """ Tell the site's own inbox that someone shared a use case (the 'Share your use case' form). """
+    text = (
+        "Someone shared a use case through the website.\n\n"
+        f"Name: {submission.name}\n"
+        f"Email: {submission.email}\n"
+        f"Organisation: {submission.organisation}\n"
+        f"Title: {submission.title}\n"
+        f"Link: {submission.link or '(none)'}\n\n"
+        f"Description:\n{submission.description}\n\n"
+        "It is also saved in the admin site, under Use case submissions."
+    )
+    email = EmailMessage(
+        subject=f"Use case shared: {submission.title}",
+        body=text,
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        to=[settings.CONTACT_EMAIL],
+        reply_to=[submission.email],
+    )
+    send_safely(email)

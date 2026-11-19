@@ -1,0 +1,280 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ECON Manifesto · Hybrid Intelligence</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'General/CSS/base.css' %}">
+  <link rel="stylesheet" href="{% static 'General/CSS/buttons.css' %}">
+  <link rel="stylesheet" href="{% static 'General/CSS/header.css' %}">
+  <link rel="stylesheet" href="{% static 'General/CSS/phone_menu.css' %}">
+  <link rel="stylesheet" href="{% static 'General/CSS/section_lines.css' %}">
+  <link rel="stylesheet" href="{% static 'General/CSS/button_page.css' %}">
+  <link rel="stylesheet" href="{% static 'Page 4/CSS/final_section.css' %}">
+  <link rel="stylesheet" href="{% static 'Page 4/CSS/coauthors_popup.css' %}">
+  <link rel="stylesheet" href="{% static 'Buttons/Manifesto/CSS/manifesto.css' %}">
+</head>
+<body class="manifesto-page button-page">
+
+  <!-- Background (decoration only): Page 1's faint rippling lines, the same as on the other button pages -->
+  <section class="page-background" aria-hidden="true">
+    <canvas class="section-lines" data-around=".page-lines-center" data-ring-size="0.9"></canvas>
+    <div class="page-lines-center"></div>
+  </section>
+
+  {% include 'header.html' %}
+
+  <main>
+    <!-- The heading (shared look for button pages). The numbers are the IMF estimates for Denmark (see below). -->
+    <header class="page-intro">
+      <div class="intro-frame" aria-hidden="true">
+        <span class="intro-line across top"></span><span class="intro-line across bottom"></span>
+        <span class="intro-line down left"></span><span class="intro-line down right"></span>
+        <span class="intro-node tl"></span><span class="intro-node tr"></span>
+        <span class="intro-node bl"></span><span class="intro-node br"></span>
+      </div>
+      <div class="container intro-inner">
+        <p class="intro-eyebrow">Manifesto · ECON Manifesto</p>
+        <h1>The Economics of <span class="intro-highlight">Hybrid Intelligence</span></h1>
+        <p class="intro-lead">Agentic AI changes the structure of work. The question is no longer only which tasks AI
+          can perform, but whether human judgment stays economically valuable when AI can organize the work itself.</p>
+        <!-- data-suffix="%" keeps the % sign while the number counts up (General/JS/count_up.js) -->
+        <dl class="intro-facts">
+          <div><dt>Danish jobs exposed to AI</dt><dd data-count="60" data-suffix="%">60%</dd></div>
+          <div><dt>At risk of displacement</dt><dd data-count="20" data-suffix="%">20%</dd></div>
+        </dl>
+      </div>
+    </header>
+
+    <div class="container manifesto-content manifesto-layout">
+
+      <!-- Left: the Contents guide. Each link jumps to its part below (#...); manifesto_contents.js marks
+           the part you are reading. -->
+      <nav class="page-contents" aria-label="Contents">
+        <h2>Contents</h2>
+        <ul>
+          <li><a href="#structure-of-work">Agentic AI changes the structure of work</a></li>
+          <li><a href="#workflow-automation">From task automation to workflow automation</a></li>
+          <li><a href="#dynamic-gpt">From general-purpose tech to dynamic GPT</a></li>
+          <li><a href="#three-perspectives">Three perspectives on AI’s economic impact</a></li>
+          <li><a href="#current-estimates">What current estimates tell us</a></li>
+          <li><a href="#expectation-trap">Restructuring for AI that does not yet exist</a></li>
+          <li><a href="#framework">The Hybrid Intelligence economic framework</a></li>
+          <li><a href="#two-pathways">Two AI pathways, two different futures</a></li>
+          <li><a href="#decision-makers">What can decision-makers do?</a></li>
+        </ul>
+      </nav>
+
+      <article>
+        <section class="m-section" id="structure-of-work">
+          <p class="m-label">The shift</p>
+          <h2>Agentic AI changes the structure of work</h2>
+          <p>Traditional economic models often assume that AI automates individual tasks while humans remain
+            responsible for coordination, interpretation and final judgment. Under this view, work changes gradually:
+            some tasks are automated, while workers move toward activities that require contextual reasoning,
+            interpersonal skills and responsibility.</p>
+          <p>Agentic AI challenges this assumption. As AI systems become able to break complex goals into subtasks,
+            select tools, generate code, evaluate outputs and revise plans, they begin to operate not only within
+            existing workflows, but upon the workflows themselves.</p>
+          <p class="m-quote">Can AI increasingly organize, coordinate and integrate the tasks that make up an entire
+            professional role?</p>
+          <p>This framework is developed in our paper, The Economics of Hybrid Intelligence. Read the full paper
+            below, or continue for an accessible overview of the main arguments.</p>
+        </section>
+
+        <!-- The paper: its front page, a link to the PDF on hi-infinity.ai, and the citation -->
+        <aside class="paper-box">
+          <span class="share-node tl" aria-hidden="true"></span><span class="share-node tr" aria-hidden="true"></span>
+          <span class="share-node bl" aria-hidden="true"></span><span class="share-node br" aria-hidden="true"></span>
+          <img class="paper-cover" src="{% get_media_prefix %}manifesto/econ_cover.png"
+               alt="First page of the paper The Economics of Hybrid Intelligence" loading="lazy">
+          <div>
+            <p class="m-label">The paper</p>
+            <h2>The Economics of Hybrid Intelligence</h2>
+            <div class="paper-buttons">
+              <a href="https://hi-infinity.ai/wp-content/uploads/2026/07/DRAFT-2026-06-10-HI-Economics-Manifesto.pdf"
+                 class="btn btn-dark" target="_blank" rel="noopener">Read the full paper</a>
+              <a href="https://hi-infinity.ai/wp-content/uploads/2026/07/DRAFT-2026-06-10-HI-Economics-Manifesto.pdf"
+                 class="btn-arrow" target="_blank" rel="noopener" aria-label="Read the full paper">&rarr;</a>
+            </div>
+            <details class="paper-citation">
+              <summary>Suggested citation</summary>
+              <p>Sherson, J., Schroeder, S., Pytlikova, M., Rafner, J., &amp; Lodefalk, M. (2026). The economics of
+                hybrid intelligence. Working paper, Center for Hybrid Intelligence, Aarhus University.</p>
+            </details>
+          </div>
+        </aside>
+
+        <section class="m-section" id="workflow-automation">
+          <p class="m-label">Work</p>
+          <h2>From task automation to workflow automation</h2>
+          <p>Professional roles are rarely defined by one isolated task. They consist of connected activities:
+            gathering information, interpreting context, producing outputs, checking quality, communicating with
+            stakeholders and assuming responsibility for the final result.</p>
+          <p>Agentic AI makes the boundaries between task and role automation less clear. Even when a human remains
+            necessary for one part of the process, the surrounding workflow may be reorganized so that fewer people are
+            needed to coordinate and complete it.</p>
+          <figure class="m-figure">
+            <img src="{% get_media_prefix %}manifesto/econ_workflow_steps.png" loading="lazy"
+                 alt="Diagram of four steps in AI use, from task tool to workflow assistant, workflow participant and workflow orchestrator">
+            <figcaption>The progression from task-level AI support to workflow orchestration handled completely by
+              AI.</figcaption>
+          </figure>
+        </section>
+
+        <section class="m-section" id="dynamic-gpt">
+          <p class="m-label">Technology</p>
+          <h2>From general-purpose tech to dynamic GPT</h2>
+          <p>Earlier general-purpose technologies depended on organizations to create the complementary innovations
+            needed for adoption. Firms redesigned processes, workers developed new skills and institutions adapted over
+            time.</p>
+          <p>AI may differ because it can increasingly contribute to producing these complements itself. It can help
+            write software, create documentation, generate training materials, test interfaces and identify
+            organizational bottlenecks. AI is therefore not only adopted by organizations; it may also accelerate the
+            reorganization of the organizations that adopt it.</p>
+        </section>
+
+        <section class="m-section" id="three-perspectives">
+          <p class="m-label">The debate</p>
+          <h2>Three perspectives on AI’s economic impact</h2>
+          <p>The economic debate can be understood through three perspectives:</p>
+          <div class="m-cards">
+            <div class="m-card"><h3>Cautious</h3><p>Emphasizes adoption frictions and organizational constraints.</p></div>
+            <div class="m-card"><h3>Technology acceleration</h3><p>Emphasizes scaling and increasingly agentic systems.</p></div>
+            <div class="m-card"><h3>Market dynamics</h3><p>Focuses on how expectations and incentives may trigger restructuring before full automation is mature.</p></div>
+          </div>
+          <figure class="m-figure">
+            <img src="{% get_media_prefix %}manifesto/econ_three_views.jpg" loading="lazy"
+                 alt="Diagram comparing three views of AI's economic impact: Acemoglu et al., the technology acceleration view and the intermediate market dynamics view">
+            <figcaption>Different assumptions, different dynamics, different futures.</figcaption>
+          </figure>
+          <p>These perspectives are not mutually exclusive. AI capabilities may improve rapidly while implementation
+            remains difficult. At the same time, firms may react to expectations about future automation before the
+            technology is operationally mature.</p>
+        </section>
+
+        <section class="m-section" id="current-estimates">
+          <p class="m-label">The numbers</p>
+          <h2>What current estimates tell us</h2>
+          <p>Discussions of job displacement from AI are everywhere, but what do the current numbers actually say?
+            Which jobs are most likely to be affected, negatively or positively?</p>
+          <h3>Which workers and tasks are most exposed?</h3>
+          <p>According to the IMF, AI exposure is concentrated in the private sector and increasingly affects highly
+            educated and high-income workers, rather than mainly manual occupations. Around 60% of Danish jobs are
+            exposed to AI and approximately 20% are at risk of displacement, rising to 25% in the private sector
+            compared with 13% in the public sector.</p>
+          <p>OpenAI believes the US is more exposed than the EU in the short term, because it has more
+            technology-intensive and knowledge-based jobs. The EU is less exposed overall, because physical and manual
+            work remains relatively protected.</p>
+          <h3>How much work could be disrupted?</h3>
+          <p>Estimates vary widely depending on what counts as disruption. According to OpenAI, 50–90% of jobs could
+            be affected, while its economic estimate places around 14% of EU employment at risk.</p>
+          <p>The IMF estimates that 60% of Danish jobs are exposed and 20% could face displacement. In its upper
+            scenario, Danmarks Nationalbank assumes that 80% of tasks in exposed sectors could be profitably replaced,
+            while agentic-AI scenarios reach around 82%. However, they do not include AI in their economic
+            forecasts.</p>
+          <div class="m-callout">
+            <p class="m-label">Note</p>
+            <p>Estimates of AI’s labor-market impact vary widely because they measure different things, including task
+              exposure, productivity augmentation, technical replacement potential and realized displacement.</p>
+          </div>
+        </section>
+
+        <section class="m-section" id="expectation-trap">
+          <p class="m-label">The expectation trap</p>
+          <h2>Organizations may restructure for AI that does not yet exist</h2>
+          <p>Firms do not make employment decisions only on the basis of what AI can do today. They also respond to
+            expectations about future capabilities, competitor behavior and investor demands.</p>
+          <p>This creates an AI expectation trap: augmentation evidence may be interpreted as evidence of imminent
+            replacement. Organizations may reduce junior hiring, training and staffing before AI can reliably perform
+            the full workflow.</p>
+          <p>However, AI making workers more productive does not necessarily mean that AI makes workers unnecessary.
+            The result can become self-reinforcing. Weaker expertise pipelines increase dependence on AI, while
+            workforce reductions are interpreted as proof that automation-first strategies are succeeding.</p>
+        </section>
+
+        <section class="m-section" id="framework">
+          <p class="m-label">The framework</p>
+          <h2>The Hybrid Intelligence economic framework</h2>
+          <p>To explain why human centrality in an AI economy is a design choice rather than a technological question,
+            the economic framework analyses the AI transition across interdependent societal stages.</p>
+          <ol class="m-points">
+            <li><span><strong>Workflows that build expertise.</strong> AI supports search, prediction, drafting and
+              simulation, while humans retain meaningful authority over framing, contextual interpretation and final
+              commitment.</span></li>
+            <li><span><strong>Markets that reward human contribution.</strong> As standardized functional output becomes
+              cheaper, trust, accountability, provenance and responsibility become important sources of
+              differentiation.</span></li>
+            <li><span><strong>Institutions that sustain investment.</strong> Standards, certification, education and
+              procurement can make genuine human contribution visible and economically viable.</span></li>
+            <li><span><strong>The human touch marketplace.</strong> The overall picture: markets in which value is
+              created not only through functional performance, but also through identifiable human judgment,
+              accountability and trust.</span></li>
+          </ol>
+          <p>Together, these levels show how markets and institutions can be designed so that human judgment remains
+            verifiably productive, commercially rewarded and economically sustainable as AI capabilities scale.</p>
+        </section>
+
+        <section class="m-section" id="two-pathways">
+          <p class="m-label">The choice</p>
+          <h2>Two AI pathways, two different futures</h2>
+          <p class="m-quote">The choices we make today determine whether AI creates abundance without agency, or
+            abundance with human flourishing.</p>
+          <figure class="m-figure">
+            <img src="{% get_media_prefix %}manifesto/econ_two_pathways.jpg" loading="lazy"
+                 alt="Diagram comparing Pathway 1, automation abundance, with Pathway 2, hybrid intelligence, as two loops with their end states">
+            <figcaption>The two possible political pathways for AI integration into society.</figcaption>
+          </figure>
+          <p>The two pathways use similar technological capabilities but create different feedback loops.
+            Automation-first strategies can weaken expertise and increase dependency. Hybrid Intelligence strategies
+            invest in human capability, market trust and better combined performance.</p>
+        </section>
+
+        <section class="m-section" id="decision-makers">
+          <p class="m-label">What to do</p>
+          <h2>What can decision-makers do?</h2>
+          <p>Hybrid Intelligence will not become the dominant model through good intentions alone. Decision-makers
+            must create conditions that make genuine human contribution visible, valuable and investable.</p>
+          <ol class="m-points">
+            <li><span><strong>Develop standards and certification</strong> that distinguish meaningful human judgment
+              from symbolic oversight.</span></li>
+            <li><span><strong>Support HI investment and procurement</strong> so organizations can develop systems that
+              build expertise rather than only reduce labor costs.</span></li>
+            <li><span><strong>Protect expertise pipelines</strong> through education, training and roles that allow
+              people to develop judgment alongside AI.</span></li>
+          </ol>
+          <div class="m-callout">
+            <p class="m-label">Sensecurity</p>
+            <p>We call this institutional approach Sensecurity: an extension of the Nordic flexicurity model, focused
+              not only on helping workers move between jobs, but on ensuring that human judgment remains structurally
+              valuable in an AI-rich economy.</p>
+          </div>
+          <p>Read the full paper to dive deeper into the Economics of Hybrid Intelligence framework, where we propose
+            economic arguments for Hybrid Intelligence that can help reduce concerns about job displacement.</p>
+        </section>
+      </article>
+    </div>
+
+    <div class="container">
+      {% include 'buttons/manifesto/manifesto_series.html' with here='econ' %}
+    </div>
+  </main>
+
+  {% include 'footer.html' %}
+
+  <script src="{% static 'General/JS/header_transparent.js' %}"></script>
+  <script src="{% static 'General/JS/header_hide.js' %}"></script>
+  <script src="{% static 'General/JS/phone_menu.js' %}"></script>
+  <script src="{% static 'Page 4/JS/coauthors_list.js' %}"></script>
+  <script src="{% static 'Page 4/JS/coauthors_popup.js' %}"></script>
+  <script src="{% static 'Page 1 (main)/JS - Animations/settings.js' %}"></script>
+  <script src="{% static 'Page 1 (main)/JS - Animations/background_lines.js' %}"></script>
+  <script src="{% static 'General/JS/section_lines.js' %}"></script>
+  <script src="{% static 'General/JS/count_up.js' %}"></script>
+  <script src="{% static 'Buttons/Manifesto/JS/manifesto_contents.js' %}"></script>
+</body>
+</html>

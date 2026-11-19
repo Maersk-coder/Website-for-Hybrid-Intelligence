@@ -2,7 +2,7 @@ from django.contrib import admin
 
 from .emails import send_issue_to_everyone
 from .models import (FaqCategory, FaqQuestion, Newsletter, PressArticle, Publication, ResearchSubmission,
-                     Signature, Subscriber)
+                     Signature, Subscriber, UseCase, UseCaseSubmission)
 
 # @admin.register(...) puts a table on the admin site (the same as admin.site.register(...)),
 # and the class below it says how the list looks: which columns, a search box, etc.
@@ -81,4 +81,23 @@ class ResearchSubmissionAdmin(admin.ModelAdmin):
     list_display = ['submitted_at', 'title', 'name', 'email']
     list_display_links = ['title']
     search_fields = ['title', 'name', 'email', 'description']
+    readonly_fields = ['submitted_at']
+
+
+@admin.register(UseCase)
+class UseCaseAdmin(admin.ModelAdmin):
+    """ The use cases. "order" sets the place on the page; "kind" is one of the four types. """
+    list_display = ['order', 'organisation', 'title', 'kind']
+    list_display_links = ['organisation']
+    list_editable = ['order']
+    list_filter = ['kind']                 # filter the list by type, on the right
+    search_fields = ['organisation', 'title']
+
+
+@admin.register(UseCaseSubmission)
+class UseCaseSubmissionAdmin(admin.ModelAdmin):
+    """ Use cases that visitors shared through the "Share your use case" form. """
+    list_display = ['submitted_at', 'title', 'organisation', 'name', 'email']
+    list_display_links = ['title']
+    search_fields = ['title', 'organisation', 'name', 'email', 'description']
     readonly_fields = ['submitted_at']

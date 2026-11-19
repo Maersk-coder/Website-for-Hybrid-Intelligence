@@ -1,0 +1,488 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Education Manifesto · Hybrid Intelligence</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'General/CSS/base.css' %}">
+  <link rel="stylesheet" href="{% static 'General/CSS/buttons.css' %}">
+  <link rel="stylesheet" href="{% static 'General/CSS/header.css' %}">
+  <link rel="stylesheet" href="{% static 'General/CSS/phone_menu.css' %}">
+  <link rel="stylesheet" href="{% static 'General/CSS/section_lines.css' %}">
+  <link rel="stylesheet" href="{% static 'General/CSS/button_page.css' %}">
+  <link rel="stylesheet" href="{% static 'Page 4/CSS/final_section.css' %}">
+  <link rel="stylesheet" href="{% static 'Page 4/CSS/coauthors_popup.css' %}">
+  <link rel="stylesheet" href="{% static 'Buttons/CSS/use_cases.css' %}">  <!-- the use case cards -->
+  <link rel="stylesheet" href="{% static 'Buttons/Manifesto/CSS/manifesto.css' %}">
+</head>
+<body class="manifesto-page button-page">
+
+  <!-- Background (decoration only): Page 1's faint rippling lines, the same as on the other button pages -->
+  <section class="page-background" aria-hidden="true">
+    <canvas class="section-lines" data-around=".page-lines-center" data-ring-size="0.9"></canvas>
+    <div class="page-lines-center"></div>
+  </section>
+
+  {% include 'header.html' %}
+
+  <main>
+    <!-- The heading (shared look for button pages). case_count comes from education_manifesto() in views.py. -->
+    <header class="page-intro">
+      <div class="intro-frame" aria-hidden="true">
+        <span class="intro-line across top"></span><span class="intro-line across bottom"></span>
+        <span class="intro-line down left"></span><span class="intro-line down right"></span>
+        <span class="intro-node tl"></span><span class="intro-node tr"></span>
+        <span class="intro-node bl"></span><span class="intro-node br"></span>
+      </div>
+      <div class="container intro-inner">
+        <p class="intro-eyebrow">Manifesto · Education Manifesto</p>
+        <h1>Hybrid Intelligence <span class="intro-highlight">in Education</span></h1>
+        <p class="intro-lead">Education should not only adapt to AI. It should help shape the transition.</p>
+        <dl class="intro-facts">
+          <div><dt>Maturity levels</dt><dd data-count="5">5</dd></div>
+          <div><dt>FERC phases</dt><dd data-count="4">4</dd></div>
+          <div><dt>School use cases</dt><dd data-count="{{ case_count }}">{{ case_count }}</dd></div>
+        </dl>
+      </div>
+    </header>
+
+    <div class="container manifesto-content manifesto-layout">
+
+      <!-- Left: the Contents guide. Each link jumps to its part below (#...); manifesto_contents.js marks
+           the part you are reading. -->
+      <nav class="page-contents" aria-label="Contents">
+        <h2>Contents</h2>
+        <ul>
+          <li><a href="#principles">Three principles</a></li>
+          <li><a href="#challenge">Educational challenge</a></li>
+          <li><a href="#hybrid-competence">From AI literacy to hybrid competence</a></li>
+          <li><a href="#calibration">The calibration dilemma</a></li>
+          <li><a href="#transformation">Institutional transformation</a></li>
+          <li><a href="#ferc">Governed human–AI collaboration</a></li>
+          <li><a href="#learner-designing">From designed learning to learner designing</a></li>
+          <li><a href="#in-practice">What it looks like in practice</a></li>
+          <li><a href="#assessment">Objectives and assessment</a></li>
+          <li><a href="#teaching">Re-professionalizing teaching</a></li>
+          <li><a href="#maturity">Institutional maturity</a></li>
+          <li><a href="#equity">Equity and access</a></li>
+          <li><a href="#use-cases">Use cases</a></li>
+        </ul>
+      </nav>
+
+      <article>
+        <section class="m-section" id="principles">
+          <p class="m-label">Three principles</p>
+          <h2>What Hybrid Intelligence education stands for</h2>
+          <div class="m-cards">
+            <div class="m-card"><h3>Human authorship</h3><p>Keep intent, evaluation and final responsibility visible
+              throughout AI-supported work.</p></div>
+            <div class="m-card"><h3>Hybrid competence</h3><p>Develop the capacity to frame, compare, validate, refine
+              and responsibly commit.</p></div>
+            <div class="m-card"><h3>Societal stewardship</h3><p>Position education as an active shaper of the AI
+              transition, not merely a recipient of it.</p></div>
+          </div>
+        </section>
+
+        <!-- The paper: its front page, a link to the PDF on hi-infinity.ai, and the citation -->
+        <aside class="paper-box">
+          <span class="share-node tl" aria-hidden="true"></span><span class="share-node tr" aria-hidden="true"></span>
+          <span class="share-node bl" aria-hidden="true"></span><span class="share-node br" aria-hidden="true"></span>
+          <img class="paper-cover" src="{% get_media_prefix %}manifesto/education_cover.png"
+               alt="Front page of the HI Manifesto for Education" loading="lazy">
+          <div>
+            <p class="m-label">The paper</p>
+            <h2>The HI Manifesto for Education</h2>
+            <p>Institutionalizing societal stewardship in the age of AI.</p>
+            <div class="paper-buttons">
+              <a href="https://hi-infinity.ai/wp-content/uploads/2026/08/HI-education-manifesto-1.pdf"
+                 class="btn btn-dark" target="_blank" rel="noopener">Read the full manifesto</a>
+              <a href="https://hi-infinity.ai/wp-content/uploads/2026/08/HI-education-manifesto-1.pdf"
+                 class="btn-arrow" target="_blank" rel="noopener" aria-label="Read the full manifesto">&rarr;</a>
+            </div>
+            <details class="paper-citation">
+              <summary>Suggested citation</summary>
+              <p>Sherson, J., Emruli, B., Hansen, R. L., Bang, J. B., Jung, J., Larsen, C. B., Gjaldbaek, M. S.,
+                Kristensen, S. B., Hansen, N. B., &amp; Darwich, O. (2026). The HI Manifesto for Education:
+                Institutionalizing societal stewardship in the age of AI. Working paper, Center for Hybrid
+                Intelligence, Aarhus University.</p>
+            </details>
+          </div>
+        </aside>
+
+        <section class="m-section" id="challenge">
+          <p class="m-label">Educational challenge</p>
+          <h2>Better output is not the same as better learning</h2>
+          <p>Generative AI can help students produce text, solve problems and receive feedback at unprecedented speed.
+            Yet the same systems can also make them appear more capable while removing the struggle through which
+            capability is formed.</p>
+          <p>Hybrid Intelligence in Education offers a different approach. Rather than treating AI as either a threat
+            to learning or a shortcut to efficiency, it asks how human intelligence and artificial intelligence can be
+            deliberately combined so that learning, judgment and human agency are strengthened.</p>
+          <p>The goal is not simply to teach students how to use AI tools. It is to build up learners so they can
+            frame problems, explore alternatives, evaluate machine-generated outputs, make responsible decisions and
+            redesign the systems and workflows in which AI is used.</p>
+          <p class="m-quote">Education is not only where society responds to technological change. It is one of the
+            institutions through which society can actively shape it.</p>
+          <figure class="m-figure">
+            <img src="{% get_media_prefix %}manifesto/education_programme.png" loading="lazy"
+                 alt="The Hybrid Intelligence research programme connecting the HI Manifesto, HI Education Manifesto and HI Economics Manifesto">
+            <figcaption>The educational manifesto is the capability-building pillar of the wider Hybrid Intelligence
+              research programme.</figcaption>
+          </figure>
+          <h3>Protecting the expertise pipeline</h3>
+          <p>AI can improve short-term performance while weakening the pathways through which professional expertise
+            is developed.</p>
+          <p>When entry-level tasks are increasingly delegated to AI, learners and early-career professionals may lose
+            opportunities to build the contextual and tacit knowledge required for later judgment. Organizations can
+            become more productive in the present while becoming less capable of reproducing the human expertise they
+            will need in the future.</p>
+          <p>Education therefore carries a wider responsibility than merely preparing individuals to use new tools. It
+            must help society continuously reproduce the expertise required to evaluate, govern and improve
+            AI-supported work.</p>
+          <div class="m-callout">
+            <p class="m-label">The central risk</p>
+            <p>A society may become increasingly capable of producing outputs while becoming less capable of developing
+              the people who can understand, challenge and take responsibility for them.</p>
+          </div>
+        </section>
+
+        <section class="m-section" id="hybrid-competence">
+          <p class="m-label">From AI literacy to hybrid competence</p>
+          <h2>Learning to work at the prediction-judgment frontier</h2>
+          <p>AI literacy remains important: learners must understand how AI works, critically evaluate its outputs and
+            consider its ethical and societal implications. But literacy alone does not determine how responsibility
+            should be distributed inside an AI-supported task.</p>
+          <p>AI is especially effective when work can be performed through abundant, explicit and formalized
+            information. Human judgment becomes essential when a task depends on context, tacit knowledge, values,
+            interpretation or accountable ownership.</p>
+          <p>The boundary is dynamic. As contextual knowledge becomes externalized and machine-readable, parts of
+            yesterday’s judgment become today’s prediction. Education therefore cannot rely on a fixed catalogue of
+            uniquely human skills. It must cultivate the capacity to identify where AI prediction is useful, where human
+            judgment is required and where responsibility must remain human.</p>
+          <div class="m-cards">
+            <div class="m-card"><h3>Prediction points</h3><p>Moments where AI can generate, classify, simulate, search
+              or accelerate a clearly bounded part of the work.</p></div>
+            <div class="m-card"><h3>Judgment points</h3><p>Moments where learners must frame, interpret, validate,
+              choose, escalate or take responsibility for consequences.</p></div>
+          </div>
+          <div class="m-callout">
+            <p class="m-label">How this relates to existing frameworks</p>
+            <p>The Five Big Ideas presented by AI4K12, the DigComp lineage and UNESCO’s competency frameworks have
+              established that learners should understand how AI systems work, evaluate their outputs and weigh their
+              societal implications.</p>
+            <p>The joint OECD / European Union AILit framework goes further. Its Manage AI domain asks learners to decide
+              where AI should automate or augment and to set checkpoints between human and AI roles; its Shape AI
+              domain casts them as improvers of AI systems rather than consumers of them.</p>
+            <p>Hybrid Intelligence education departs from the existing frameworks in two respects. Where AILit anchors
+              the human contribution in a catalogue of capacities (emotion, ethical reasoning, critical thinking,
+              originality), we anchor it in the knowledge structure of the task, which does not age each time a
+              capability gets better. And where AILit prescribes iteration as a general principle, we specify a
+              governed procedure, FERC, that makes framing, comparison and accountable commitment assessable rather
+              than dependent on individual disposition.</p>
+            <p class="m-small">Policy landscape reviewed August 2026.</p>
+          </div>
+        </section>
+
+        <section class="m-section" id="calibration">
+          <p class="m-label">The calibration dilemma</p>
+          <h2>What should education preserve, and what should it redesign?</h2>
+          <p>Not every traditional learning activity should disappear because AI can perform parts of it. Learners
+            still need independent mastery wherever professional practice requires unaided reasoning, embodied skill or
+            real-time judgment.</p>
+          <p>At the same time, education should not prepare students only for workflows that are already being
+            transformed. Institutions must continuously assess which capabilities should remain independently mastered
+            and which should be developed through structured human–AI collaboration.</p>
+          <div class="m-cards">
+            <div class="m-card"><h3>Preserve independent mastery</h3><p>Retain deep knowledge and unaided competence
+              where future practice still depends on direct human reasoning, physical skill or immediate judgment.</p></div>
+            <div class="m-card"><h3>Redesign for hybrid practice</h3><p>Rework learning activities where AI will be part
+              of professional practice, so students learn to frame, validate, refine and take responsibility.</p></div>
+          </div>
+          <div class="m-callout">
+            <p class="m-label">The graduate this produces</p>
+            <h3>The faglig kaospilot</h3>
+            <p>A domain expert trained not just to survive labour-market turbulence, but to steer it. By grounding the
+              living-laboratory mission in real organizational experimentation, this programme yields graduates who
+              carry the capacity to move workplaces from basic AI automation toward durable human–AI
+              collaboration.</p>
+            <p>Instead of education trailing behind market shifts, these graduates are the direct mechanism by which
+              institutions actively lead the transition.</p>
+          </div>
+        </section>
+
+        <section class="m-section" id="transformation">
+          <p class="m-label">Institutional transformation</p>
+          <h2>The HI Educational Transformation Playbook</h2>
+          <p>The playbook connects institutional purpose, shared mindsets, educational practice and formal assessment.
+            It helps institutions move from isolated experiments towards a coherent capacity for Hybrid
+            Intelligence.</p>
+          <figure class="m-figure">
+            <img src="{% get_media_prefix %}manifesto/education_playbook.png" loading="lazy"
+                 alt="The four-track HI Educational Transformation Playbook">
+            <figcaption>Four connected tracks move education from AI as an add-on towards institutionalized hybrid
+              capability.</figcaption>
+          </figure>
+        </section>
+
+        <section class="m-section" id="ferc">
+          <p class="m-label">Governed human–AI collaboration</p>
+          <h2>FERC keeps the learner in the author’s seat</h2>
+          <p>Many approaches to AI in education focus on writing better prompts. FERC instead structures the full
+            interaction through four phases: Frame, Explore, Refine and Commit. The process begins with human intent,
+            creates space for comparison and refinement, and ends with accountable human commitment.</p>
+          <p class="m-quote">Shift the focus from the perfect prompt to the perfect collaboration.</p>
+          <figure class="m-figure">
+            <img src="{% get_media_prefix %}manifesto/education_ferc.png" loading="lazy"
+                 alt="The FERC cycle showing the Frame, Explore, Refine and Commit phases">
+            <figcaption>Frame and Commit anchor the cycle in human intent and responsibility. Explore and Refine form
+              the iterative middle.</figcaption>
+          </figure>
+          <p class="m-small">FERC is developed as a separate HI framework with its own research, practical guidance and
+            examples.</p>
+        </section>
+
+        <section class="m-section" id="learner-designing">
+          <p class="m-label">From designed learning to learner designing</p>
+          <h2>Seamful co-creation</h2>
+          <p>Educational AI often arrives as finished furniture: an approved chatbot, a fixed prompt template or a
+            predefined set of rules. This is an appropriate starting point, but it should not be the endpoint.</p>
+          <p>Learners who are expected to enter AI-rich organizations must also practise designing the conditions under
+            which AI is used. They should be able to define task boundaries, configure instructions and criteria,
+            identify uncertainty, create escalation points and decide where human review is structurally required.</p>
+          <p>This is the idea of seamful co-creation. Instead of hiding every limitation and handover, the learning
+            design makes important seams visible and actionable. Friction is not added everywhere; it is placed where
+            thinking, evaluation and responsibility need to occur.</p>
+          <div class="m-table-wrap">
+            <table class="m-table">
+              <thead><tr><th>Aspect</th><th>Friction</th><th>Seamful co-creation</th></tr></thead>
+              <tbody>
+                <tr><td>Core idea</td><td>Introduce pauses or resistance to slow automation and promote reflection</td>
+                  <td>Make AI’s limits and handover points visible to structure human–AI interaction</td></tr>
+                <tr><td>Primary focus</td><td>Regulate student behaviour and prevent shortcuts</td>
+                  <td>Engineer an explicit division of labour between prediction and judgment</td></tr>
+                <tr><td>Relation to technology</td><td>Technology constrained through rules and restrictions</td>
+                  <td>Technology treated as malleable infrastructure to be configured and shaped</td></tr>
+                <tr><td>Role of teacher and student</td><td>Teacher moderates; student reflects and evaluates</td>
+                  <td>Teacher designs workflows; student acts as co-creator and citizen developer</td></tr>
+                <tr><td>Uncertainty and trust</td><td>Surface ambiguity to encourage critical questioning</td>
+                  <td>Define escalation points, responsibility boundaries and verification practices</td></tr>
+                <tr><td>Educational trajectory</td><td>Classroom-level intervention to improve learning quality</td>
+                  <td>Institutional architecture that cultivates durable hybrid intelligence</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="m-small">Seamful co-creation moves beyond regulating the learner towards jointly shaping the
+            human–AI system.</p>
+        </section>
+
+        <section class="m-section" id="in-practice">
+          <p class="m-label">What it looks like in practice</p>
+          <h2>The classroom as a laboratory for Hybrid Intelligence</h2>
+          <p>The playbook does not prescribe one technology. It provides activity formats in which AI expands the field
+            of possibilities while learners exercise contextual reasoning, epistemic vigilance and accountable
+            judgment.</p>
+          <div class="m-cards">
+            <div class="m-card"><h3>Iterative bot or prompt co-design</h3><p>Students test an AI tutor, debate partner,
+              case coach or workflow simulator against explicit quality criteria. They identify weaknesses, revise its
+              instructions and test it again.</p></div>
+            <div class="m-card"><h3>Virtual stakeholder exploration</h3><p>AI generates stakeholders, personas or
+              scenario variations that widen the analytical field. Students interrogate assumptions, assess realism,
+              surface trade-offs and decide which perspectives should shape the final proposal.</p></div>
+            <div class="m-card"><h3>Flawed-bot detection and repair</h3><p>An AI configuration contains a deliberate
+              misconception, weak assumption or bias. Students diagnose the flaw, articulate the relevant domain
+              knowledge and redesign the prompt or workflow.</p></div>
+          </div>
+          <figure class="m-figure">
+            <img src="{% get_media_prefix %}manifesto/education_methods.png" loading="lazy"
+                 alt="Three implementation methods for HI exercise formats">
+            <figcaption>Practice-tested formats move students from conversational tool use towards system shaping and
+              accountable repair.</figcaption>
+          </figure>
+          <h3>HI business process re-engineering</h3>
+          <p>Students select a professional workflow, map the prediction-judgment boundary, generate alternative
+            human–AI configurations and commit to a defensible redesign. The exercise demonstrates why domain expertise
+            remains essential: without contextual judgment, AI proposals tend to remain plausible but generic.</p>
+          <figure class="m-figure">
+            <img src="{% get_media_prefix %}manifesto/education_redesign_steps.png" loading="lazy"
+                 alt="Four-step Hybrid Intelligence business process redesign method">
+            <figcaption>A structured workflow exercise connects classroom learning with the redesign of real
+              professional practice.</figcaption>
+          </figure>
+        </section>
+
+        <section class="m-section" id="assessment">
+          <p class="m-label">Objectives and assessment</p>
+          <h2>Assess judgment, not only task completion</h2>
+          <p>Generative AI weakens the link between a polished submitted artifact and the learning it was intended to
+            demonstrate. A strong final output may conceal weak framing, uncritical delegation or little durable
+            understanding.</p>
+          <p>HI learning objectives are therefore written as observable judgment behaviour: validate, detect, justify,
+            stress-test, integrate and assume accountability. Foundational knowledge is not reduced. It becomes the
+            basis for informed evaluation of AI-supported work.</p>
+          <div class="m-table-wrap">
+            <table class="m-table">
+              <thead><tr><th>Domain</th><th>Traditional learning objective</th><th>HI learning objective</th></tr></thead>
+              <tbody>
+                <tr><td>Trade and logistics</td><td>Process customer orders correctly in an ERP system and ensure accurate
+                  invoicing.</td><td>Validate and critically assess AI-generated order proposals; detect anomalies and
+                  justify override decisions in light of pricing patterns, customer history and operational risk.</td></tr>
+                <tr><td>Business and marketing</td><td>Produce a complete market analysis report.</td><td>Evaluate, refine
+                  and justify an AI-supported market analysis, identifying its assumptions, risks and strategic
+                  trade-offs.</td></tr>
+                <tr><td>Engineering</td><td>Calculate structural load requirements using standard formulas.</td><td>Assess
+                  and stress-test AI-assisted load calculations, identify boundary conditions, and justify final design
+                  decisions under uncertainty.</td></tr>
+                <tr><td>Healthcare</td><td>Develop a treatment plan based on patient symptoms and clinical
+                  guidelines.</td><td>Critically evaluate AI-generated treatment suggestions, integrate patient-specific
+                  factors, and assume accountable clinical decision-making.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="m-small">Across domains, the shift is from completing predictable tasks towards validating,
+            contextualizing and responsibly finalizing AI-supported work.</p>
+          <div class="m-callout">
+            <p class="m-label">Process-based assessment</p>
+            <p>Assessment can include the learner’s original frame, the alternatives explored, comparative evaluation,
+              revisions, the documented role of AI and the rationale behind the final commitment.</p>
+          </div>
+          <h3>Employability and formation point in the same direction</h3>
+          <p>Problem framing, contextual judgment and accountable commitment are not only workplace competences. They
+            also support autonomy, co-determination and responsible participation in society. HI Education therefore
+            connects professional relevance with the broader formative purpose of education.</p>
+        </section>
+
+        <section class="m-section" id="teaching">
+          <p class="m-label">Re-professionalizing teaching</p>
+          <h2>Teacher judgment becomes more important, not less</h2>
+          <p>When submitted work no longer certifies the learning it was designed to evidence, output-based assessment
+            loses its warrant. The answer is not better detection. It is to shift evaluative weight onto what can still
+            be observed: whether a learner framed the problem before generating, demanded and compared genuine
+            alternatives, revised their criteria, and committed with a documented rationale.</p>
+          <p>Evaluating how a learner frames a problem, compares alternatives and justifies a decision cannot be reduced
+            to a judgment-free metric. It requires professional teacher judgment.</p>
+          <p>That cuts against three decades in which educational governance has drifted from professional
+            responsibility towards measurable output. Hybrid education asks institutions to reverse part of that drift:
+            to reinvest in, and re-trust, the judgment of educators. The cost is real: professional development,
+            redesigned assessment, and protected time.</p>
+          <p class="m-quote">Students learn what their institutions model.</p>
+        </section>
+
+        <section class="m-section" id="maturity">
+          <p class="m-label">Institutional maturity</p>
+          <h2>From isolated use to institutional identity</h2>
+          <p>Institutions begin from different positions. The maturity model provides a shared developmental horizon:
+            from AI being peripheral, through local experimentation and operationalized practices, to Hybrid
+            Intelligence becoming part of institutional strategy and identity.</p>
+          <ol class="m-levels" reversed>
+            <li><span class="m-level-number">4</span><div><h3>Transformative</h3><p class="m-label">Strategic DNA</p>
+              <p>Human–AI collaboration is embedded in the institution’s identity. Teaching is proactively redesigned
+                to strengthen graduates’ future readiness and to help shape a more human-centred society. HI is not an
+                add-on; it is strategic orientation.</p>
+              <p class="m-says">“Human–AI partnership is our identity.”</p></div></li>
+            <li><span class="m-level-number">3</span><div><h3>Operationalized</h3><p class="m-label">Stable hybrid culture</p>
+              <p>AI use is guided by shared institutional norms and detailed principles that ensure quality and
+                responsibility. Prediction and judgment are systematically embedded in activities.</p>
+              <p class="m-says">“AI collaboration is professional excellence.”</p></div></li>
+            <li><span class="m-level-number">2</span><div><h3>Emerging</h3><p class="m-label">Individual experimentation</p>
+              <p>AI use becomes iterative. Individuals refine prompts and experiment continuously, but practice remains
+                personal rather than institutionally structured.</p>
+              <p class="m-says">“AI is legitimate, but it depends on skill.”</p></div></li>
+            <li><span class="m-level-number">1</span><div><h3>Initiating</h3><p class="m-label">One-shot</p>
+              <p>AI is used sporadically in isolated interactions. A single prompt is tried, and the response is either
+                accepted directly or abandoned.</p>
+              <p class="m-says">“Is this cheating?”</p></div></li>
+            <li><span class="m-level-number">0</span><div><h3>Inactive</h3>
+              <p>AI is not used in teaching or preparation and is rarely discussed with students or colleagues. It is
+                seen as irrelevant or peripheral.</p>
+              <p class="m-says">“AI is irrelevant, or a threat.”</p></div></li>
+          </ol>
+          <p class="m-small">The maturity journey asks whether hybrid competence is individually improvised or
+            collectively cultivated and governed.</p>
+        </section>
+
+        <section class="m-section" id="equity">
+          <p class="m-label">Equity and access</p>
+          <h2>Hybrid competence must not become a new privilege</h2>
+          <p>Judgment-centred education makes a demand that AI-literacy modules do not. It presupposes learners who can
+            reach configurable AI systems, teachers with the time and training to design judgment points into their own
+            subjects, and institutions able to govern how those systems are used. Where those conditions are missing,
+            the framework does not simply fail to arrive. It can widen the gap it was meant to close.</p>
+          <div class="m-cards">
+            <div class="m-card"><h3>Access to configurable systems</h3><p>Prompt-level access to a consumer chatbot is
+              not the same as the ability to configure, constrain and inspect a system, and that tooling is currently
+              distributed by budget rather than by educational need.</p></div>
+            <div class="m-card"><h3>Teacher time and capacity</h3><p>Process-based assessment costs professional time.
+              Institutions that adopt HI objectives without funding that time will produce the paperwork of hybrid
+              education and none of the learning.</p></div>
+          </div>
+          <p>The risk is a two-tier settlement: well-resourced institutions teaching students to design and govern AI
+            systems, while others teach students to consume their outputs. We therefore treat access as part of the
+            framework rather than as an implementation detail, and we would rather see this playbook adopted partially
+            and fairly than fully and narrowly.</p>
+        </section>
+
+        <!-- The Educational use cases from the database (the same cards as on the Use Cases page) -->
+        <section class="m-section" id="use-cases">
+          <p class="m-label">Use cases</p>
+          <h2>Schools already working this way</h2>
+          <ul class="case-list">
+            {% for case in cases %}
+              <li class="case-card">
+                <a href="{{ case.url }}" target="_blank" rel="noopener">
+                  <div class="case-picture">
+                    {% if case.image %}<img src="{{ case.image.url }}" alt="" loading="lazy">{% endif %}
+                  </div>
+                  <p class="case-organisation">{{ case.organisation }}</p>
+                  <h3>{{ case.title }}</h3>
+                </a>
+              </li>
+            {% empty %}
+              <li>No educational use cases yet. Load them with:  python manage.py import_use_cases</li>
+            {% endfor %}
+          </ul>
+          <p><a href="{% url 'use_cases' %}?type=educational#use-case-list" class="m-link">See them on the Use Cases page &rarr;</a></p>
+        </section>
+      </article>
+    </div>
+
+    <div class="container">
+      {% include 'buttons/manifesto/manifesto_series.html' with here='education' %}
+
+      <!-- Stay connected: the same box as "Share your research" (General/CSS/button_page.css) -->
+      <aside class="share-box">
+        <span class="share-node tl" aria-hidden="true"></span><span class="share-node tr" aria-hidden="true"></span>
+        <span class="share-node bl" aria-hidden="true"></span><span class="share-node br" aria-hidden="true"></span>
+        <div class="share-left">
+          <p class="intro-eyebrow">Stay connected</p>
+          <h2>Want to know more about <span class="share-highlight">HI Education</span>?</h2>
+          <div class="share-buttons">
+            <a href="{% url 'newsletter' %}" class="btn btn-dark">Sign up for the newsletter</a>
+            <a href="{% url 'newsletter' %}" class="btn-arrow" aria-label="Sign up for the newsletter">&rarr;</a>
+          </div>
+        </div>
+        <div class="share-right">
+          <p>Receive updates about Hybrid Intelligence Education research, practical resources, workshops and
+            opportunities to collaborate.</p>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  {% include 'footer.html' %}
+
+  <script src="{% static 'General/JS/header_transparent.js' %}"></script>
+  <script src="{% static 'General/JS/header_hide.js' %}"></script>
+  <script src="{% static 'General/JS/phone_menu.js' %}"></script>
+  <script src="{% static 'Page 4/JS/coauthors_list.js' %}"></script>
+  <script src="{% static 'Page 4/JS/coauthors_popup.js' %}"></script>
+  <script src="{% static 'Page 1 (main)/JS - Animations/settings.js' %}"></script>
+  <script src="{% static 'Page 1 (main)/JS - Animations/background_lines.js' %}"></script>
+  <script src="{% static 'General/JS/section_lines.js' %}"></script>
+  <script src="{% static 'General/JS/count_up.js' %}"></script>
+  <script src="{% static 'Buttons/Manifesto/JS/manifesto_contents.js' %}"></script>
+</body>
+</html>

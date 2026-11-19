@@ -30,6 +30,8 @@
     onChangeStart: (next) => {
       word.show(phases[next].word);
       labels.next();
+      // Tell the rest of the page that a new shape is starting (featured_case.js swaps the use case card then)
+      document.dispatchEvent(new CustomEvent("shape-change", { detail: next }));
     },
     onShapeReached: (current, next) => {
       cloud.showShapes(phases[current].shape, phases[next].shape);

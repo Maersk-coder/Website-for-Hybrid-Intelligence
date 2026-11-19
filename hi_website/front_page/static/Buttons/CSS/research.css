@@ -44,36 +44,7 @@
   font-size: 12px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase;
 }
 
-/* ----- "Share your research": Page 1's soft blue gradient, the blueprint squares on the corners,
-   the title and buttons on the left, a short text and the email on the right ----- */
-.share-box {
-  position: relative;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 64px;
-  margin: 24px 0 96px;
-  padding: 56px;
-  border: 1px solid rgba(10, 0, 51, 0.12);
-  background: linear-gradient(135deg, #f8f9fd 0%, #eef1fa 60%, #e6ebf8 100%);   /* like Page 1 */
-}
-/* The small squares on the corners */
-.share-node {
-  position: absolute; width: 7px; height: 7px;
-  border: 1px solid rgba(10, 0, 51, 0.35); background: var(--grey-bg);
-  transform: translate(-50%, -50%);
-}
-.share-node.tl { left: 0; top: 0; }
-.share-node.tr { left: 100%; top: 0; }
-.share-node.bl { left: 0; top: 100%; }
-.share-node.br { left: 100%; top: 100%; }
-
-.share-box h2 { margin: 0 0 32px; font-size: clamp(30px, 3vw, 44px); font-weight: 300; line-height: 1.15; text-wrap: balance; }
-.share-highlight { color: var(--indigo); }
-.share-buttons { display: flex; align-items: center; gap: 10px; }
-.share-right { align-self: center; }
-.share-right p { margin: 0 0 20px; font-size: 17px; font-weight: 300; line-height: 1.6; }
-.share-contact { font-size: 15px; color: rgba(10, 0, 51, 0.7); }
-.share-contact a { margin-left: 4px; font-weight: 500; color: var(--indigo); text-decoration: underline; }
+/* The "Share your research" box: shared with Use Cases, in General/CSS/button_page.css */
 
 /* The heading above the list */
 .research-list-title {
@@ -84,7 +55,6 @@
 
 /* ----- Smaller screens ----- */
 @media (max-width: 900px) {
-  .share-box { grid-template-columns: 1fr; gap: 24px; padding: 40px 28px; }
 }
 @media (max-width: 640px) {
   .research-content { padding-top: 48px; }

@@ -124,3 +124,42 @@ class ResearchSubmission(models.Model):
 
     def __str__(self):
         return f"{self.title} ({self.name})"
+
+
+class UseCase(models.Model):
+    """ One example of Hybrid Intelligence in practice (the Use Cases page). The link goes to the full story. """
+    KINDS = [                                       # the four types: (stored in the database, shown on the page)
+        ('partner', 'Partner Use Case'),
+        ('iconic', 'Iconic Use Case'),
+        ('contributed', 'Contributed Use Case'),
+        ('educational', 'Educational Use Case'),
+    ]
+    organisation = models.CharField(max_length=200)
+    title = models.CharField(max_length=300)
+    kind = models.CharField(max_length=20, choices=KINDS)   # choices = only these four are allowed (a menu in the admin site)
+    url = models.URLField(max_length=500)
+    image = models.ImageField(upload_to='use_cases/', blank=True)
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ['order']
+
+    def __str__(self):
+        return f"{self.organisation}: {self.title}"
+
+
+class UseCaseSubmission(models.Model):
+    """ A use case that a visitor shares with us through the "Share your use case" form. """
+    name = models.CharField(max_length=100)
+    email = models.EmailField()
+    organisation = models.CharField(max_length=200)
+    title = models.CharField(max_length=300)                 # a short title for the use case
+    link = models.URLField(max_length=500, blank=True)       # where to read more (optional)
+    description = models.TextField()
+    submitted_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-submitted_at']
+
+    def __str__(self):
+        return f"{self.title} ({self.organisation})"

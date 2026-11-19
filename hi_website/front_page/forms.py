@@ -1,5 +1,5 @@
 from django import forms
-from .models import ResearchSubmission, Signature, Subscriber
+from .models import ResearchSubmission, Signature, Subscriber, UseCaseSubmission
 
 
 class SignatureForm(forms.ModelForm):
@@ -48,6 +48,22 @@ class ResearchSubmissionForm(forms.ModelForm):
         labels = {'name': 'Your name', 'email': 'Email', 'title': 'Title of the publication',
                   'link': 'Link to the publication (optional)', 'description': 'A short description of the work'}
         widgets = {'description': forms.Textarea(attrs={'rows': 5})}
+
+    def clean_email(self):
+        """ Store the email in small letters, like the other forms """
+        return self.cleaned_data['email'].lower()
+
+
+class UseCaseSubmissionForm(forms.ModelForm):
+    """ The 'Share your use case' form """
+
+    class Meta:
+        model = UseCaseSubmission
+        fields = ['name', 'email', 'organisation', 'title', 'link', 'description']
+        labels = {'name': 'Your name', 'email': 'Email', 'organisation': 'Organisation',
+                  'title': 'A short title for the use case', 'link': 'Link to read more (optional)',
+                  'description': 'What happened, and how do people and AI work together?'}
+        widgets = {'description': forms.Textarea(attrs={'rows': 6})}
 
     def clean_email(self):
         """ Store the email in small letters, like the other forms """

@@ -8,10 +8,34 @@
     <div class="container header-inner">
       <a href="{% url 'home' %}" class="logo">Hybrid Intelligence</a>
       <nav class="main-nav" aria-label="Main">
-        <a href="#">Manifesto <span class="chevron">⌄</span></a>
+        <!-- The Manifesto dropdown: point at "Manifesto" (or tab to it) and the panel with the three pages
+             appears at once. Clicking "Manifesto" itself opens the first page. The look is in General/CSS/header.css. -->
+        <div class="nav-dropdown">
+          <a href="{% url 'manifesto' %}" class="nav-dropdown-button">Manifesto <span class="chevron">⌄</span></a>
+          <div class="dropdown-panel">
+            <div class="dropdown-inner">
+              <p class="dropdown-label">The Manifesto series</p>
+              <a href="{% url 'manifesto' %}" class="dropdown-item">
+                <span class="dropdown-number">01</span>
+                <span><strong>The Hybrid Intelligence Manifesto</strong>
+                  <span class="dropdown-text">Keeping human judgment economically indispensable</span></span>
+              </a>
+              <a href="{% url 'econ_manifesto' %}" class="dropdown-item">
+                <span class="dropdown-number">02</span>
+                <span><strong>ECON Manifesto</strong>
+                  <span class="dropdown-text">The Economics of Hybrid Intelligence</span></span>
+              </a>
+              <a href="{% url 'education_manifesto' %}" class="dropdown-item">
+                <span class="dropdown-number">03</span>
+                <span><strong>Education Manifesto</strong>
+                  <span class="dropdown-text">Hybrid Intelligence in Education</span></span>
+              </a>
+            </div>
+          </div>
+        </div>
         <a href="#">Tools &amp; Frameworks <span class="chevron">⌄</span></a>
         <a href="{% url 'research' %}">Research</a>
-        <a href="#">Use Cases</a>
+        <a href="{% url 'use_cases' %}">Use Cases</a>
         <a href="{% url 'press' %}">Press</a>
         <a href="{% url 'faq' %}">FAQ</a>
         <a href="{% url 'sign' %}" class="btn btn-dark">Sign the Manifesto</a>
@@ -31,10 +55,16 @@
       <button type="button" class="menu-close" id="menu-close" aria-label="Close the menu">&times;</button>
     </div>
     <nav class="phone-menu-links" aria-label="Main">
-      <a href="#">Manifesto <span class="chevron">⌄</span></a>
+      <!-- Manifesto: <details> folds open when tapped and shows the three pages under it -->
+      <details class="phone-sub">
+        <summary>Manifesto <span class="chevron">⌄</span></summary>
+        <a href="{% url 'manifesto' %}">The Hybrid Intelligence Manifesto</a>
+        <a href="{% url 'econ_manifesto' %}">ECON Manifesto</a>
+        <a href="{% url 'education_manifesto' %}">Education Manifesto</a>
+      </details>
       <a href="#">Tools &amp; Frameworks <span class="chevron">⌄</span></a>
       <a href="{% url 'research' %}">Research</a>
-      <a href="#">Use Cases</a>
+      <a href="{% url 'use_cases' %}">Use Cases</a>
       <a href="{% url 'press' %}">Press</a>
       <a href="{% url 'faq' %}">FAQ</a>
     </nav>

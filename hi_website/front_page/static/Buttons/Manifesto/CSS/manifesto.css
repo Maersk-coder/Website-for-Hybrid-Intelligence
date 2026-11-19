@@ -1,0 +1,180 @@
+/* MANIFESTO PAGES: the look shared by the three pages in the Manifesto menu
+   (The Hybrid Intelligence Manifesto, ECON Manifesto, Education Manifesto).
+   The background, the page heading and the "share" box come from General/CSS/button_page.css. */
+
+.manifesto-content { padding: 72px 0 120px; }
+
+/* ----- The Contents guide (ECON and Education): on the left, it stays in place while you scroll,
+   and the part you are reading gets a navy stripe (Buttons/Manifesto/JS/manifesto_contents.js) ----- */
+.manifesto-layout {
+  display: grid;
+  grid-template-columns: 250px minmax(0, 1fr);
+  gap: 72px;
+}
+.page-contents {
+  position: sticky;
+  top: calc(var(--header-h) + 32px);
+  align-self: start;
+}
+.page-contents h2 {
+  margin: 0 0 16px;
+  font-size: 13px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--indigo);
+}
+.page-contents ul { margin: 0; padding: 0; list-style: none; border-left: 1px solid rgba(10, 0, 51, 0.15); }
+.page-contents a {
+  display: block;
+  margin-left: -1px;                        /* so the stripe sits exactly on the line */
+  padding: 8px 0 8px 16px;
+  border-left: 2px solid transparent;
+  font-size: 14px; font-weight: 300; line-height: 1.35;
+  color: rgba(10, 0, 51, 0.6);
+}
+.page-contents a:hover { color: var(--navy); }                                    /* instant, no fade */
+.page-contents a.is-current { border-left-color: var(--navy); color: var(--navy); font-weight: 400; }
+
+/* ----- One part of the text: a thin navy line above it, a small indigo label, a title, then the text ----- */
+.m-section {
+  padding-top: 28px;
+  margin-bottom: 88px;
+  border-top: 1px solid var(--navy);
+  scroll-margin-top: calc(var(--header-h) + 16px);   /* when jumped to, stop below the menu bar */
+}
+.m-section h2 { margin: 0 0 24px; max-width: 24ch; font-size: clamp(28px, 3vw, 42px); font-weight: 300; line-height: 1.15; text-wrap: balance; }
+.m-section h3 { margin: 40px 0 12px; font-size: 21px; font-weight: 400; }
+.m-section p, .m-section li { font-size: 17px; font-weight: 300; line-height: 1.65; }
+.m-section p { margin: 0 0 18px; max-width: 70ch; }
+.manifesto-page .m-label { margin: 0 0 12px; font-size: 13px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--indigo); }
+.m-section .m-small { font-size: 14px; color: rgba(10, 0, 51, 0.6); }
+
+/* The main Manifesto page has no Contents guide, so its parts have two columns: the title left, the text right */
+.m-section.split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: 48px; }
+
+/* ----- A numbered list (01, 02 ...) with thin lines between the points ----- */
+.m-points { margin: 24px 0 28px; padding: 0; list-style: none; counter-reset: point; max-width: 70ch; }
+.m-points li {
+  display: grid; grid-template-columns: 44px 1fr; gap: 12px;
+  padding: 14px 0;
+  border-top: 1px solid rgba(10, 0, 51, 0.12);
+  counter-increment: point;
+}
+.m-points li::before {                                   /* the number, made by CSS: 01, 02, 03 ... */
+  content: counter(point, decimal-leading-zero);
+  padding-top: 4px;
+  font-size: 13px; font-weight: 500; color: var(--indigo); font-variant-numeric: tabular-nums;
+}
+.m-points li:first-child { border-top: none; }
+.m-points strong { font-weight: 500; }
+
+/* ----- A picture (diagram) on a white card, with a short caption under it ----- */
+.m-figure { margin: 40px 0; }
+.m-figure img { display: block; width: 100%; height: auto; padding: 16px; background: var(--white); border: 1px solid rgba(10, 0, 51, 0.1); }
+.m-figure figcaption { margin-top: 12px; font-size: 14px; font-weight: 300; color: rgba(10, 0, 51, 0.65); }
+
+/* ----- A highlighted box (e.g. "The central risk"): an indigo line on the left ----- */
+.m-callout {
+  margin: 32px 0;
+  padding: 24px 28px;
+  border-left: 3px solid var(--indigo);
+  background: rgba(255, 255, 255, 0.6);
+}
+.m-callout p:last-child { margin-bottom: 0; }
+.manifesto-page .m-callout .m-label { margin-bottom: 8px; }
+
+/* A big sentence on its own (a quote, or the main question).
+   ".manifesto-page" in front makes these rules stronger than ".m-section p", so they win */
+.manifesto-page .m-quote { margin: 8px 0 28px; max-width: 30ch; font-size: clamp(24px, 2.4vw, 32px); font-weight: 300; line-height: 1.3; color: var(--indigo); }
+
+/* ----- Cards side by side (e.g. Prediction points / Judgment points) ----- */
+.m-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin: 32px 0; }
+.m-card { padding: 24px; background: var(--white); border: 1px solid rgba(10, 0, 51, 0.1); }
+.m-card h3 { margin: 0 0 10px; font-size: 19px; font-weight: 400; }
+.m-section .m-card p { margin: 0; font-size: 15px; line-height: 1.55; color: rgba(10, 0, 51, 0.75); }
+
+/* ----- Tables (Education page) ----- */
+.m-table-wrap { margin: 32px 0 12px; overflow-x: auto; }       /* on phones the table can be scrolled sideways */
+.m-table { width: 100%; min-width: 620px; border-collapse: collapse; background: var(--white); font-size: 14px; line-height: 1.5; }
+.m-table th, .m-table td { padding: 14px 16px; border: 1px solid rgba(10, 0, 51, 0.1); text-align: left; vertical-align: top; font-weight: 300; }
+.m-table th { font-size: 12px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--indigo); background: var(--grey-bg); }
+.m-table td:first-child { font-weight: 500; }
+
+/* ----- The maturity levels (Education page): a ladder from level 4 at the top to level 0 ----- */
+.m-levels { margin: 32px 0; padding: 0; list-style: none; }
+.m-levels li {
+  display: grid; grid-template-columns: 72px 1fr; gap: 20px;
+  padding: 24px 0;
+  border-top: 1px solid rgba(10, 0, 51, 0.12);
+}
+.m-level-number { font-size: 48px; font-weight: 300; line-height: 1; color: var(--indigo); }
+.m-levels h3 { margin: 0 0 4px; font-size: 20px; }
+.manifesto-page .m-levels .m-label { margin: 0 0 10px; font-size: 12px; }
+.m-section .m-levels p { margin: 0 0 8px; font-size: 15px; }
+.m-says { font-style: italic; color: rgba(10, 0, 51, 0.7); }
+
+/* ----- The paper box: the paper's front page on the left, its title, buttons and citation on the right.
+   Page 1's soft blue gradient, with the blueprint squares on the corners (like the share box) ----- */
+.paper-box {
+  position: relative;
+  display: grid;
+  grid-template-columns: 200px minmax(0, 1fr);
+  gap: 48px;
+  align-items: center;
+  margin: 0 0 88px;
+  padding: 48px;
+  border: 1px solid rgba(10, 0, 51, 0.12);
+  background: linear-gradient(135deg, #f8f9fd 0%, #eef1fa 60%, #e6ebf8 100%);
+}
+.paper-box .share-node { position: absolute; }
+.paper-cover { display: block; width: 100%; height: auto; box-shadow: 0 12px 30px rgba(10, 0, 51, 0.15); }
+.paper-box h2 { margin: 0 0 16px; font-size: clamp(24px, 2.4vw, 32px); font-weight: 300; line-height: 1.2; text-wrap: balance; }
+.paper-box > div > p { margin: 0 0 24px; font-size: 16px; font-weight: 300; line-height: 1.6; }
+.paper-buttons { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+/* The citation: folded away, click "Suggested citation" to see it */
+.paper-citation { margin-top: 24px; font-size: 13px; line-height: 1.6; color: rgba(10, 0, 51, 0.7); }
+.paper-citation summary { cursor: pointer; font-weight: 500; color: var(--navy); }
+.paper-citation summary:hover { text-decoration: underline; }
+.paper-citation p { margin: 10px 0 0; }
+
+/* ----- "The Manifesto series": the three pages as cards with a picture (at the end of each page) ----- */
+.series { margin-bottom: 96px; }
+.series h2 { margin: 0 0 32px; font-size: clamp(28px, 3vw, 40px); font-weight: 300; }
+.series-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
+.series-picture { position: relative; overflow: hidden; background: var(--lavender); }
+.series-picture img { display: block; width: 100%; aspect-ratio: 16 / 10; object-fit: cover; }
+.series-here {                       /* "You are here" on the card of the page you are on */
+  position: absolute; left: 16px; bottom: 16px;
+  padding: 6px 12px; background: var(--navy); color: var(--white); font-size: 13px;
+}
+.series-name { margin: 18px 0 6px; font-size: 13px; color: rgba(10, 0, 51, 0.7); }
+.series-list h3 { margin: 0; font-size: clamp(19px, 1.6vw, 23px); font-weight: 300; line-height: 1.3; }
+.series-list a:hover h3 { text-decoration: underline; }        /* instant, no fade */
+
+/* The Educational use cases (Education page): the cards from the Use Cases page, four in a row */
+.m-section .case-list { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; margin: 32px 0 0; }
+.m-section .case-card h3 { font-size: 18px; }
+.manifesto-page .case-organisation { margin: 14px 0 6px; font-size: 13px; line-height: 1.4; color: rgba(10, 0, 51, 0.7); }
+
+/* ----- Smaller screens ----- */
+@media (max-width: 1100px) {
+  .m-section .case-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 900px) {
+  .manifesto-layout { grid-template-columns: minmax(0, 1fr); gap: 40px; }   /* minmax(0, ...) = never wider than the screen, even with the wide tables inside */
+  .page-contents { position: static; }                      /* on small screens: a normal list above the text */
+  .m-section.split { grid-template-columns: 1fr; gap: 8px; }
+  .paper-box { grid-template-columns: 1fr; gap: 28px; padding: 32px 24px; }
+  .paper-cover { max-width: 180px; }
+  .series-list { grid-template-columns: 1fr; }
+}
+@media (max-width: 640px) {
+  .manifesto-content { padding-top: 48px; }
+  .m-section { margin-bottom: 64px; }
+  .m-section p, .m-section li { font-size: 16px; }
+  .m-section .case-list { grid-template-columns: 1fr; }
+  .m-levels li { grid-template-columns: 48px 1fr; gap: 12px; }
+  .m-level-number { font-size: 36px; }
+}
+
+/* A plain text link inside the text (e.g. "See them on the Use Cases page →") */
+.m-link { font-weight: 500; color: var(--indigo); text-decoration: underline; }
+.m-callout h3 { margin-top: 0; }

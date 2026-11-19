@@ -76,12 +76,18 @@
     </div>
 
     <!-- Frosted card in the corner (placeholder for the use case carousel) -->
-    <a href="#" class="animation-card">
-      <span class="card-label">Featured use case</span>
-      <span class="card-title">Stitch Fix</span>
-      <span class="card-text">The art and science of styling: a real test of Hybrid Intelligence.</span>
-      <span class="card-arrow">→</span>
-    </a>
+    <!-- The featured use case: it changes to the next Iconic use case each time the dot cloud changes shape
+         (featured_case.js). Clicking it opens the Use Cases page, filtered to the Iconic ones. -->
+    {% if first_case %}
+      <a href="{% url 'use_cases' %}?type=iconic#use-case-list" class="animation-card">
+        <span class="card-label">Featured use case</span>
+        <span class="card-title">{{ first_case.organisation }}</span>
+        <span class="card-text">{{ first_case.title }}</span>
+        <span class="card-arrow">→</span>
+      </a>
+      <!-- json_script puts the list of use cases in the page as data (not shown), so featured_case.js can read it -->
+      {{ featured_cases|json_script:"featured-cases" }}
+    {% endif %}
   </section>
 
     <!-- PAGE 2: the four levels, shown as a staircase. Pointing at a step shows its details in the panel underneath. -->
@@ -251,6 +257,7 @@
   <script src="{% static 'Page 1 (main)/JS - Animations/changing_word.js' %}"></script>
   <script src="{% static 'Page 1 (main)/JS - Animations/labels.js' %}"></script>
   <script src="{% static 'Page 1 (main)/JS - Animations/background_lines.js' %}"></script>
+  <script src="{% static 'Page 1 (main)/JS - Animations/featured_case.js' %}"></script>
   <script src="{% static 'Page 1 (main)/JS - Animations/animation.js' %}"></script>
 
   <!-- Page 2: the four levels -->

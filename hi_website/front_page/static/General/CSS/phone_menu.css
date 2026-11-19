@@ -99,3 +99,20 @@
 
 /* While the menu is open, the page behind it can't scroll */
 html:has(.phone-menu[open]) { overflow: hidden; }
+
+/* "Manifesto" in the phone menu: tap it and the three pages fold out under it (a <details>) */
+.phone-sub summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 0;
+  font-size: 22px;
+  font-weight: 400;
+  border-bottom: 1px solid var(--lavender);
+  cursor: pointer;
+  list-style: none;                                        /* hides the browser's own little triangle */
+}
+.phone-sub summary::-webkit-details-marker { display: none; }
+.phone-sub[open] summary .chevron { transform: rotate(180deg); }
+.phone-sub .chevron { display: inline-block; }
+.phone-menu-links .phone-sub a { padding: 12px 0 12px 20px; font-size: 17px; font-weight: 300; }   /* smaller, moved in a little */

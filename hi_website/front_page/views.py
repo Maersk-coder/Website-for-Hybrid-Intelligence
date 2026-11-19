@@ -2,15 +2,19 @@ from django.conf import settings
 from django.core import signing
 from django.db.models import Max, Min
 from django.shortcuts import render, redirect
-from .forms import ResearchSubmissionForm, SignatureForm, SubscriberForm
-from .models import FaqCategory, FaqQuestion, PressArticle, Publication, Subscriber
-from .emails import send_signed_email, send_newsletter_welcome_email, send_latest_issue, send_research_submission_email
+from .forms import ResearchSubmissionForm, SignatureForm, SubscriberForm, UseCaseSubmissionForm
+from .models import FaqCategory, FaqQuestion, PressArticle, Publication, Signature, Subscriber, UseCase
+from .emails import (send_latest_issue, send_newsletter_welcome_email, send_research_submission_email, send_signed_email,
+                     send_use_case_submission_email)
 
 
 
 def home(request):
-    """ The front page of the website """
-    return render(request, 'Front_Page.html')
+    """ The front page of the website. The card on Page 1 ("Featured use case") shows the Iconic use cases,
+        one after the other, in step with the animation (Page 1 (main)/JS - Animations/featured_case.js). """
+    featured = list(UseCase.objects.filter(kind='iconic').values('organisation', 'title'))   # a list of {organisation, title}
+    context = {'featured_cases': featured, 'first_case': featured[0] if featured else None}
+    return render(request, 'Front_Page.html', context)
 
 
 def sign(request):
@@ -54,6 +58,24 @@ def newsletter(request):
 
     context = {'form': form}
     return render(request, 'Newsletter.html', context)
+
+
+def manifesto(request):
+    """ The Manifesto page (the first page in the Manifesto menu). Shows how many people have signed. """
+    context = {'signature_count': Signature.objects.count()}
+    return render(request, 'buttons/manifesto/Manifesto_bt.html', context)
+
+
+def econ_manifesto(request):
+    """ The ECON Manifesto page: The Economics of Hybrid Intelligence. All its text is in the template. """
+    return render(request, 'buttons/manifesto/ECON_Manifesto_bt.html')
+
+
+def education_manifesto(request):
+    """ The Education Manifesto page. Its "Use cases" part shows the Educational use cases from the database. """
+    cases = UseCase.objects.filter(kind='educational')
+    context = {'cases': cases, 'case_count': cases.count()}
+    return render(request, 'buttons/manifesto/Education_Manifesto_bt.html', context)
 
 
 def faq(request):
@@ -104,6 +126,43 @@ def share_research(request):
 
     context = {'form': form, 'contact_email': settings.CONTACT_EMAIL}
     return render(request, 'Share_Research.html', context)
+
+
+def use_cases(request):
+    """ The Use Cases page. The filter buttons add ?type=... to the address (a GET request with a
+        "query string"); request.GET.get('type') reads it, and only that type is shown. """
+    chosen = request.GET.get('type', '')                 # e.g. "iconic", or "" for all
+    all_cases = UseCase.objects.all()
+    cases = all_cases.filter(kind=chosen) if chosen else all_cases
+
+    # The filter buttons: one per type, with how many use cases it has
+    filters = [{'kind': kind, 'label': label.replace(' Use Case', ''), 'count': all_cases.filter(kind=kind).count()}
+               for kind, label in UseCase.KINDS]
+
+    context = {
+        'cases': cases,
+        'chosen': chosen,
+        'filters': filters,
+        'case_count': all_cases.count(),
+        'organisation_count': all_cases.values('organisation').distinct().count(),   # each organisation once
+        'contact_email': settings.CONTACT_EMAIL,
+    }
+    return render(request, 'buttons/Use_Cases_bt.html', context)
+
+
+def share_use_case(request):
+    """ The "Share your use case" page: GET shows an empty form, POST saves it and emails the site's inbox. """
+    if request.method == 'POST':
+        form = UseCaseSubmissionForm(data=request.POST)
+        if form.is_valid():
+            submission = form.save()
+            send_use_case_submission_email(submission)
+            return redirect('thanks')
+    else:
+        form = UseCaseSubmissionForm()
+
+    context = {'form': form, 'contact_email': settings.CONTACT_EMAIL}
+    return render(request, 'Share_Use_Case.html', context)
 
 
 def press(request):

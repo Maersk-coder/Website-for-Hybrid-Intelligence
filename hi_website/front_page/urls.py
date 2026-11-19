@@ -10,8 +10,14 @@ urlpatterns = [
     path('', views.home, name='home'),
     path('sign/', views.sign, name='sign'),        # the "Sign the Manifesto" page
     path('newsletter/', views.newsletter, name='newsletter'),  # the "Sign up for newsletter" page
+    # The three pages in the Manifesto menu (the dropdown in header.html)
+    path('manifesto/', views.manifesto, name='manifesto'),
+    path('manifesto/economics/', views.econ_manifesto, name='econ_manifesto'),
+    path('manifesto/education/', views.education_manifesto, name='education_manifesto'),
     path('research/', views.research, name='research'),                    # the Research page (publications)
     path('research/share/', views.share_research, name='share_research'),  # the "Share your research" form
+    path('use-cases/', views.use_cases, name='use_cases'),                  # the Use Cases page
+    path('use-cases/share/', views.share_use_case, name='share_use_case'),  # the "Share your use case" form
     path('press/', views.press, name='press'),      # the Press page (stories from the database)
     path('faq/', views.faq, name='faq'),            # the FAQ page (questions and answers from the database)
     path('thanks/', views.thanks, name='thanks'),  # the "Thank you" page

@@ -1,0 +1,139 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Use Cases · Hybrid Intelligence</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'General/CSS/base.css' %}">
+  <link rel="stylesheet" href="{% static 'General/CSS/buttons.css' %}">
+  <link rel="stylesheet" href="{% static 'General/CSS/header.css' %}">
+  <link rel="stylesheet" href="{% static 'General/CSS/phone_menu.css' %}">
+  <link rel="stylesheet" href="{% static 'General/CSS/section_lines.css' %}">
+  <link rel="stylesheet" href="{% static 'General/CSS/button_page.css' %}">
+  <link rel="stylesheet" href="{% static 'Page 4/CSS/final_section.css' %}">
+  <link rel="stylesheet" href="{% static 'Page 4/CSS/coauthors_popup.css' %}">
+  <link rel="stylesheet" href="{% static 'Buttons/CSS/use_cases.css' %}">
+</head>
+<body class="use-cases-page button-page">
+
+  <!-- Background (decoration only): Page 1's faint rippling lines, the same as on the other button pages -->
+  <section class="page-background" aria-hidden="true">
+    <canvas class="section-lines" data-around=".page-lines-center" data-ring-size="0.9"></canvas>
+    <div class="page-lines-center"></div>
+  </section>
+
+  {% include 'header.html' %}
+
+  <main>
+    <!-- The heading (shared look for button pages). The numbers come from use_cases() in views.py. -->
+    <header class="page-intro">
+      <div class="intro-frame" aria-hidden="true">
+        <span class="intro-line across top"></span><span class="intro-line across bottom"></span>
+        <span class="intro-line down left"></span><span class="intro-line down right"></span>
+        <span class="intro-node tl"></span><span class="intro-node tr"></span>
+        <span class="intro-node bl"></span><span class="intro-node br"></span>
+      </div>
+      <div class="container intro-inner">
+        <p class="intro-eyebrow">Use Cases · Hybrid Intelligence in practice</p>
+        <h1>Hybrid Intelligence <span class="intro-highlight">at work</span></h1>
+        <p class="intro-lead">Discover how Hybrid Intelligence principles translate into practice across industries and
+          domains, from schools and public authorities to global companies.</p>
+        <dl class="intro-facts">
+          <div><dt>Use cases</dt><dd data-count="{{ case_count }}">{{ case_count }}</dd></div>
+          <div><dt>Organisations</dt><dd data-count="{{ organisation_count }}">{{ organisation_count }}</dd></div>
+        </dl>
+      </div>
+    </header>
+
+    <div class="container use-cases-content">
+
+      <!-- How the use cases are chosen: the three types and the five dimensions -->
+      <section class="selection" aria-labelledby="selection-title">
+        <div class="selection-left">
+          <p class="intro-eyebrow">How we select use cases</p>
+          <h2 id="selection-title">Where people stay in the loop where it matters most</h2>
+          <p>We look for use cases where Hybrid Intelligence creates real impact. Each case is evaluated across five
+            core dimensions, and grouped by the type of case it represents.</p>
+          <h3>Types of use cases</h3>
+          <dl class="case-types">
+            <div><dt>Iconic</dt><dd>Large, full-scale examples from practice.</dd></div>
+            <div><dt>Contributed</dt><dd>Cases identified through research, interviews or field mapping.</dd></div>
+            <div><dt>Partner</dt><dd>Direct collaborations, workshops and implementations.</dd></div>
+            <div><dt>Educational</dt><dd>Schools and universities teaching with and about AI.</dd></div>
+          </dl>
+        </div>
+        <ol class="dimensions">
+          <li><span class="dimension-number">01</span><div><strong>Interface</strong><p>How the AI system and interface keep human judgment in the workflow.</p></div></li>
+          <li><span class="dimension-number">02</span><div><strong>Co-design</strong><p>How end-users help shape the system and its workflow.</p></div></li>
+          <li><span class="dimension-number">03</span><div><strong>Mindset</strong><p>How users apply AI deliberately and not just reactively.</p></div></li>
+          <li><span class="dimension-number">04</span><div><strong>Organization</strong><p>How the organization builds Hybrid Intelligence capability.</p></div></li>
+          <li><span class="dimension-number">05</span><div><strong>Market integration</strong><p>How human judgment is communicated and rewarded in the market.</p></div></li>
+        </ol>
+      </section>
+
+      <!-- The filter buttons. Each adds ?type=... to the address, and use_cases() in views.py shows only that type.
+           #use-case-list makes the page open at the cards. -->
+      <div class="case-filters" id="use-case-list">
+        <a href="{% url 'use_cases' %}#use-case-list" class="intro-tag {% if not chosen %}is-active{% endif %}">All <span>{{ case_count }}</span></a>
+        {% for f in filters %}
+          <a href="?type={{ f.kind }}#use-case-list" class="intro-tag {% if chosen == f.kind %}is-active{% endif %}">{{ f.label }} <span>{{ f.count }}</span></a>
+        {% endfor %}
+      </div>
+
+      <!-- The use cases: three per row. Clicking one opens the full story. -->
+      <ul class="case-list">
+        {% for case in cases %}
+          <li class="case-card">
+            <a href="{{ case.url }}" target="_blank" rel="noopener">
+              <div class="case-picture">
+                {% if case.image %}<img src="{{ case.image.url }}" alt="" loading="lazy">{% endif %}
+                <!-- get_kind_display = the label for its type, e.g. "Iconic Use Case" (from KINDS in models.py) -->
+                <span class="case-kind">{{ case.get_kind_display }}</span>
+              </div>
+              <p class="case-organisation">{{ case.organisation }}</p>
+              <h3>{{ case.title }}</h3>
+            </a>
+          </li>
+        {% empty %}
+          <li>No use cases yet. Load them with:  python manage.py import_use_cases</li>
+        {% endfor %}
+      </ul>
+
+      <!-- Share your use case: the same box as on the Research page (General/CSS/button_page.css) -->
+      <aside class="share-box">
+        <span class="share-node tl" aria-hidden="true"></span><span class="share-node tr" aria-hidden="true"></span>
+        <span class="share-node bl" aria-hidden="true"></span><span class="share-node br" aria-hidden="true"></span>
+        <div class="share-left">
+          <p class="intro-eyebrow">Share your use case</p>
+          <h2>Share your own <span class="share-highlight">Hybrid Intelligence</span> use case</h2>
+          <div class="share-buttons">
+            <a href="{% url 'share_use_case' %}" class="btn btn-dark">Share your use case</a>
+            <a href="{% url 'share_use_case' %}" class="btn-arrow" aria-label="Share your use case">&rarr;</a>
+          </div>
+        </div>
+        <div class="share-right">
+          <p>We collect examples of human expertise, AI and organizational practice coming together to solve real-world
+            challenges. It doesn't need to be perfect: projects, prototypes, workshops and services are all welcome.</p>
+          <p class="share-contact">Questions? <a href="mailto:{{ contact_email }}">{{ contact_email }}</a></p>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  {% include 'footer.html' %}
+
+  <script src="{% static 'General/JS/header_transparent.js' %}"></script>
+  <script src="{% static 'General/JS/header_hide.js' %}"></script>
+  <script src="{% static 'General/JS/phone_menu.js' %}"></script>
+  <script src="{% static 'Page 4/JS/coauthors_list.js' %}"></script>
+  <script src="{% static 'Page 4/JS/coauthors_popup.js' %}"></script>
+  <script src="{% static 'Page 1 (main)/JS - Animations/settings.js' %}"></script>
+  <script src="{% static 'Page 1 (main)/JS - Animations/background_lines.js' %}"></script>
+  <script src="{% static 'General/JS/section_lines.js' %}"></script>
+  <script src="{% static 'General/JS/count_up.js' %}"></script>
+</body>
+</html>
